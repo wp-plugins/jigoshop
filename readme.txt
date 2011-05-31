@@ -106,7 +106,7 @@ Jigoshop has a flexible tax rule system which allows you to define tax rates per
 
 = I need hosting! = 
 
-We offer optimised hosting packages starting from £10 per month at http://jigowatt.co.uk
+We offer optimised hosting packages starting from 10 GBP per month at http://jigowatt.co.uk
 
 = I need support! = 
 

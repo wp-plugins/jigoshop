@@ -59,6 +59,7 @@ An advanced version of Jigoshop offering additional features and access to dedic
 Our flagship premium theme complete with mobile optimisation. <a href="http://demo.jigoshop.com" title="Jigotheme demo">View demo</a>.
 
 =SagePay Form=
+
 SagePay form payment gateway
 
 == Installation ==
@@ -126,4 +127,5 @@ We have a community forum for getting help from other users, however, if you wan
 == Changelog ==
 
 = 0.9.6 =
+
 * Public Beta Release

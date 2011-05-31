@@ -59,6 +59,7 @@ An advanced version of Jigoshop offering additional features and access to dedic
 Our flagship premium theme complete with mobile optimisation. <a href="http://demo.jigoshop.com" title="Jigotheme demo">View demo</a>.
 
 =SagePay Form=
+
 SagePay form payment gateway
 
 == Installation ==
@@ -105,7 +106,7 @@ Jigoshop has a flexible tax rule system which allows you to define tax rates per
 
 = I need hosting! = 
 
-We offer optimised hosting packages starting from £10 per month at http://jigowatt.co.uk
+We offer optimised hosting packages starting from 10 GBP per month at http://jigowatt.co.uk
 
 = I need support! = 
 
@@ -126,4 +127,5 @@ We have a community forum for getting help from other users, however, if you wan
 == Changelog ==
 
 = 0.9.6 =
+
 * Public Beta Release

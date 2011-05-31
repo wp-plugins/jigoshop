@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Jigoshop - WordPress eCommerce
-Plugin URI: http://jigowatt.co.uk
+Plugin URI: http://jigoshop.com
 Description: An eCommerce plugin for wordpress.
 Version: 0.9.6
 Author: Jigowatt

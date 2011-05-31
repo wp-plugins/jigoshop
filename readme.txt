@@ -11,7 +11,7 @@ A feature packed eCommerce plugin built upon WordPress core functionality ensuri
 
 Set up shop in minutes with physical and downloadable products or even services. Jigoshop provides you with the features necessary to set up an eCommerce web site lickety-split.
 
-With the option to create a multitude of product types and apply detailed attributes customers can easily refine your catalog based, ensuring they find what they're looking for in just a couple of clicks.
+With the option to create a multitude of product types and apply detailed attributes customers can easily refine your catalog, ensuring they find what they're looking for in just a couple of clicks.
 
 There are integrated worldwide payment and shipping options to cater for a global audience.
 

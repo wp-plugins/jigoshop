@@ -1,13 +1,13 @@
 <?php
 /*
-	Plugin Name: Jigoshop - WordPress eCommerce
-	Plugin URI: http://jigowatt.co.uk
-	Description: An eCommerce plugin for wordpress.
-	Version: 0.9.6
-	Author: Jigowatt
-	Author URI: http://jigowatt.co.uk
-	Requires at least: 3.1
-	Tested up to: 3.1
+Plugin Name: Jigoshop - WordPress eCommerce
+Plugin URI: http://jigowatt.co.uk
+Description: An eCommerce plugin for wordpress.
+Version: 0.9.6
+Author: Jigowatt
+Author URI: http://jigowatt.co.uk
+Requires at least: 3.1
+Tested up to: 3.1
 */
 
 	@session_start();

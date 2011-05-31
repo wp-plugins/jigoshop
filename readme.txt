@@ -46,7 +46,7 @@ Styled to work with TwentyTen, setting up a clean stylish store is easy.
 * Moneybookers / Skrill
 * Cheque payments
 
-(&dagger;) Coming soon in Jigoshop premium
+(&dagger;) Coming soon in Jigoshop premium 
 
 = Coming Soon =
 

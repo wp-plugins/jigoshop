@@ -1,10 +1,7 @@
 <?php
 /*
-Plugin Name: Cheque Gateway For JigoShop
-Description: Provides a Cheque Payment Gateway for testing purposes.
-Version: 1.0
-Author: Andrew Benbow (andrew@chromeorange.co.uk)
-Author URI: http://www.chromeorange.co.uk
+Provides a Cheque Payment Gateway for testing purposes.
+Created by Andrew Benbow (andrew@chromeorange.co.uk)
 */
 class jigoshop_cheque extends jigoshop_payment_gateway {
 		

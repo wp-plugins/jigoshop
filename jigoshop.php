@@ -3,7 +3,7 @@
 Plugin Name: Jigoshop - WordPress eCommerce
 Plugin URI: http://jigoshop.com
 Description: An eCommerce plugin for wordpress.
-Version: 0.9.7.2
+Version: 0.9.7.3
 Author: Jigowatt
 Author URI: http://jigowatt.co.uk
 Requires at least: 3.1
@@ -39,18 +39,22 @@ Tested up to: 3.1.3
 	
 	function jigoshop_load_core() {
 		
+		$include_files = array();
+		
 		// Classes
-		foreach(glob( dirname(__FILE__)."/classes/*.php" ) as $filename) include_once($filename);
-
+		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/classes/*.php" ));
+		
 		// Shipping
-		foreach(glob( dirname(__FILE__)."/shipping/*.php" ) as $filename) include_once($filename);
-
+		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/shipping/*.php" ));
+		
 		// Payment Gateways
-		foreach(glob( dirname(__FILE__)."/gateways/*.php" ) as $filename) include_once($filename);
+		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/gateways/*.php" ));
 		
 		// Drop-ins (addons, premium features etc)
-		foreach(glob( dirname(__FILE__)."/drop-ins/*.php" ) as $filename) include_once($filename);
-		
+		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/drop-ins/*.php" ));
+
+		if ($include_files) foreach($include_files as $filename) include_once($filename);
+				
 		$jigoshop 					= jigoshop::get();
 		
 		jigoshop_post_type();

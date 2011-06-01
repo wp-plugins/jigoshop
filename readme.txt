@@ -3,7 +3,7 @@ Contributors: jigowatt
 Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, widgets, reports, shipping, tax, paypal
 Requires at least: 3.1
 Tested up to: 3.1.3
-Stable tag: 0.9.7.2
+Stable tag: 0.9.7.3
 
 A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability.
 
@@ -21,14 +21,14 @@ Manage your stock levels and customer orders easily. Jigoshop has been engineere
 
 Built upon the WordPress core you get all the benefits of this global leading platform: free, easy to use, secure, highly customisable and with a great support community to hold your hand.
 
-Styled to work with TwentyTen, setting up a clean stylish store is easy.
+Styled to work with Twenty Ten, setting up a clean stylish store is easy.
 
 [vimeo http://vimeo.com/21797311]
 
 = Jigoshop core features: =
 
 * Sell physical, digital and virtual products
-* Simple, grouped and configurable* products
+* Simple, grouped and configurable&dagger; products
 * Discount coupon management
 * Cross-sells, up-sells&dagger;
 * Automatic related products
@@ -41,24 +41,31 @@ Styled to work with TwentyTen, setting up a clean stylish store is easy.
 * Inventory tracking
 * Detailed order management
 * Product import / export
-* Custom widgets - Recent / Featured products, shopping cart, product search
+* Custom widgets - recent / featured products, shopping cart, product search
 * PayPal standard
 * Moneybookers / Skrill
 * Cheque payments
 
-(&dagger;) Coming soon in Jigoshop premium 
+(&dagger;) Coming soon in Jigoshop Premium 
 
-= Coming Soon =
+= Minimum Requirements =
 
-= Jigoshop Premium =
+* A WordPress install!
+* PHP version 5.2.4 or greater
+* MySQL version 5.0 or greater
+* The mod_rewrite Apache module (for permalinks)
+* fsockopen support (for payment gateway IPN access)
+* We recommend a Linux based server rather than a Windows server (Windows servers can have PHP configuration problems, especially with mail).
+
+= Coming soon: Jigoshop Premium =
 
 An advanced version of Jigoshop offering additional features and access to dedicated support
 
-=Jigotheme=
+= Coming soon: Jigotheme =
 
 Our flagship premium theme complete with mobile optimisation. <a href="http://demo.jigoshop.com" title="Jigotheme demo">View demo</a>.
 
-=SagePay Form=
+= Coming soon: SagePay Form =
 
 SagePay form payment gateway
 
@@ -69,8 +76,8 @@ SagePay form payment gateway
 1.  Download the Jigoshop plugin file
 2.  Unzip the file into a folder on your hard drive
 3.  Upload the `/jigoshop/` folder to the `/wp-content/plugins/` folder on your site
-4.  Visit the plugins page in admin and activate it.
-5.	Re-save your permalink settings to ensure custom post types are installed.
+4.  Visit the plugins page in admin and activate it
+5.	Re-save your permalink settings to ensure custom post types are installed
 
 = Upgrading Jigoshop =
 
@@ -84,7 +91,7 @@ You can find the Jigoshop usage guide <a href="http://jigoshop.com/user-guide/" 
 
 = Will Jigoshop work with X theme? =
 
-Jigoshop will in theory work with any theme, but of course, certain parts may need to be styled using CSS to make them match up. We've added default styling for Twentyten (the WordPress default theme) and we also provide a few bespoke themes optimised for Jigoshop.
+Jigoshop will in theory work with any theme, but of course, certain parts may need to be styled using CSS to make them match up. We've added default styling for Twenty Ten (the WordPress default theme) and we also provide a few bespoke themes optimised for Jigoshop.
 
 If you need a theme built, or have a theme that needs styling, give us a shout and we may be able to assist (see http://jigowatt.co.uk/contact/).
 
@@ -125,6 +132,11 @@ We have a community forum for getting help from other users, however, if you wan
 9. Checkout
 
 == Changelog ==
+
+= 0.9.7.3 =
+
+* Tweaked how files are included to prevent an error
+
 
 = 0.9.6 =
 

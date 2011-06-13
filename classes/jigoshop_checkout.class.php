@@ -57,6 +57,16 @@ class jigoshop_checkout {
 	/** Output the billing information form */
 	function checkout_form_billing() {
 		
+		if (jigoshop_cart::ship_to_billing_address_only()) :
+			
+			echo '<h3>'.__('Billing &amp Shipping', 'jigoshop').'</h3>';
+			
+		else : 
+		
+			echo '<h3>'.__('Billing Address', 'jigoshop').'</h3>';
+		
+		endif;
+		
 		// Billing Details
 		foreach ($this->billing_fields as $field) :
 			$this->checkout_form_field( $field );
@@ -89,7 +99,7 @@ class jigoshop_checkout {
 	function checkout_form_shipping() {
 		
 		// Shipping Details
-		if (jigoshop_cart::needs_shipping()) :
+		if (jigoshop_cart::needs_shipping() && !jigoshop_cart::ship_to_billing_address_only()) :
 			
 			echo '<p class="form-row" id="shiptobilling"><input class="input-checkbox" ';
 			if ($this->get_value('shiptobilling') || !$_POST) echo 'checked="checked" '; 
@@ -104,6 +114,11 @@ class jigoshop_checkout {
 				endforeach;
 								
 			echo'</div>';
+		
+		elseif (jigoshop_cart::ship_to_billing_address_only()) :
+		
+			echo '<h3>'.__('Notes/Comments', 'jigoshop').'</h3>';
+		
 		endif;
 		
 		$this->checkout_form_field( array( 'type' => 'textarea', 'class' => array('notes'),  'name' => 'order_comments', 'label' => __('Order Notes', 'jigoshop'), 'placeholder' => __('Notes about your order, e.g. special notes for delivery.', 'jigoshop') ) );
@@ -145,7 +160,7 @@ class jigoshop_checkout {
 					<select name="'.$args['name'].'" id="'.$args['name'].'" class="country_to_state" rel="'.$args['rel'].'">
 						<option value="">'.__('Select a country&hellip;', 'jigoshop').'</option>';
 				
-				foreach(jigoshop_countries::$countries as $key=>$value) :
+				foreach(jigoshop_countries::get_allowed_countries() as $key=>$value) :
 					$field .= '<option value="'.$key.'"';
 					if ($this->get_value($args['name'])==$key) $field .= 'selected="selected"';
 					elseif (!$this->get_value($args['name']) && jigoshop_customer::get_country()==$key) $field .= 'selected="selected"';
@@ -231,7 +246,8 @@ class jigoshop_checkout {
 			$this->posted['account-username'] = isset($_POST['account-username']) ? jigowatt_clean($_POST['account-username']) : '';
 			$this->posted['account-password'] = isset($_POST['account-password']) ? jigowatt_clean($_POST['account-password']) : '';
 			$this->posted['account-password-2'] = isset($_POST['account-password-2']) ? jigowatt_clean($_POST['account-password-2']) : '';
-		
+			
+			if (jigoshop_cart::ship_to_billing_address_only()) $this->posted['shiptobilling'] = 'true';
 			
 			// Billing Information
 			foreach ($this->billing_fields as $field) :
@@ -265,7 +281,7 @@ class jigoshop_checkout {
 			endforeach;
 			
 			// Shipping Information
-			if (jigoshop_cart::needs_shipping() && empty($this->posted['shiptobilling'])) :
+			if (jigoshop_cart::needs_shipping() && !jigoshop_cart::ship_to_billing_address_only() && empty($this->posted['shiptobilling'])) :
 				
 				foreach ($this->shipping_fields as $field) :
 					if (isset( $_POST[$field['name']] )) $this->posted[$field['name']] = jigowatt_clean($_POST[$field['name']]); else $this->posted[$field['name']] = '';

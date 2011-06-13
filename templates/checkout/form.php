@@ -4,7 +4,6 @@
 	
 	<div class="col2-set" id="customer_details">
 		<div class="col-1">
-			<h3><?php _e('Billing Address', 'jigoshop'); ?></h3>
 
 			<?php do_action('jigoshop_checkout_billing'); ?>
 						

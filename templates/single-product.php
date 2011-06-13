@@ -19,7 +19,7 @@
 
 		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 			
-			<?php if ($_product->is_on_sale()) echo '<span class="onsale">Sale!</span>'; ?>
+			<?php if ($_product->is_on_sale()) echo '<span class="onsale">'.__('Sale!', 'jigoshop').'</span>'; ?>
 			
 			<?php jigoshop_get_template( 'product/images.php' ); ?>
 			

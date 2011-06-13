@@ -3,7 +3,7 @@ Contributors: jigowatt
 Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, widgets, reports, shipping, tax, paypal
 Requires at least: 3.1
 Tested up to: 3.1.3
-Stable tag: 0.9.7.3
+Stable tag: 0.9.7.4
  
 A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability. 
 
@@ -22,6 +22,8 @@ Manage your stock levels and customer orders easily. Jigoshop has been engineere
 Built upon the WordPress core you get all the benefits of this global leading platform: free, easy to use, secure, highly customisable and with a great support community to hold your hand.
 
 Styled to work with Twenty Ten, setting up a clean stylish store is easy.
+
+Find out more on the official <a href="http://jigoshop.com" title="WordPress eCommerce">Jigoshop web site</a>.
 
 [vimeo http://vimeo.com/21797311]
 
@@ -46,7 +48,11 @@ Styled to work with Twenty Ten, setting up a clean stylish store is easy.
 * Moneybookers / Skrill
 * Cheque payments
 
-(&dagger;) Coming soon in Jigoshop Premium 
+(&dagger;) Coming soon in Jigoshop Premium
+
+= Official Jigoshop themes =
+
+* <a href="http://jigoshop.com/themes/jigotheme/">Jigotheme</a> - Our flagship premium theme complete with mobile optimisation
 
 = Minimum Requirements =
 
@@ -60,10 +66,6 @@ Styled to work with Twenty Ten, setting up a clean stylish store is easy.
 = Coming soon: Jigoshop Premium =
 
 An advanced version of Jigoshop offering additional features and access to dedicated support
-
-= Coming soon: Jigotheme =
-
-Our flagship premium theme complete with mobile optimisation. <a href="http://demo.jigoshop.com" title="Jigotheme demo">View demo</a>.
 
 = Coming soon: SagePay Form =
 
@@ -117,7 +119,7 @@ We offer optimised hosting packages starting from 10 GBP per month at http://jig
 
 = I need support! = 
 
-We have a community forum for getting help from other users, however, if you want priority, dedicated support from us we offer support packages - see our website for details. 
+We have a <a href="http://jigoshop.com/forum" title="Jigoshop support forum">community forum</a> for getting help from other users, however, if you want priority, dedicated support from us we offer support packages - see our website for details. 
 
 == Screenshots ==
 
@@ -133,10 +135,18 @@ We have a community forum for getting help from other users, however, if you wan
 
 == Changelog ==
 
+= 0.9.8 =
+
+* Default SSL option changed
+* Empty drop-ins folder fix
+* Fixed localisation issues
+* Option to disallow having a different shipping address to the billing address
+* Fixed category dropdown widget
+* Fallback for HTML5 placeholders
+
 = 0.9.7.3 =
 
 * Tweaked how files are included to prevent an error
-
 
 = 0.9.6 =
 

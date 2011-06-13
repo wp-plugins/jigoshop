@@ -6,8 +6,8 @@
 		<p class="form-row">
 			<select name="calc_shipping_country" id="calc_shipping_country" class="country_to_state" rel="calc_shipping_state">
 				<option value=""><?php _e('Select a country&hellip;', 'jigoshop'); ?></option>
-				<?php						
-					foreach(jigoshop_countries::$countries as $key=>$value) :
+				<?php				
+					foreach(jigoshop_countries::get_allowed_countries() as $key=>$value) :
 						echo '<option value="'.$key.'"';
 						if (jigoshop_customer::get_country()==$key) echo 'selected="selected"';
 						echo '>'.$value.'</option>';

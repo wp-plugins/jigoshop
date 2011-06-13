@@ -3,7 +3,7 @@
 Plugin Name: Jigoshop - WordPress eCommerce
 Plugin URI: http://jigoshop.com
 Description: An eCommerce plugin for wordpress.
-Version: 0.9.7.3
+Version: 0.9.7.4
 Author: Jigowatt
 Author URI: http://jigowatt.co.uk
 Requires at least: 3.1
@@ -53,8 +53,14 @@ Tested up to: 3.1.3
 		// Drop-ins (addons, premium features etc)
 		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/drop-ins/*.php" ));
 
-		if ($include_files) foreach($include_files as $filename) include_once($filename);
-				
+		if ($include_files) :
+			foreach($include_files as $filename) :
+				if (!empty($filename) && strstr($filename, 'php')) :
+					include_once($filename);
+				endif;
+			endforeach;
+		endif;
+			
 		$jigoshop 					= jigoshop::get();
 		
 		jigoshop_post_type();
@@ -212,6 +218,7 @@ function jigoshop_init() {
     wp_register_script( 'scrollto', jigoshop::plugin_url() . '/assets/js/scrollto.js', 'jquery', 'jquery', '1.0' );
     wp_register_script( 'jigoshop_script', jigoshop::plugin_url() . '/assets/js/script.js.php', 'jquery', '1.0' );
     wp_register_script( 'jqueryui', 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js', 'jquery', '1.0' );
+    wp_register_script( 'jquery.placeholder', jigoshop::plugin_url() . '/assets/js/jquery.placeholder.js', 'jquery', '1.0' );
     
     if (is_admin()) :
     
@@ -237,6 +244,7 @@ function jigoshop_init() {
     	wp_enqueue_script('cookie');
     	wp_enqueue_script('scrollto');
     	wp_enqueue_script('jigoshop_script');
+    	wp_enqueue_script('jquery.placeholder');
     	
     endif;
 }

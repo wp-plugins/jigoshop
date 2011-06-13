@@ -75,7 +75,7 @@ function jigoshop_cart( $atts ) {
 	jigoshop::show_messages();
 	
 	if (sizeof(jigoshop_cart::$cart_contents)==0) :
-		echo '<p>Your cart is empty.</p>';
+		echo '<p>'.__('Your cart is empty.', 'jigoshop').'</p>';
 		return;
 	endif;
 	

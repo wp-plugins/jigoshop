@@ -470,9 +470,7 @@ function jigoshop_dashboard() {
 					    			
 					    			include_once(ABSPATH.WPINC.'/class-simplepie.php');
 					    			
-									//$rss = fetch_feed('http://jigoshop.com/feed');
-									
-									$rss = fetch_feed('http://jigowatt.co.uk/feed?tag=jigoshop');
+									$rss = fetch_feed('http://jigoshop.com/feed');
 									
 									if (!is_wp_error( $rss ) ) :
 									
@@ -521,13 +519,10 @@ function jigoshop_dashboard() {
 						<div class="inside jigoshop-links-widget">
 				     		<ul class="links">
 				     			<li><a href="http://jigoshop.com/"><?php _e('Jigoshop', 'jigoshop'); ?></a> &ndash; <?php _e('Learn more about the Jigoshop plugin'); ?></li>
-				     			<?php /*
 				     			<li><a href="http://jigoshop.com/tour/"><?php _e('Tour', 'jigoshop'); ?></a> &ndash; <?php _e('Take a tour of the plugin'); ?></li>
 				     			<li><a href="http://jigoshop.com/user-guide/"><?php _e('Documentation', 'jigoshop'); ?></a> &ndash; <?php _e('Stuck? Read the plugin\'s documentation.'); ?></li>
 				     			<li><a href="http://jigoshop.com/forums/"><?php _e('Forums', 'jigoshop'); ?></a> &ndash; <?php _e('Help from the community or our dedicated support team.'); ?></li>
-				     			<li><a href="http://jigoshop.com/extend/"><?php _e('Themes &amp; Extensions', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with plugins and themes.'); ?></li>
-				     			<li><a href="http://jigoshop.com/pricing/"><?php _e('Upgrade', 'jigoshop'); ?></a> &ndash; <?php _e('Purchase support and plugin upgrades or join our club.'); ?></li>*/ 
-				     			?>
+				     			<li><a href="http://jigoshop.com/extend/themes/"><?php _e('Jigoshop Themes', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with themes.'); ?></li>
 				     			<li><a href="http://twitter.com/#!/jigoshop"><?php _e('@Jigoshop', 'jigoshop'); ?></a> &ndash; <?php _e('Follow us on Twitter.'); ?></li>
 				     		</ul>
 				     		<div class="social">

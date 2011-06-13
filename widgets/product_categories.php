@@ -33,23 +33,35 @@ class Jigoshop_Widget_Product_Categories extends WP_Widget {
 		$cat_args = array('orderby' => 'name', 'show_count' => $c, 'hierarchical' => $h, 'taxonomy' => 'product_cat');
 
 		if ( $d ) {
-			$cat_args['show_option_none'] = __('Select Category', 'jigoshop');
-			wp_dropdown_categories(apply_filters('widget_product_categories_dropdown_args', $cat_args));
-?>
 
-<script type='text/javascript'>
-/* <![CDATA[ */
-	var dropdown = document.getElementById("cat");
-	function onCatChange() {
-		if ( dropdown.options[dropdown.selectedIndex].value > 0 ) {
-			location.href = "<?php echo home_url(); ?>/?cat="+dropdown.options[dropdown.selectedIndex].value;
-		}
-	}
-	dropdown.onchange = onCatChange;
-/* ]]> */
-</script>
-
-<?php
+			$terms = get_terms('product_cat');
+			$output = "<select name='product_cat' id='dropdown_product_cat'>";
+			$output .= '<option value="">'.__('Select Category', 'jigoshop').'</option>';
+			foreach($terms as $term){
+				$root_url = get_bloginfo('url');
+				$term_taxonomy=$term->taxonomy;
+				$term_slug=$term->slug;
+				$term_name =$term->name;
+				$link = $term_slug;
+				$output .="<option value='".$link."'>".$term_name."</option>";
+			}
+			$output .="</select>";
+			echo $output;
+			
+			?>
+			<script type='text/javascript'>
+			/* <![CDATA[ */
+				var dropdown = document.getElementById("dropdown_product_cat");
+				function onCatChange() {
+					if ( dropdown.options[dropdown.selectedIndex].value !=='' ) {
+						location.href = "<?php echo home_url(); ?>/?product_cat="+dropdown.options[dropdown.selectedIndex].value;
+					}
+				}
+				dropdown.onchange = onCatChange;
+			/* ]]> */
+			</script>
+			<?php
+			
 		} else {
 ?>
 		<ul>

@@ -112,7 +112,7 @@ $options_settings = array(
 		'tip' 		=> __('Forcing SSL is recommended','jigoshop'),
 		'id' 		=> 'jigoshop_force_ssl_checkout',
 		'css' 		=> 'min-width:100px;',
-		'std' 		=> 'yes',
+		'std' 		=> 'no',
 		'type' 		=> 'select',
 		'options' => array(  
 			'yes' => __('Yes', 'jigoshop'),
@@ -321,6 +321,20 @@ $options_settings = array(
 		'id' 		=> 'jigoshop_enable_shipping_calc',
 		'css' 		=> 'min-width:100px;',
 		'std' 		=> 'yes',
+		'type' 		=> 'select',
+		'options' => array(  
+			'yes' => __('Yes', 'jigoshop'),
+			'no'  => __('No', 'jigoshop')
+		)
+	),
+	
+	array(  
+		'name' => __('Only ship to billing address?','jigoshop'),
+		'desc' 		=> '',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_ship_to_billing_address_only',
+		'css' 		=> 'min-width:100px;',
+		'std' 		=> 'no',
 		'type' 		=> 'select',
 		'options' => array(  
 			'yes' => __('Yes', 'jigoshop'),

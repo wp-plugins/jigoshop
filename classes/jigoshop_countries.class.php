@@ -178,6 +178,24 @@ class jigoshop_countries {
 		)
 	);
 	
+	/** get countries we allow only */
+	function get_allowed_countries() {
+		
+		if (get_option('jigoshop_allowed_countries')!=='specific') return self::$countries;
+
+		$allowed_countries = array();
+		
+		$allowed_countries_raw = get_option('jigoshop_specific_allowed_countries');
+		
+		foreach ($allowed_countries_raw as $country) :
+			
+			$allowed_countries[$country] = self::$countries[$country];
+			
+		endforeach;
+		
+		return $allowed_countries;
+	}
+	
 	/** Gets the correct string for shipping - ether 'to the' or 'to' */
 	function shipping_to_prefix() {
 		$return = '';

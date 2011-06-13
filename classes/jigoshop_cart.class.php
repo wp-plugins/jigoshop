@@ -182,6 +182,16 @@ class jigoshop_cart {
 		return $needs_shipping;
 	}
 	
+	/** Sees if we need a shipping address */
+	function ship_to_billing_address_only() {
+	
+		$ship_to_billing_address_only = get_option('jigoshop_ship_to_billing_address_only');
+		
+		if ($ship_to_billing_address_only=='yes') return true;
+		
+		return false;
+	}
+	
 	/** looks at the totals to see if payment is actually required */
 	function needs_payment() {
 		if ( self::$total > 0 ) return true;

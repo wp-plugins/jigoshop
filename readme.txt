@@ -1,11 +1,11 @@
-=== Jigoshop - WordPress eCommerce ===
+ === Jigoshop - WordPress eCommerce ===
 Contributors: jigowatt
 Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, widgets, reports, shipping, tax, paypal
 Requires at least: 3.1
 Tested up to: 3.1.3
-Stable tag: 0.9.7.5
+Stable tag: 0.9.7.6
  
-A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability.  
+A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability. 
 
 == Description ==
 
@@ -48,11 +48,15 @@ Find out more on the official <a href="http://jigoshop.com" title="WordPress eCo
 * Moneybookers / Skrill
 * Cheque payments
 
-(&dagger;) Coming soon in Jigoshop Premium
+(&dagger;) Coming soon
 
 = Official Jigoshop themes =
 
-* <a href="http://jigoshop.com/themes/jigotheme/">Jigotheme</a> - Our flagship premium theme complete with mobile optimisation
+* <a href="http://jigoshop.com/themes/jigotheme/">Jigotheme</a> - Our flagship premium theme complete with mobile optimisation.
+
+= Official Jigoshop Extensions =
+
+* <a href="http://jigoshop.com/extensions/sagepay-form/">SagePay Form</a> - SagePay Form payment gateway.
 
 = Minimum Requirements =
 
@@ -62,14 +66,6 @@ Find out more on the official <a href="http://jigoshop.com" title="WordPress eCo
 * The mod_rewrite Apache module (for permalinks)
 * fsockopen support (for payment gateway IPN access)
 * We recommend a Linux based server rather than a Windows server (Windows servers can have PHP configuration problems, especially with mail).
-
-= Coming soon: Jigoshop Premium =
-
-An advanced version of Jigoshop offering additional features and access to dedicated support
-
-= Coming soon: SagePay Form =
-
-SagePay form payment gateway
 
 == Installation ==
 
@@ -134,6 +130,21 @@ We have a <a href="http://jigoshop.com/forum" title="Jigoshop support forum">com
 9. Checkout
 
 == Changelog ==
+
+= 0.9.7.6 =
+
+* POT file added
+* global option filtering
+* Country name localisation
+* 'Shop' page created on install
+* Page select boxes in admin
+* Options for different permalinks (with a base url)
+* Security fixes
+* One click featuring of products
+* Options to configure page IDs
+* Better support for child themes
+* Better support for plugin folder names
+* Localization of scripts
 
 = 0.9.7.5 =
 

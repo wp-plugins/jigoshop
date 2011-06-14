@@ -204,3 +204,54 @@ function jigoshop_system_info() {
 	</script>
 	<?php
 }
+
+function jigoshop_feature_product () {
+
+	if( !is_admin() ) die;
+	
+	if( !current_user_can('edit_posts') ) wp_die( __('You do not have sufficient permissions to access this page.') );
+	
+	if( !check_admin_referer()) wp_die( __('You have taken too long. Please go back and retry.', 'jigoshop') );
+	
+	$post_id = isset($_GET['product_id']) && (int)$_GET['product_id'] ? (int)$_GET['product_id'] : '';
+	
+	if(!$post_id) die;
+	
+	$post = get_post($post_id);
+	if(!$post) die;
+	
+	if($post->post_type !== 'product') die;
+	
+	$product = new jigoshop_product($post->ID);
+
+	if ($product->is_featured()) update_post_meta($post->ID, 'featured', 'no');
+	else update_post_meta($post->ID, 'featured', 'yes');
+	
+	$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'ids'), wp_get_referer() );
+	wp_safe_redirect( $sendback );
+
+}
+add_action('wp_ajax_jigoshop-feature-product', 'jigoshop_feature_product');
+
+/**
+ * Returns proper post_type
+ */
+function jigoshop_get_current_post_type() {
+        
+	global $post, $typenow, $current_screen;
+         
+    if( $current_screen && @$current_screen->post_type ) return $current_screen->post_type;
+    
+    if( $typenow ) return $typenow;
+        
+    if( !empty($_REQUEST['post_type']) ) return sanitize_key( $_REQUEST['post_type'] );
+    
+    if ( !empty($post) && !empty($post->post_type) ) return $post->post_type;
+         
+    if( ! empty($_REQUEST['post']) && (int)$_REQUEST['post'] ) {
+    	$p = get_post( $_REQUEST['post'] );
+    	return $p ? $p->post_type : '';
+    }
+    
+    return '';
+}

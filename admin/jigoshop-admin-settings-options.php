@@ -10,7 +10,7 @@
  */
 global $options_settings;
 
-$options_settings = array(
+$options_settings = apply_filters('jigoshop_options_settings', array(
 
 	array( 'type' => 'tab', 'tabname' => __('General', 'jigoshop') ),
 
@@ -132,29 +132,130 @@ $options_settings = array(
 	
 	array( 'type' => 'tabend'),
 	
+	array( 'type' => 'tab', 'tabname' => __('Pages', 'jigoshop') ),
+
+	array( 'name' => __('Shop page configuration', 'jigoshop'), 'type' => 'title', 'desc' 		=> '' ),
+	
+	array(  
+		'name' => __('Cart Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_cart]',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_cart_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Checkout Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_checkout]',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_checkout_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Pay Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_pay] and usually have "Checkout" as the parent.',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_pay_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Thanks Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_thankyou] and usually have "Checkout" as the parent.',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_thanks_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('My Account Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_my_account]',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_myaccount_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Edit Address Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_edit_address] and usually have "My Account" as the parent.',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_edit_address_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('View Order Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_view_order] and usually have "My Account" as the parent.',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_view_order_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Change Password Page','jigoshop'),
+		'desc' 		=> 'Your page should contain [jigoshop_change_password] and usually have "My Account" as the parent.',
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_change_password_page_id',
+		'css' 		=> 'min-width:50px;',
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
+	),	
+	
+	array( 'type' => 'tabend'),
+	
 	array( 'type' 		=> 'tab', 'tabname' => __('Catalog', 'jigoshop') ),
 	
 	array(	'name' => __('Catalog Options', 'jigoshop'), 'type' 		=> 'title','desc' 		=> '', 'id' 		=> '' ),
 
+	
 	array(  
-		'name' => __('Products Base URL','jigoshop'),
+		'name' => __('Products Base Page','jigoshop'),
 		'desc' 		=> sprintf( __("IMPORTANT: You must <a target='_blank' href='%s'>re-save your permalinks</a> for this change to take effect.",'jigoshop'), 'options-permalink.php' ),
-		'tip' 		=> __('This controls the base name of your product urls. The default is shop and will look like this: http://www.yoursite.com/shop/product-name-here/. Do not include any slashes. This should only be alpha or numeric values. You should not change this value once you have launched your site otherwise you risk breaking urls of other sites pointing to yours, etc.','jigoshop'),
-		'id' 		=> 'jigoshop_shop_slug',
+		'tip' 		=> __('This sets the base page of your shop. You should not change this value once you have launched your site otherwise you risk breaking urls of other sites pointing to yours, etc.','jigoshop'),
+		'id' 		=> 'jigoshop_shop_page_id',
 		'css' 		=> 'min-width:50px;',
-		'type' 		=> 'text',
-		'std' 		=> 'shop'
+		'type' 		=> 'single_select_page',
+		'std' 		=> ''
 	),
-
+	
+	array(  
+		'name' => __('Prepend shop categories/tags with base page?','jigoshop'),
+		'desc' 		=> sprintf( __("IMPORTANT: You must <a target='_blank' href='%s'>re-save your permalinks</a> for this change to take effect.",'jigoshop'), 'options-permalink.php' ),
+		'tip' 		=> __('If set to yes, categories will show up as "your_base_page/shop_category" instead of just "shop_category".', 'jigoshop'),
+		'id' 		=> 'jigoshop_prepend_shop_page_to_urls',
+		'css' 		=> 'min-width:100px;',
+		'std' 		=> 'no',
+		'type' 		=> 'select',
+		'options' => array(  
+			'no'  => __('No', 'jigoshop'),
+			'yes' => __('Yes', 'jigoshop')
+		)
+	),
 
 	array(  
 		'name' => __('Terms page ID', 'jigoshop'),
 		'desc' 		=> __('If you define a "Terms" page the customer will be asked if they accept them when checking out.', 'jigoshop'),
-		'tip' 		=> 'To get the page ID go to the Pages menu, hover over the page, and look at the url.',
+		'tip' 		=> '',
 		'id' 		=> 'jigoshop_terms_page_id',
 		'css' 		=> 'min-width:50px;',
 		'std' 		=> '',
-		'type' 		=> 'text'
+		'type' 		=> 'single_select_page',
+		'args'		=> 'show_option_none=' . __('None', 'jigoshop'),
 	),
 	
 	array(	'name' => __('Pricing Options', 'jigoshop'), 'type' 		=> 'title','desc' 		=> '', 'id' 		=> '' ),
@@ -167,7 +268,7 @@ $options_settings = array(
 		'css' 		=> 'min-width:200px;',
 		'std' 		=> 'GBP',
 		'type' 		=> 'select',
-		'options' => array( 
+		'options' => apply_filters('jigoshop_currencies', array( 
 			'USD' => __('US Dollars (&#36;)', 'jigoshop'),
 			'EUR' => __('Euros (&euro;)', 'jigoshop'),
 			'GBP' => __('Pounds Sterling (&pound;)', 'jigoshop'),
@@ -190,7 +291,7 @@ $options_settings = array(
 			'SEK' => __('Swedish Krona', 'jigoshop'),
 			'CHF' => __('Swiss Franc', 'jigoshop'),
 			'TWD' => __('Taiwan New Dollars', 'jigoshop'),
-			'THB' => __('Thai Baht', 'jigoshop')
+			'THB' => __('Thai Baht', 'jigoshop') )
 		)
 	),
 	
@@ -420,4 +521,4 @@ $options_settings = array(
 	
 	array( 'type' => 'tabend')
 
-);
+) );

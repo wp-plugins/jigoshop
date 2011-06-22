@@ -52,11 +52,12 @@ Find out more on the official <a href="http://jigoshop.com" title="WordPress eCo
 
 = Official Jigoshop themes =
 
-* <a href="http://jigoshop.com/themes/jigotheme/">Jigotheme</a> - Our flagship premium theme complete with mobile optimisation.
+* <a href="http://jigoshop.com/themes/jigotheme/" title="Premium WordPress eComemrce theme for Jigoshop">Jigotheme</a> - Our flagship premium theme complete with mobile optimisation.
 
 = Official Jigoshop Extensions =
 
-* <a href="http://jigoshop.com/extensions/sagepay-form/">SagePay Form</a> - SagePay Form payment gateway.
+* <a href="http://jigoshop.com/extensions/sagepay-form/" title="SagePay Form payment gateway extension of Jigoshop">SagePay Form</a> - SagePay Form payment gateway.
+* <a href="http://jigoshop.com/extensions/jigoshop-html-email/" title="Jigoshop HTML Emails">Jigoshop HTML Emails</a> - Give your Jigoshop emails a makeover
 
 = Minimum Requirements =
 
@@ -130,6 +131,28 @@ We have a <a href="http://jigoshop.com/forum" title="Jigoshop support forum">com
 9. Checkout
 
 == Changelog ==
+
+= 0.9.7.7 =
+
+* Fixed discount code logic
+* Changed/improved nonces
+* Tax amounts take base tax rate into consideration - should fix tax rates for other countries
+* Localisation fixes
+* Added JIGOSHOP_TEMPLATE_URL constant for moving the template folder within your theme (for better theme compatibility)
+* Option in settings to turn off css
+* Taxonomy ordering script to allow sorting of product categories using drag and drop
+* Excluded shop order comments from front end widget
+* per-page limit fix
+* Added body classes based on page
+* Unlimited download fix
+* Lost password link on my-account login
+* weight calc fix
+* Fixes inconsistent page slugs (- instead of _)
+* init changes
+* options for foreign currencies
+* Added german localization by AlistarMclean
+* Removed IE6 stuff from fancybox to speed it up
+* Added option to send shipping info to paypal
 
 = 0.9.7.6 =
 

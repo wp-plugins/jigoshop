@@ -60,9 +60,21 @@ jQuery(function(){
 						
 						taxRate = Math.round( ((itemTax / 100) + 1) *100)/100; // tax rate to 2 decimal places
 						
-						totalCostExTax = Math.round( (totalItemCost / taxRate) *100 )/100; // 2 decimal places
+						totalItemCost = totalItemCost * 100;
 						
-						totalItemTax = totalItemCost - totalCostExTax;
+						totalItemTax = Math.round(totalItemCost*taxRate);
+						
+						//totalCostExTax = Math.round( (totalItemCost / taxRate) *100 )/100; // 2 decimal places
+						
+						//totalCostExTax = totalCostExTax / 100;
+						
+						totalItemTax = totalItemTax - totalItemCost;
+						
+						totalItemCost = totalItemCost / 100;
+						
+						totalItemTax = totalItemTax / 100;
+						
+						//totalItemTax = totalItemCost - totalCostExTax;
 						
 					}
 					
@@ -74,16 +86,9 @@ jQuery(function(){
 			
 			subtotal = itemTotal;
 			
-			/* why that condition ? 
-			if (jigoshop_wp.prices_include_tax == 'yes')
-				subtotal = itemTotal;
-			else
-				subtotal = itemTotal;
-			*/
-			
-			if (jigoshop_wp.prices_include_tax == 'yes')
+			/*if (jigoshop_wp.prices_include_tax == 'yes')
 				total = parseFloat(subtotal) - parseFloat(discount) + parseFloat(shipping) + parseFloat(shipping_tax);
-			else
+			else*/
 				total = parseFloat(subtotal) + parseFloat(tax) - parseFloat(discount) + parseFloat(shipping) + parseFloat(shipping_tax);
 			
 			if (total < 0 ) total = 0;

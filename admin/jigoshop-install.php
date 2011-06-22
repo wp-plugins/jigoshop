@@ -17,6 +17,12 @@
  * @since 		1.0
  */
 function install_jigoshop() {
+	
+	// Get options and define post types before we start
+	require_once ( 'jigoshop-admin-settings-options.php' );	
+	jigoshop_post_type();
+	
+	// Do install
 	jigoshop_default_options();
 	jigoshop_create_pages();
 	jigoshop_tables_install();
@@ -124,7 +130,7 @@ function jigoshop_create_pages() {
     	update_option('jigoshop_checkout_page_id', $page_found);
     }
     
-    $slug = esc_sql( _x('order_tracking', 'page_slug', 'jigoshop') );
+    $slug = esc_sql( _x('order-tracking', 'page_slug', 'jigoshop') );
     $page_found = $wpdb->get_var("SELECT ID FROM " . $wpdb->posts . " WHERE post_name = '$slug' LIMIT 1");
 
     if(!$page_found) {
@@ -278,8 +284,6 @@ function jigoshop_create_pages() {
 	} else {
 		update_option('jigoshop_thanks_page_id', $page_found);
 	}
-	
-	// Thank you Page
     
 }
 
@@ -293,7 +297,7 @@ function jigoshop_create_pages() {
 function jigoshop_tables_install() {
 	global $wpdb;
 	
-	$wpdb->show_errors();
+	//$wpdb->show_errors();
 	
     $collate = '';
     if($wpdb->supports_collation()) {
@@ -316,6 +320,15 @@ function jigoshop_tables_install() {
         `downloads_remaining`	mediumint(9) NULL,
         PRIMARY KEY id (`product_id`, `order_key`)) $collate;";
     $wpdb->query($sql);
+    
+    $sql = "CREATE TABLE IF NOT EXISTS ". $wpdb->prefix . "jigoshop_termmeta" ." (
+		`meta_id` 				bigint(20) NOT NULL AUTO_INCREMENT,
+      	`jigoshop_term_id` 		bigint(20) NOT NULL,
+      	`meta_key` 				varchar(255) NULL,
+      	`meta_value` 			longtext NULL,
+      	PRIMARY KEY id (`meta_id`)) $collate;";
+    $wpdb->query($sql);	
+
 }
 
 /**

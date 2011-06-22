@@ -348,10 +348,42 @@ class jigoshop_countries {
 		)
 	);
 	
+	/** get base country */
+	function get_base_country() {
+		$default = get_option('jigoshop_default_country');
+    	if (strstr($default, ':')) :
+    		$country = current(explode(':', $default));
+    		$state = end(explode(':', $default));
+    	else :
+    		$country = $default;
+    		$state = '';
+    	endif;
+		
+		return $country;	    	
+	}
+	
+	/** get base state */
+	function get_base_state() {
+		$default = get_option('jigoshop_default_country');
+    	if (strstr($default, ':')) :
+    		$country = current(explode(':', $default));
+    		$state = end(explode(':', $default));
+    	else :
+    		$country = $default;
+    		$state = '';
+    	endif;
+		
+		return $state;	    	
+	}
+	
 	/** get countries we allow only */
 	function get_allowed_countries() {
+	
+		$countries = self::$countries;
 		
-		if (get_option('jigoshop_allowed_countries')!=='specific') return self::$countries;
+		asort($countries);
+		
+		if (get_option('jigoshop_allowed_countries')!=='specific') return $countries;
 
 		$allowed_countries = array();
 		
@@ -359,9 +391,11 @@ class jigoshop_countries {
 		
 		foreach ($allowed_countries_raw as $country) :
 			
-			$allowed_countries[$country] = self::$countries[$country];
+			$allowed_countries[$country] = $countries[$country];
 			
 		endforeach;
+		
+		asort($allowed_countries);
 		
 		return $allowed_countries;
 	}
@@ -371,7 +405,14 @@ class jigoshop_countries {
 		$return = '';
 		if (in_array(jigoshop_customer::get_country(), array( 'GB', 'US', 'AE', 'CZ', 'DO', 'NL', 'PH', 'USAF' ))) $return = __('to the', 'jigoshop');
 		else $return = __('to', 'jigoshop');
-		$return = apply_filters('shipping_to_prefix', $return, jigoshop_customer::get_country());
+		$return = apply_filters('shipping_to_prefix', $return, jigoshop_customer::get_shipping_country());
+		return $return;
+	}
+	
+	function estimated_for_prefix() {
+		$return = '';
+		if (in_array(jigoshop_customer::get_country(), array( 'GB', 'US', 'AE', 'CZ', 'DO', 'NL', 'PH', 'USAF' ))) $return = __('the ', 'jigoshop');
+		$return = apply_filters('estimated_for_prefix', $return, jigoshop_customer::get_shipping_country());
 		return $return;
 	}
 	
@@ -382,7 +423,11 @@ class jigoshop_countries {
 	
 	/** Outputs the list of countries and states for use in dropdown boxes */
 	function country_dropdown_options( $selected_country = '', $selected_state = '' ) {
-		if ( self::$countries) foreach ( self::$countries as $key=>$value) :
+		
+		$countries = self::$countries;
+		asort($countries);
+		
+		if ( $countries ) foreach ( $countries as $key=>$value) :
 			if ( $states =  self::get_states($key) ) :
 				echo '<optgroup label="'.$value.'">';
     				echo '<option value="'.$key.'"';

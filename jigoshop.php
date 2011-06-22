@@ -3,104 +3,103 @@
 Plugin Name: Jigoshop - WordPress eCommerce
 Plugin URI: http://jigoshop.com
 Description: An eCommerce plugin for wordpress.
-Version: 0.9.7.6
+Version: 0.9.7.7
 Author: Jigowatt
 Author URI: http://jigowatt.co.uk
 Requires at least: 3.1
 Tested up to: 3.1.3
 */
 
-	@session_start();
+@session_start();
 	
-	if (!defined("PHP_EOL")) define("PHP_EOL", "\r\n");
+if (!defined("PHP_EOL")) define("PHP_EOL", "\r\n");
 
-	load_plugin_textdomain('jigoshop', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
-	
-	register_activation_hook( __FILE__, 'install_jigoshop' );
+load_plugin_textdomain('jigoshop', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
+
+register_activation_hook( __FILE__, 'install_jigoshop' );
 
 /**
  * Include core files and classes
  **/
 	
-	include_once( 'classes/jigoshop.class.php' );
-	include_once( 'jigoshop_taxonomy.php' );
-	include_once( 'jigoshop_widgets.php' );
-	include_once( 'jigoshop_shortcodes.php' );
-	include_once( 'jigoshop_breadcrumbs.php' );
-	include_once( 'jigoshop_templates.php' );
-	include_once( 'jigoshop_emails.php' );
-	include_once( 'jigoshop_query.php' );
-	include_once( 'jigoshop_cron.php' );
-	include_once( 'jigoshop_actions.php' );
-	include_once( 'gateways/gateways.class.php' );
-	include_once( 'gateways/gateway.class.php' );
-	include_once( 'shipping/shipping.class.php' );
-	include_once( 'shipping/shipping_method.class.php' );
-	
-	function jigoshop_load_core() {
-		
-		$include_files = array();
-		
-		// Classes
-		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/classes/*.php" ));
-		
-		// Shipping
-		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/shipping/*.php" ));
-		
-		// Payment Gateways
-		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/gateways/*.php" ));
-		
-		// Drop-ins (addons, premium features etc)
-		$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/drop-ins/*.php" ));
-
-		if ($include_files) :
-			foreach($include_files as $filename) :
-				if (!empty($filename) && strstr($filename, 'php')) :
-					include_once($filename);
-				endif;
-			endforeach;
-		endif;
-			
-		$jigoshop 					= jigoshop::get();
-		
-		jigoshop_post_type();
-		
-		// Init class singletons
-		$jigoshop_customer 			= jigoshop_customer::get();				// Customer class, sorts out session data such as location
-		$jigoshop_cart 				= jigoshop_cart::get();					// Cart class, stores the cart contents
-		$jigoshop_shipping 			= jigoshop_shipping::get();				// Shipping class. loads and stores shipping methods
-		$jigoshop_payment_gateways 	= jigoshop_payment_gateways::get();		// Payment gateways class. loads and stores payment methods
-		
-		// Constants
-		if (!defined('JIGOSHOP_USE_CSS')) define('JIGOSHOP_USE_CSS', true);
-		
-		// Init
-		jigoshop_init();
-	}
-	
-/**
- * Add Image sizes and post thumbnail support to wordpress
- **/
-
-	add_theme_support( 'post-thumbnails' );
-	add_image_size( 'shop_tiny', jigoshop::get_var('shop_tiny_w'), jigoshop::get_var('shop_tiny_h'), 'true' );
-	add_image_size( 'shop_thumbnail', jigoshop::get_var('shop_thumbnail_w'), jigoshop::get_var('shop_thumbnail_h'), 'true' );
-	add_image_size( 'shop_small', jigoshop::get_var('shop_small_w'), jigoshop::get_var('shop_small_h'), 'true' );
-	add_image_size( 'shop_large', jigoshop::get_var('shop_large_w'), jigoshop::get_var('shop_large_h'), 'true' );
+include_once( 'classes/jigoshop.class.php' );
+include_once( 'jigoshop_taxonomy.php' );
+include_once( 'jigoshop_widgets.php' );
+include_once( 'jigoshop_shortcodes.php' );
+include_once( 'jigoshop_breadcrumbs.php' );
+include_once( 'jigoshop_templates.php' );
+include_once( 'jigoshop_emails.php' );
+include_once( 'jigoshop_query.php' );
+include_once( 'jigoshop_cron.php' );
+include_once( 'jigoshop_actions.php' );
+include_once( 'gateways/gateways.class.php' );
+include_once( 'gateways/gateway.class.php' );
+include_once( 'shipping/shipping.class.php' );
+include_once( 'shipping/shipping_method.class.php' );
 	
 /**
  * Include admin area
  **/
+if (is_admin()) include_once( 'admin/jigoshop-admin.php' );
 
-	if (is_admin()) include_once( 'admin/jigoshop-admin.php' );
+/**
+ * Include all classes, dro-ins and shipping/gateways modules
+ */
+$include_files = array();
+		
+// Classes
+$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/classes/*.php" ));
+		
+// Shipping
+$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/shipping/*.php" ));
+		
+// Payment Gateways
+$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/gateways/*.php" ));
+		
+// Drop-ins (addons, premium features etc)
+$include_files = array_merge($include_files, (array) glob( dirname(__FILE__)."/drop-ins/*.php" ));
+
+if ($include_files) :
+	foreach($include_files as $filename) :
+		if (!empty($filename) && strstr($filename, 'php')) :
+			include_once($filename);
+		endif;
+	endforeach;
+endif;
+			
+$jigoshop 					= jigoshop::get();
+		
+// Init class singletons
+$jigoshop_customer 			= jigoshop_customer::get();				// Customer class, sorts out session data such as location
+$jigoshop_shipping 			= jigoshop_shipping::get();				// Shipping class. loads and stores shipping methods
+$jigoshop_payment_gateways 	= jigoshop_payment_gateways::get();		// Payment gateways class. loads and stores payment methods
+$jigoshop_cart 				= jigoshop_cart::get();					// Cart class, stores the cart contents
+		
+// Constants
+if (!defined('JIGOSHOP_USE_CSS')) :
+	if (get_option('jigoshop_disable_css')=='yes') define('JIGOSHOP_USE_CSS', false);
+	else define('JIGOSHOP_USE_CSS', true);
+endif;
+if (!defined('JIGOSHOP_TEMPLATE_URL')) define('JIGOSHOP_TEMPLATE_URL', 'jigoshop/'); // Trailing slash is important :)
+		
+/**
+ * Add Image sizes and post thumbnail support to wordpress
+ **/
+add_theme_support( 'post-thumbnails' );
+add_image_size( 'shop_tiny', jigoshop::get_var('shop_tiny_w'), jigoshop::get_var('shop_tiny_h'), 'true' );
+add_image_size( 'shop_thumbnail', jigoshop::get_var('shop_thumbnail_w'), jigoshop::get_var('shop_thumbnail_h'), 'true' );
+add_image_size( 'shop_small', jigoshop::get_var('shop_small_w'), jigoshop::get_var('shop_small_h'), 'true' );
+add_image_size( 'shop_large', jigoshop::get_var('shop_large_w'), jigoshop::get_var('shop_large_h'), 'true' );
 	
 /**
  * Filters and hooks
  **/
 	
-	add_action( 'init', 'jigoshop_load_core', 0 );
-	if (get_option('jigoshop_force_ssl_checkout')=='yes') add_action( 'wp_head', 'jigoshop_force_ssl');
-	add_action( 'wp_footer', 'jigowatt_sharethis' );
+add_action('init', 'jigoshop_init', 0);
+
+if (get_option('jigoshop_force_ssl_checkout')=='yes') add_action( 'wp_head', 'jigoshop_force_ssl');
+
+add_action( 'wp_footer', 'jigowatt_sharethis' );
 
 /**
  * IIS compat fix/fallback
@@ -110,7 +109,6 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 	$_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'],1 );
 	if (isset($_SERVER['QUERY_STRING'])) { $_SERVER['REQUEST_URI'].='?'.$_SERVER['QUERY_STRING']; }
 }
-
 
 /**
  * Support for Import/Export
@@ -199,6 +197,8 @@ add_action('import_start', 'jigoshop_import_start');
 ### Functions #########################################################
 
 function jigoshop_init() {
+	
+	jigoshop_post_type();
 	
 	@ob_start();
 	
@@ -356,22 +356,24 @@ function get_jigoshop_currency_symbol() {
 }
 
 function jigoshop_price( $price ) {
+
+	$num_decimals = (int) get_option('jigoshop_price_num_decimals');
 	$currency_pos = get_option('jigoshop_currency_pos');
 	$currency_symbol = get_jigoshop_currency_symbol();
-	$price = (double) $price;
+	$price = number_format( $price, $num_decimals, get_option('jigoshop_price_decimal_sep'), get_option('jigoshop_price_thousand_sep') );
 	
 	switch ($currency_pos) :
 		case 'left' :
-			return $currency_symbol.number_format($price, 2);
+			return $currency_symbol . $price;
 		break;
 		case 'right' :
-			return number_format($price, 2).$currency_symbol;
+			return $price . $currency_symbol;
 		break;
 		case 'left_space' :
-			return $currency_symbol.' '.number_format($price, 2);
+			return $currency_symbol . ' ' . $price;
 		break;
 		case 'right_space' :
-			return number_format($price, 2).' '.$currency_symbol;
+			return $price . ' ' . $currency_symbol;
 		break;
 	endswitch;
 }
@@ -399,6 +401,49 @@ function jigowatt_clean( $var ) {
 	return stripslashes(trim($var));
 }
 
+global $jigoshop_body_classes;
+
+function jigoshop_page_body_classes() {
+	
+	global $jigoshop_body_classes;
+	
+	$jigoshop_body_classes = (array) $jigoshop_body_classes;
+	
+	if (is_checkout() || is_page(get_option('jigoshop_pay_page_id'))) jigoshop_add_body_class( array( 'jigoshop', 'jigoshop-checkout' ) );
+	
+	if (is_cart()) jigoshop_add_body_class( array( 'jigoshop', 'jigoshop-cart' ) );
+	
+	if (is_page(get_option('jigoshop_thanks_page_id'))) jigoshop_add_body_class( array( 'jigoshop', 'jigoshop-thanks' ) );
+	
+	if (is_page(get_option('jigoshop_shop_page_id'))) jigoshop_add_body_class( array( 'jigoshop', 'jigoshop-shop' ) );
+	
+	if (is_page(get_option('jigoshop_myaccount_page_id')) || is_page(get_option('jigoshop_edit_address_page_id')) || is_page(get_option('jigoshop_view_order_page_id')) || is_page(get_option('jigoshop_change_password_page_id'))) jigoshop_add_body_class( array( 'jigoshop', 'jigoshop-myaccount' ) );	
+	
+}
+add_action('wp_head', 'jigoshop_page_body_classes');
+
+function jigoshop_add_body_class( $class = array() ) {
+	
+	global $jigoshop_body_classes;
+	
+	$jigoshop_body_classes = (array) $jigoshop_body_classes;
+	
+	$jigoshop_body_classes = array_merge($class, $jigoshop_body_classes);
+	
+}
+
+function jigoshop_body_class($classes) {
+	
+	global $jigoshop_body_classes;
+	
+	$jigoshop_body_classes = (array) $jigoshop_body_classes;
+	
+	$classes = array_merge($classes, $jigoshop_body_classes);
+	
+	return $classes;
+}
+add_filter('body_class','jigoshop_body_class');
+
 ### Extra Review Field in comments #########################################################
 
 function jigoshop_add_comment_rating($comment_id) {
@@ -411,7 +456,7 @@ add_action( 'comment_post', 'jigoshop_add_comment_rating', 1 );
 
 function jigoshop_check_comment_rating($comment_data) {
 	// If posting a comment (not trackback etc) and not logged in
-	if ( !jigoshop::verify_nonce('comment_rating', 'comment-rating') )
+	if ( !jigoshop::verify_nonce('comment_rating') )
 		wp_die( __('You have taken too long. Please go back and refresh the page.', 'jigoshop') );
 		
 	elseif ( isset($_POST['rating']) && empty($_POST['rating']) && $comment_data['comment_type']== '' ) {
@@ -450,3 +495,27 @@ function jigoshop_comments($comment, $args, $depth) {
 		</div>
 	<?php
 }
+
+### Exclude order comments from front end #########################################################
+
+function jigoshop_exclude_order_comments( $clauses ) {
+	
+	global $wpdb;
+	
+	$clauses['join'] = "
+		LEFT JOIN $wpdb->posts ON $wpdb->comments.comment_post_ID = $wpdb->posts.ID
+	";
+	
+	if ($clauses['where']) $clauses['where'] .= ' AND ';
+	
+	$clauses['where'] .= "
+		$wpdb->posts.post_type NOT IN ('shop_order')
+	";
+	
+	return $clauses;	
+
+}
+if (!is_admin()) add_filter('comments_clauses', 'jigoshop_exclude_order_comments');
+
+
+

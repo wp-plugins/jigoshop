@@ -232,7 +232,7 @@ class jigoshop_checkout {
 
 			jigoshop_cart::calculate_totals();
 			
-			jigoshop::verify_nonce('process_checkout', 'process-checkout');
+			jigoshop::verify_nonce('process_checkout');
 			
 			if (sizeof(jigoshop_cart::$cart_contents)==0) :
 				jigoshop::add_error( sprintf(__('Sorry, your session has expired. <a href="%s">Return to homepage &rarr;</a>','jigoshop'), home_url()) );
@@ -504,7 +504,7 @@ class jigoshop_checkout {
 					$data['shipping_state']			= $shipping_state;
 					$data['shipping_method']		= $this->posted['shipping_method'];
 					$data['payment_method']			= $this->posted['payment_method'];
-					$data['order_subtotal']			= number_format(jigoshop_cart::$subtotal, 2, '.', '');
+					$data['order_subtotal']			= number_format(jigoshop_cart::$subtotal_ex_tax, 2, '.', '');
 					$data['order_shipping']			= number_format(jigoshop_cart::$shipping_total, 2, '.', '');
 					$data['order_discount']			= number_format(jigoshop_cart::$discount_total, 2, '.', '');
 					$data['order_tax']				= number_format(jigoshop_cart::$tax_total, 2, '.', '');
@@ -528,7 +528,7 @@ class jigoshop_checkout {
 					 		'id' 		=> $item_id,
 					 		'name' 		=> $_product->get_title(),
 					 		'qty' 		=> (int) $values['quantity'],
-					 		'cost' 		=> $_product->get_price(),
+					 		'cost' 		=> $_product->get_price_excluding_tax(),
 					 		'taxrate' 	=> $rate
 					 	);
 					 	

@@ -135,9 +135,9 @@ class jigoshop_order {
 	/** Gets subtotal */
 	function get_subtotal_to_display() {
 		
-		if (get_option('jigoshop_display_totals_tax')=='excluding') :
+		//if (get_option('jigoshop_display_totals_tax')=='excluding') :
 				
-			if (get_option('jigoshop_prices_include_tax')=='yes') :
+			/*if (get_option('jigoshop_prices_include_tax')=='yes') :
 				
 				$subtotal = jigoshop_price($this->order_subtotal - $this->order_tax);
 				
@@ -145,20 +145,31 @@ class jigoshop_order {
 				
 				$subtotal = jigoshop_price($this->order_subtotal);
 				
-			endif;
+			endif;*/
+			
+			$subtotal = jigoshop_price($this->order_subtotal);
 			
 			if ($this->order_tax>0) :
 				$subtotal .= __(' <small>(ex. tax)</small>', 'jigoshop');
 			endif;
 			
-		else :
+		/*else :
 			
-			$subtotal = jigoshop_price($this->order_subtotal);
+			if (get_option('jigoshop_prices_include_tax')=='yes') :
+				
+				$subtotal = jigoshop_price($this->order_subtotal);
+				
+			else :
+				
+				$subtotal = jigoshop_price($this->order_subtotal + $this->order_tax);
+				
+			endif;
+			
 			if ($this->order_tax>0) :
 				$subtotal .= __(' <small>(inc. tax)</small>', 'jigoshop');
 			endif;
 			
-		endif;
+		endif;*/
 		
 		return $subtotal;
 	}
@@ -168,21 +179,21 @@ class jigoshop_order {
 		
 		if ($this->order_shipping > 0) :
 			
-			if (get_option('jigoshop_display_totals_tax')=='excluding') :
+			//if (get_option('jigoshop_display_totals_tax')=='excluding') :
 				
 				$shipping = jigoshop_price($this->order_shipping);
 				if ($this->order_shipping_tax > 0) :
 					$shipping .= sprintf(__(' <small>(ex. tax) via %s</small>', 'jigoshop'), ucwords($this->shipping_method));
 				endif;
 				
-			else :
+			/*else :
 				
 				$shipping = jigoshop_price($this->order_shipping + $this->order_shipping_tax);
 				if ($this->order_shipping_tax > 0) :
 					$shipping .= sprintf(__(' <small>(inc. tax) via %s</small>', 'jigoshop'), ucwords($this->shipping_method));
 				endif;
 				
-			endif;
+			endif;*/
 
 		else :
 			$shipping = __('Free!', 'jigoshop');
@@ -191,6 +202,43 @@ class jigoshop_order {
 		return $shipping;
 	}
 	
+	/** Output items for display in emails */
+	function email_order_items_list( $show_download_links = false, $show_sku = false ) {
+		
+		$return = '';
+		
+		foreach($this->items as $item) : 
+			$_product = &new jigoshop_product( $item['id'] );
+			
+			$return .= $item['qty'] . ' x ' . $item['name'];
+			
+			if ($show_sku) :
+				
+				$return .= ' (#' . $_product->sku . ')';
+				
+			endif;
+			
+			$return .= ' - ' . jigoshop_price( $item['cost']*$item['qty'] ) . __(' (ex. tax)', 'jigoshop');
+			
+			if ($show_download_links) :
+				
+				if ($_product->exists) :
+			
+					if ($_product->is_type('downloadable')) :
+						$return .= PHP_EOL . ' - ' . $order->get_downloadable_file_url( $item['id'] ) . '';
+					endif;
+		
+				endif;	
+					
+			endif;
+			
+			$return .= PHP_EOL;
+			
+		endforeach;	
+		
+		return $return;	
+		
+	}
 	
 	/**  Generates a URL so that a customer can checkout/pay for their (unpaid - pending) order via a link */
 	function get_checkout_payment_url() {
@@ -205,7 +253,7 @@ class jigoshop_order {
 	
 	/** Generates a URL so that a customer can cancel their (unpaid - pending) order */
 	function get_cancel_order_url() {
-		return add_query_arg( 'jigoshop_nonce_cancel_order', wp_create_nonce( 'jigoshop-cancel-order' ), add_query_arg('cancel_order', 'true', add_query_arg('order', $this->order_key, add_query_arg('order_id', $this->id, home_url()))));
+		return jigoshop::nonce_url( 'cancel_order', add_query_arg('cancel_order', 'true', add_query_arg('order', $this->order_key, add_query_arg('order_id', $this->id, home_url()))));
 	}
 	
 	
@@ -289,31 +337,6 @@ class jigoshop_order {
 	function cancel_order( $note = '' ) {
 	
 		$this->update_status('cancelled', $note);
-		
-		/* NO need for this anymore since stock is reduced after payment, not on order creation
-		foreach ($this->items as $order_item) :
-						
-			$_product = &new jigoshop_product( $order_item['id'] );
-			
-			if ($_product->exists) :
-			
-			 	if ($_product->managing_stock()) :
-					
-					$old_stock = $_product->stock;
-					
-					$new_quantity = $_product->increase_stock( $order_item['qty'] );
-					
-					$this->add_order_note( sprintf( __('Item #%s stock increased from %s to %s.', 'jigoshop'), $order_item['id'], $old_stock, $new_quantity) );
-					
-				endif;
-			
-			else :
-				
-				$this->add_order_note( sprintf( __('Item %s %s not found, skipping.', 'jigoshop'), $order_item['id'], $order_item['name'] ) );
-				
-			endif;
-		 	
-		endforeach;*/
 		
 	}
 

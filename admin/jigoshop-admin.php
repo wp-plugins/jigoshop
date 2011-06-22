@@ -8,14 +8,22 @@
  * @category 	Admin
  * @package 	JigoShop
  */
- 
-require_once ( 'jigoshop-admin-dashboard.php' );
-require_once ( 'jigoshop-admin-settings-options.php' );
+
+
+
 require_once ( 'jigoshop-install.php' );
+
+require_once ( 'jigoshop-admin-dashboard.php' );
 require_once ( 'jigoshop-write-panels.php' );
 require_once ( 'jigoshop-admin-settings.php' );
 require_once ( 'jigoshop-admin-attributes.php' );
 require_once ( 'jigoshop-admin-post-types.php' );
+	
+
+function jigoshop_admin_init () {
+	require_once ( 'jigoshop-admin-settings-options.php' );	
+}
+add_action('admin_init', 'jigoshop_admin_init');
 
 /**
  * Admin Menus
@@ -30,11 +38,12 @@ function jigoshop_admin_menu() {
 	$menu[] = array( '', 'read', 'separator-jigoshop', '', 'wp-menu-separator' );
 	
     add_menu_page(__('Jigoshop'), __('Jigoshop'), 'manage_options', 'jigoshop' , 'jigoshop_dashboard', jigoshop::plugin_url() . '/assets/images/icons/menu_icons.png', 56);
-    add_submenu_page('jigoshop', 'Dashboard', 'Dashboard', 'manage_options', 'jigoshop', 'jigoshop_dashboard'); 
+    add_submenu_page('jigoshop', __('Dashboard', 'jigoshop'), __('Dashboard', 'jigoshop'), 'manage_options', 'jigoshop', 'jigoshop_dashboard'); 
     add_submenu_page('jigoshop', __('General Settings', 'jigoshop'),  __('Settings', 'jigoshop') , 'manage_options', 'settings', 'jigoshop_settings');
     add_submenu_page('jigoshop', __('System Info','jigoshop'), __('System Info','jigoshop'), 'manage_options', 'sysinfo', 'jigoshop_system_info');
     add_submenu_page('edit.php?post_type=product', __('Attributes','jigoshop'), __('Attributes','jigoshop'), 'manage_options', 'attributes', 'jigoshop_attributes');
 }
+
 function jigoshop_admin_menu_order( $menu_order ) {
 
 	// Initialize our custom order array
@@ -60,6 +69,7 @@ function jigoshop_admin_menu_order( $menu_order ) {
 	// Return order
 	return $jigoshop_menu_order;
 }
+
 function jigoshop_admin_custom_menu_order() {
 	if ( !current_user_can( 'manage_options' ) ) return false;
 
@@ -255,3 +265,43 @@ function jigoshop_get_current_post_type() {
     
     return '';
 }
+
+/**
+ * Categories ordering
+ */
+
+/**
+ * Load needed scripts to order categories
+ */
+function jigoshop_categories_scripts () {
+	
+	if( !isset($_GET['taxonomy']) || $_GET['taxonomy'] !== 'product_cat') return;
+	
+	wp_register_script('jigoshop-categories-ordering', jigoshop::plugin_url() . '/assets/js/categories-ordering.js', array('jquery-ui-sortable'));
+	wp_print_scripts('jigoshop-categories-ordering');
+	
+}
+add_action('admin_footer-edit-tags.php', 'jigoshop_categories_scripts');
+
+/**
+ * Ajax request handling for categories ordering
+ */
+function jigoshop_categories_ordering () {
+
+	global $wpdb;
+	
+	$id = (int)$_POST['id'];
+	$next_id  = isset($_POST['nextid']) && (int) $_POST['nextid'] ? (int) $_POST['nextid'] : null;
+	
+	if( ! $id || ! $term = get_term_by('id', $id, 'product_cat') ) die(0);
+	
+	jigoshop_order_categories ( $term, $next_id);
+	
+	$children = get_terms('product_cat', "child_of=$id&menu_order=ASC&hide_empty=0");
+	if( $term && sizeof($children) ) {
+		echo 'children';
+		die;	
+	}
+	
+}
+add_action('wp_ajax_jigoshop-categories-ordering', 'jigoshop_categories_ordering');

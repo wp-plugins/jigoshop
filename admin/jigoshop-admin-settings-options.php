@@ -15,7 +15,7 @@ $options_settings = apply_filters('jigoshop_options_settings', array(
 	array( 'type' => 'tab', 'tabname' => __('General', 'jigoshop') ),
 
 	array( 'name' => __('General Options', 'jigoshop'), 'type' => 'title', 'desc' 		=> '' ),
-
+	
 	array(  
 		'name' => __('Enable SKU field','jigoshop'),
 		'desc' 		=> '',
@@ -128,6 +128,20 @@ $options_settings = apply_filters('jigoshop_options_settings', array(
 		'css' 		=> 'width:300px;',
 		'type' 		=> 'text',
 		'std' 		=> ''
+	),
+	
+	array(  
+		'name' => __('Disable Jigoshop frontend.css','jigoshop'),
+		'desc' 		=> '',
+		'tip' 		=> __('Useful if you want to disable Jigoshop styles and theme it yourself via your theme.','jigoshop'),
+		'id' 		=> 'jigoshop_disable_css',
+		'css' 		=> 'min-width:100px;',
+		'std' 		=> 'no',
+		'type' 		=> 'select',
+		'options' => array(  
+			'no'  => __('No', 'jigoshop'),
+			'yes' => __('Yes', 'jigoshop')
+		)
 	),
 	
 	array( 'type' => 'tabend'),
@@ -291,7 +305,8 @@ $options_settings = apply_filters('jigoshop_options_settings', array(
 			'SEK' => __('Swedish Krona', 'jigoshop'),
 			'CHF' => __('Swiss Franc', 'jigoshop'),
 			'TWD' => __('Taiwan New Dollars', 'jigoshop'),
-			'THB' => __('Thai Baht', 'jigoshop') )
+			'THB' => __('Thai Baht', 'jigoshop') 
+			)
 		)
 	),
 	
@@ -309,6 +324,36 @@ $options_settings = apply_filters('jigoshop_options_settings', array(
 			'left_space' => __('Left (with space)', 'jigoshop'),
 			'right_space' => __('Right (with space)', 'jigoshop')
 		)
+	),
+	
+	array(  
+		'name' => __('Thounsand separator', 'jigoshop'),
+		'desc' 		=> __('This sets the thousand separator of displayed prices.', 'jigoshop'),
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_price_thousand_sep',
+		'css' 		=> 'width:30px;',
+		'std' 		=> ',',
+		'type' 		=> 'text',
+	),
+	
+	array(  
+		'name' => __('Decimal separator', 'jigoshop'),
+		'desc' 		=> __('This sets the decimal separator of displayed prices.', 'jigoshop'),
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_price_decimal_sep',
+		'css' 		=> 'width:30px;',
+		'std' 		=> '.',
+		'type' 		=> 'text',
+	),
+	
+	array(  
+		'name' => __('Number of decimals', 'jigoshop'),
+		'desc' 		=> __('This sets the number of decimal points shown in displayed prices.', 'jigoshop'),
+		'tip' 		=> '',
+		'id' 		=> 'jigoshop_price_num_decimals',
+		'css' 		=> 'width:30px;',
+		'std' 		=> '2',
+		'type' 		=> 'text',
 	),
 	
 	array( 'type' => 'tabend'),
@@ -485,7 +530,7 @@ $options_settings = apply_filters('jigoshop_options_settings', array(
 		'tip' 		=> __('Should the subtotal be shown including or excluding tax on the frontend?','jigoshop'),
 		'id' 		=> 'jigoshop_display_totals_tax',
 		'css' 		=> 'min-width:100px;',
-		'std' 		=> 'yes',
+		'std' 		=> 'excluding',
 		'type' 		=> 'select',
 		'options' => array(  
 			'including' => __('price including tax', 'jigoshop'),

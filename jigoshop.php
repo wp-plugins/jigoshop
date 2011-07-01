@@ -3,7 +3,7 @@
 Plugin Name: Jigoshop - WordPress eCommerce
 Plugin URI: http://jigoshop.com
 Description: An eCommerce plugin for wordpress.
-Version: 0.9.7.8
+Version: 0.9.8
 Author: Jigowatt
 Author URI: http://jigowatt.co.uk
 Requires at least: 3.1
@@ -11,12 +11,21 @@ Tested up to: 3.1.3
 */
 
 @session_start();
-	
+
+if (!defined("JIGOSHOP_VERSION")) define("JIGOSHOP_VERSION", "0.9.8");	
 if (!defined("PHP_EOL")) define("PHP_EOL", "\r\n");
 
 load_plugin_textdomain('jigoshop', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 
+/**
+ * Installs and upgrades
+ **/
 register_activation_hook( __FILE__, 'install_jigoshop' );
+
+function jigoshop_update_check() {
+    if (get_site_option('jigoshop_db_version') != JIGOSHOP_VERSION) install_jigoshop();
+}
+if (is_admin()) add_action('init', 'jigoshop_update_check');
 
 /**
  * Include core files and classes
@@ -26,8 +35,8 @@ include_once( 'classes/jigoshop.class.php' );
 include_once( 'jigoshop_taxonomy.php' );
 include_once( 'jigoshop_widgets.php' );
 include_once( 'jigoshop_shortcodes.php' );
-include_once( 'jigoshop_breadcrumbs.php' );
 include_once( 'jigoshop_templates.php' );
+include_once( 'jigoshop_template_actions.php' );
 include_once( 'jigoshop_emails.php' );
 include_once( 'jigoshop_query.php' );
 include_once( 'jigoshop_cron.php' );
@@ -94,12 +103,15 @@ add_image_size( 'shop_large', jigoshop::get_var('shop_large_w'), jigoshop::get_v
 /**
  * Filters and hooks
  **/
-	
 add_action('init', 'jigoshop_init', 0);
+add_action('plugins_loaded', 'jigoshop_shipping::init', 1); 		// Load shipping methods - some may be added by plugins
+add_action('plugins_loaded', 'jigoshop_payment_gateways::init', 1); // Load payment methods - some may be added by plugins
+add_action('plugins_loaded', 'jigoshop_cart::calculate_totals', 2); // After methods are loaded we'll want to calc the totals of the cart
 
 if (get_option('jigoshop_force_ssl_checkout')=='yes') add_action( 'wp_head', 'jigoshop_force_ssl');
 
-add_action( 'wp_footer', 'jigowatt_sharethis' );
+add_action( 'wp_footer', 'jigoshop_demo_store' );
+add_action( 'wp_footer', 'jigoshop_sharethis' );
 
 /**
  * IIS compat fix/fallback
@@ -200,6 +212,9 @@ function jigoshop_init() {
 	
 	jigoshop_post_type();
 	
+	// Include template functions here so they are pluggable by themes
+	include_once( 'jigoshop_template_functions.php' );
+	
 	@ob_start();
 	
 	add_role('customer', 'Customer', array(
@@ -268,10 +283,23 @@ function jigoshop_script_query_string($src)
 }
 
 /* 
-	jigowatt_sharethis
-		Adds social sharing code to footer
+	jigoshop_demo_store
+	Adds a demo store banner to the site
 */
-function jigowatt_sharethis() {
+function jigoshop_demo_store() {
+	
+	if (get_option('jigoshop_demo_store')=='yes') :
+		
+		echo '<p class="demo_store">'.__('This is a demo store for testing purposes &mdash; no orders shall be fulfilled.', 'jigoshop').'</p>';
+		
+	endif;
+}
+
+/* 
+	jigoshop_sharethis
+	Adds social sharing code to footer
+*/
+function jigoshop_sharethis() {
 	if (is_single() && get_option('jigoshop_sharethis')) :
 		
 		echo '<script type="text/javascript" src="https://w.sharethis.com/button/buttons.js"></script><script type="text/javascript">stLight.options({publisher:"'.get_option('jigoshop_sharethis').'", onhover: false});</script>';
@@ -355,27 +383,36 @@ function get_jigoshop_currency_symbol() {
 	return apply_filters('jigoshop_currency_symbol', $currency_symbol, $currency);
 }
 
-function jigoshop_price( $price ) {
-
+function jigoshop_price( $price, $args = array() ) {
+	
+	extract(shortcode_atts(array(
+		'ex_tax_label' 	=> '0'
+	), $args));
+	
+	$return = '';
 	$num_decimals = (int) get_option('jigoshop_price_num_decimals');
 	$currency_pos = get_option('jigoshop_currency_pos');
 	$currency_symbol = get_jigoshop_currency_symbol();
-	$price = number_format( $price, $num_decimals, get_option('jigoshop_price_decimal_sep'), get_option('jigoshop_price_thousand_sep') );
+	$price = number_format( (double) $price, $num_decimals, get_option('jigoshop_price_decimal_sep'), get_option('jigoshop_price_thousand_sep') );
 	
 	switch ($currency_pos) :
 		case 'left' :
-			return $currency_symbol . $price;
+			$return = $currency_symbol . $price;
 		break;
 		case 'right' :
-			return $price . $currency_symbol;
+			$return = $price . $currency_symbol;
 		break;
 		case 'left_space' :
-			return $currency_symbol . ' ' . $price;
+			$return = $currency_symbol . ' ' . $price;
 		break;
 		case 'right_space' :
-			return $price . ' ' . $currency_symbol;
+			$return = $price . ' ' . $currency_symbol;
 		break;
 	endswitch;
+	
+	if ($ex_tax_label && get_option('jigoshop_calc_taxes')=='yes') $return .= __(' <small>(ex. tax)</small>', 'jigoshop');
+	
+	return $return;
 }
 
 function jigoshop_let_to_num($v) {
@@ -456,7 +493,7 @@ add_action( 'comment_post', 'jigoshop_add_comment_rating', 1 );
 
 function jigoshop_check_comment_rating($comment_data) {
 	// If posting a comment (not trackback etc) and not logged in
-	if ( !jigoshop::verify_nonce('comment_rating') )
+	if ( isset($_POST['rating']) && !jigoshop::verify_nonce('comment_rating') )
 		wp_die( __('You have taken too long. Please go back and refresh the page.', 'jigoshop') );
 		
 	elseif ( isset($_POST['rating']) && empty($_POST['rating']) && $comment_data['comment_type']== '' ) {

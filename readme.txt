@@ -1,11 +1,11 @@
- === Jigoshop - WordPress eCommerce ===
+=== Jigoshop - WordPress eCommerce ===
 Contributors: jigowatt
 Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, widgets, reports, shipping, tax, paypal
 Requires at least: 3.1
-Tested up to: 3.1.3
-Stable tag: 0.9.7.8
+Tested up to: 3.2
+Stable tag: 0.9.8
  
-A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability.  
+A feature packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customisability. 
 
 == Description ==
 
@@ -32,7 +32,6 @@ Find out more on the official <a href="http://jigoshop.com" title="WordPress eCo
 * Sell physical, digital and virtual products
 * Simple, grouped and configurable&dagger; products
 * Discount coupon management
-* Cross-sells, up-sells&dagger;
 * Automatic related products
 * Product reviews / hreviews
 * Tax by location
@@ -58,6 +57,10 @@ Find out more on the official <a href="http://jigoshop.com" title="WordPress eCo
 
 * <a href="http://jigoshop.com/extensions/sagepay-form/" title="SagePay Form payment gateway extension of Jigoshop">SagePay Form</a> - SagePay Form payment gateway.
 * <a href="http://jigoshop.com/extensions/jigoshop-html-email/" title="Jigoshop HTML Emails">Jigoshop HTML Emails</a> - Give your Jigoshop emails a makeover
+* <a href="http://jigoshop.com/extensions/jigoshop-meta-tags/" title="Simple SEO Meta Tags">Simple SEO Meta Tags</a> - Add meta data to your individual product pages
+* <a href="http://jigoshop.com/extensions/table-rate-shipping/" title="Table Rate Shippin">Table Rate Shipping</a> - Define separate shipping rates for regions based on either price, weight or the number of items in a cart
+* <a href="http://jigoshop.com/extensions/jigoshop-up-sell-cross-sell/" title="Up-sell and Cross-sells">Up-sells &amp; Cross-sells</a> - Maximise your stores potential and increase average shopping cart totals by up-selling and cross-selling your products
+
 
 = Minimum Requirements =
 
@@ -131,6 +134,24 @@ We have a <a href="http://jigoshop.com/forum" title="Jigoshop support forum">com
 9. Checkout
 
 == Changelog ==
+
+= 0.9.8 =
+
+* Major changes to template code in an attempt to make it more flexible and easier to theme from the plugin
+* Form code changes making things more semantic
+* Tweaked category order code
+* Changed 'download remaining' database field into a varchar
+* localisation issues
+* ui.css cut down
+* Fixed edit address and change password nonce fields
+* Hook for add to cart redirect
+* Fixes to sale dates logic
+* New product preview shortcodes
+* option to hide hidden products in recent products widget
+* Breadcrumbs add shop base if chosen as a base
+* Tweaked gateway/shipping loading code to work with plugins
+* Demo store banner added
+* postcode accepts hyphens
 
 = 0.9.7.8 =
 

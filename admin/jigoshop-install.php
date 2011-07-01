@@ -36,6 +36,9 @@ function install_jigoshop() {
 	
 	// Flush Rules
 	flush_rewrite_rules();
+	
+	// Update version
+	update_option( "jigoshop_db_version", JIGOSHOP_VERSION );
 }
 
 /**
@@ -317,7 +320,7 @@ function jigoshop_tables_install() {
         `user_email`			varchar(200) NOT NULL,
         `user_id`				mediumint(9) NULL,
         `order_key`				varchar(200) NOT NULL,
-        `downloads_remaining`	mediumint(9) NULL,
+        `downloads_remaining`	varchar(9) NULL,
         PRIMARY KEY id (`product_id`, `order_key`)) $collate;";
     $wpdb->query($sql);
     

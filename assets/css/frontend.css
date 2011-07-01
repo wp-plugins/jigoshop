@@ -10,9 +10,9 @@
   padding: 10px 20px;
   border: 1px solid #EEEAC1;
   color: #747165;
-  box-shadow: inset 0 0 0 1px;
-  -webkit-box-shadow: inset 0 0 0 1px;
-  -moz-box-shadow: inset 0 0 0 1px;
+  box-shadow: inset 0 0 0 1px #ffffcc;
+  -webkit-box-shadow: inset 0 0 0 1px #ffffcc;
+  -moz-box-shadow: inset 0 0 0 1px #ffffcc;
 }
 .info a {
   color: #93864E;
@@ -40,6 +40,25 @@ div.jigoshop_message {
 }
 p small {
   color: #999;
+}
+p.demo_store {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+  background: #f7f5c6;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f7f5c6), to(#eeeac1));
+  background: -webkit-linear-gradient(#f7f5c6, #eeeac1);
+  background: -moz-linear-gradient(center top, #f7f5c6 0%, #eeeac1 100%);
+  background: -moz-gradient(center top, #f7f5c6 0%, #eeeac1 100%);
+  padding: 8px 0;
+  border: 1px solid #EEEAC1;
+  color: #747165;
+  z-index: 999999;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+  -webkit-box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+  -moz-box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 small.note {
   display: block;
@@ -133,13 +152,13 @@ div.product div.social iframe {
   margin-top: 3px;
 }
 div.product #tabs {
-  margin: 0 0 1em !important;
+  clear: both;
+  padding: 1em 0 0 0;
+  margin: 0 0 1em 0;
 }
 div.product #tabs ul.tabs {
   -webkit-border-top-left-radius: 3px;
   -webkit-border-top-right-radius: 3px;
-  -khtml-border-top-left-radius: 3px;
-  -khtml-border-top-right-radius: 3px;
   -moz-border-radius-topleft: 3px;
   -moz-border-radius-topright: 3px;
   border-top-left-radius: 3px;
@@ -163,8 +182,6 @@ div.product #tabs ul.tabs a {
   text-decoration: none;
   -webkit-border-top-left-radius: 2px;
   -webkit-border-top-right-radius: 2px;
-  -khtml-border-top-left-radius: 2px;
-  -khtml-border-top-right-radius: 2px;
   -moz-border-radius-topleft: 2px;
   -moz-border-radius-topright: 2px;
   border-top-left-radius: 2px;
@@ -180,8 +197,6 @@ div.product #tabs .panel {
   padding: 15px 15px 0;
   -webkit-border-bottom-left-radius: 3px;
   -webkit-border-bottom-right-radius: 3px;
-  -khtml-border-bottom-left-radius: 3px;
-  -khtml-border-bottom-right-radius: 3px;
   -moz-border-radius-bottomleft: 3px;
   -moz-border-radius-bottomright: 3px;
   border-bottom-left-radius: 3px;
@@ -240,10 +255,8 @@ span.onsale {
   top: 0;
   right: 320px;
   margin: -6px 0 0 0;
-  -moz-border-radius: 20px;
-  -o-border-radius: 20px;
-  -khtml-border-radius: 20px;
   -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
   border-radius: 20px;
 }
 .products ul, ul.products {
@@ -359,10 +372,8 @@ input.button,
   border: none;
   cursor: pointer;
   font-family: inherit;
-  -moz-border-radius: 3px;
-  -o-border-radius: 3px;
-  -khtml-border-radius: 3px;
   -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
 }
 a.button:hover,
@@ -390,10 +401,8 @@ input.button:hover,
   border: none;
   cursor: pointer;
   font-family: inherit;
-  -moz-border-radius: 3px;
-  -o-border-radius: 3px;
-  -khtml-border-radius: 3px;
   -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
 }
 .button-alt:hover {
@@ -459,10 +468,8 @@ input.button:hover,
 #reviews #comments ol.commentlist li .comment-text {
   margin: 0 0 0 50px;
   border: 1px solid #ddd;
-  -moz-border-radius: 5px;
-  -o-border-radius: 5px;
-  -khtml-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
   padding: 11px 11px 0;
 }
@@ -553,10 +560,8 @@ table.shop_table {
   text-align: left;
   width: 100%;
   border-collapse: separate;
-  -moz-border-radius: 5px;
-  -o-border-radius: 5px;
-  -khtml-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
 }
 table.shop_table th {
@@ -650,10 +655,7 @@ td.actions .coupon label {
 td.actions .coupon .input-text {
   width: 80px !important;
   float: left;
-  margin-right: 6px;
-}
-td.actions .coupon .input-text input {
-  padding: 1px 0 !important;
+  margin: 1px 6px 0 0 !important;
 }
 td.actions .button-alt {
   float: right;
@@ -687,8 +689,6 @@ td.quantity {
 .quantity input.minus {
   -webkit-border-top-left-radius: 5px;
   -webkit-border-bottom-left-radius: 5px;
-  -khtml-border-top-left-radius: 5px;
-  -khtml-border-bottom-left-radius: 5px;
   -moz-border-radius-topleft: 5px;
   -moz-border-radius-bottomleft: 5px;
   border-top-left-radius: 5px;
@@ -697,8 +697,6 @@ td.quantity {
 .quantity input.plus {
   -webkit-border-top-right-radius: 5px;
   -webkit-border-bottom-right-radius: 5px;
-  -khtml-border-top-right-radius: 5px;
-  -khtml-border-bottom-right-radius: 5px;
   -moz-border-radius-topright: 5px;
   -moz-border-radius-bottomright: 5px;
   border-top-right-radius: 5px;
@@ -766,10 +764,8 @@ td.quantity {
 }
 .cart-collaterals .cart_totals table {
   border-collapse: separate;
-  -moz-border-radius: 5px;
-  -o-border-radius: 5px;
-  -khtml-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
   margin: 0 0 6px !important;
   padding: 0;
@@ -828,32 +824,38 @@ td.quantity {
 .form-row label.checkbox {
   display: inline;
 }
-span.input-text {
-  display: block;
-  padding: 1px;
+form .form-row, #content .form-row {
+  /*display: block;
+		padding: 1px;
+		-webkit-box-sizing:border-box;
+		-moz-box-sizing:border-box;
+		box-sizing:border-box;
+		width: 100%;
+		border: 1px solid #ccc;
+		outline: 3px solid #f5f5f5;
+		background: #fff;*/
+
+}
+form .form-row input.input-text,
+#content .form-row input.input-text,
+form .form-row textarea,
+#content .form-row textarea {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  width: 100%;
+  box-shadow: inset 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: inset 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: inset 0 1px 4px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #ccc;
-  outline: 3px solid #f5f5f5;
-  background: #fff;
-}
-span.input-text input, span.input-text textarea {
-  width: 100% !important;
-  border: 0 !important;
-  padding: 6px 0 !important;
-  margin: 0 !important;
+  width: 100%;
+  padding: 6px;
+  margin: 0;
   outline: 0;
-  background: #fff none !important;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
+  background: #fff none;
   font-size: 14px;
   line-height: 1em;
-  text-indent: 3px !important;
 }
-span.input-text textarea {
+form .form-row textarea, #content .form-row textarea {
   height: 3.5em;
   line-height: 1.5em;
   display: block;
@@ -861,8 +863,13 @@ span.input-text textarea {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-span.input-text input:focus {
-  outline: 2px solid #faf9dc;
+form .form-row input.input-text:focus,
+#content .form-row input.input-text:focus,
+form .form-row textarea:focus,
+#content .form-row textarea:focus {
+  box-shadow: inset 0 0 0 3px #faf9dc;
+  -webkit-box-shadow: inset 0 0 0 3px #faf9dc;
+  -moz-box-shadow: inset 0 0 0 3px #faf9dc;
 }
 .form-row-first, .form-row-last {
   float: left;
@@ -880,18 +887,14 @@ form.login {
   border: 1px solid #E7E7E7;
   margin: 20px 0 20px 0px;
   text-align: left;
-  -moz-border-radius: 5px;
-  -o-border-radius: 5px;
-  -khtml-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
 }
 #payment {
   background: #F9F9F9;
-  -moz-border-radius: 5px;
-  -o-border-radius: 5px;
-  -khtml-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
 }
 #payment ul.payment_methods {
@@ -934,9 +937,9 @@ form.login {
   width: 96%;
   background: #f5f5f5;
   border: 1px solid #eee;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
+  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
   padding: 1em 2% 0;
   margin: 1em 0 1em 0;
   font-size: 0.92em;
@@ -1068,14 +1071,12 @@ div.shipping-address {
   padding: 0 6px 0 18px;
   border: 1px solid #3399cc;
   background: #3399cc url(../images/cross_white.png) no-repeat 6px center;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
+  -webkit-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
+  -moz-box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5) #888888;
   color: #fff;
-  -moz-border-radius: 3px;
-  -o-border-radius: 3px;
-  -khtml-border-radius: 3px;
   -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
 }
 .widget_layered_nav ul small.count {

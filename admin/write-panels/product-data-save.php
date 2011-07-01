@@ -38,12 +38,14 @@ function jigoshop_process_product_meta( $post_id, $post ) {
 			 $attribute_names = $_POST['attribute_names'];
 			 $attribute_values = $_POST['attribute_values'];
 			 if (isset($_POST['attribute_visibility'])) $attribute_visibility = $_POST['attribute_visibility'];
+			 if (isset($_POST['attribute_variation'])) $attribute_variation = $_POST['attribute_variation'];
 			 $attribute_is_taxonomy = $_POST['attribute_is_taxonomy'];
 			 $attribute_position = $_POST['attribute_position'];
 	
 			 for ($i=0; $i<sizeof($attribute_names); $i++) :
 			 	if (!($attribute_names[$i])) continue;
 			 	if (isset($attribute_visibility[$i])) $visible = 'yes'; else $visible = 'no';
+			 	if (isset($attribute_variation[$i])) $variation = 'yes'; else $variation = 'no';
 			 	if ($attribute_is_taxonomy[$i]) $is_taxonomy = 'yes'; else $is_taxonomy = 'no';
 			 	
 			 	if (is_array($attribute_values[$i])) :
@@ -64,6 +66,7 @@ function jigoshop_process_product_meta( $post_id, $post ) {
 			 		'value' => $attribute_values[$i],
 			 		'position' => $attribute_position[$i],
 			 		'visible' => $visible,
+			 		'variation' => $variation,
 			 		'is_taxonomy' => $is_taxonomy
 			 	);
 			 	
@@ -163,11 +166,11 @@ function jigoshop_process_product_meta( $post_id, $post ) {
 				update_post_meta( $post_id, 'price', $data['regular_price'] );
 			endif;	
 	
-			if ($date_from && $date_from < strtotime('NOW')) :
+			if ($date_from && strtotime($date_from) < strtotime('NOW')) :
 				update_post_meta( $post_id, 'price', $data['sale_price'] );
 			endif;
 			
-			if ($date_to && $date_to > strtotime('NOW')) :
+			if ($date_to && strtotime($date_to) < strtotime('NOW')) :
 				update_post_meta( $post_id, 'price', $data['regular_price'] );
 				update_post_meta( $post_id, 'sale_price_dates_from', '');
 				update_post_meta( $post_id, 'sale_price_dates_to', '');

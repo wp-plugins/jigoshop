@@ -15,8 +15,8 @@ class Jigoshop_Widget_Cart extends WP_Widget {
 	
 	/** constructor */
 	function Jigoshop_Widget_Cart() {
-		$widget_ops = array( 'description' => __( "Shopping Cart for the sidebar.") );
-		parent::WP_Widget('shopping_cart', __('Shopping Cart'), $widget_ops);
+		$widget_ops = array( 'description' => __( "Shopping Cart for the sidebar.", 'jigoshop') );
+		parent::WP_Widget('shopping_cart', __('Shopping Cart', 'jigoshop'), $widget_ops);
 	}
 
 	/** @see WP_Widget::widget */
@@ -25,7 +25,7 @@ class Jigoshop_Widget_Cart extends WP_Widget {
 		if (is_cart()) return;
 		
 		extract($args);
-		if ( !empty($instance['title']) ) $title = $instance['title']; else $title = __('Cart');
+		if ( !empty($instance['title']) ) $title = $instance['title']; else $title = __('Cart', 'jigoshop');
 		$title = apply_filters('widget_title', $title, $instance, $this->id_base);
 
 		echo $before_widget;
@@ -57,6 +57,10 @@ class Jigoshop_Widget_Cart extends WP_Widget {
 	
 			echo ':</strong> '.jigoshop_cart::get_cart_total();
 			
+			echo '</p>';
+			
+			do_action( 'jigoshop_widget_shopping_cart_before_buttons' );
+			
 			echo '<p class="buttons"><a href="'.jigoshop_cart::get_cart_url().'" class="button">'.__('View Cart &rarr;','jigoshop').'</a> <a href="'.jigoshop_cart::get_checkout_url().'" class="button checkout">'.__('Checkout &rarr;','jigoshop').'</a></p>';
 		endif;
 		echo $after_widget;
@@ -71,7 +75,7 @@ class Jigoshop_Widget_Cart extends WP_Widget {
 	/** @see WP_Widget::form */
 	function form( $instance ) {
 	?>
-	<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:') ?></label>
+	<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'jigoshop') ?></label>
 	<input type="text" class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php if (isset ( $instance['title'])) {echo esc_attr( $instance['title'] );} ?>" /></p>
 	<?php
 	}

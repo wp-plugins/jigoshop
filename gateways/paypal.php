@@ -26,8 +26,8 @@ class paypal extends jigoshop_payment_gateway {
 		add_action('jigoshop_update_options', array(&$this, 'process_admin_options'));
 		add_option('jigoshop_paypal_enabled', 'yes');
 		add_option('jigoshop_paypal_email', '');
-		add_option('jigoshop_paypal_title', 'PayPal');
-		add_option('jigoshop_paypal_description', 'Pay via PayPal; you can pay with your credit card if you don\'t have a PayPal account');
+		add_option('jigoshop_paypal_title', __('PayPal', 'jigoshop') );
+		add_option('jigoshop_paypal_description', __("Pay via PayPal; you can pay with your credit card if you don't have a PayPal account", 'jigoshop') );
 		add_option('jigoshop_paypal_testmode', 'no');
 		add_option('jigoshop_paypal_send_shipping', 'no');
 		
@@ -150,8 +150,8 @@ class paypal extends jigoshop_payment_gateway {
 				'rm' 					=> 2,
 				'upload' 				=> 1,
 				'return' 				=> add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(get_option('jigoshop_thanks_page_id')))),
-				//'cancel_return'			=> $order->get_cancel_order_url(),
-				'cancel_return'			=> home_url(),
+				'cancel_return'			=> $order->get_cancel_order_url(),
+				//'cancel_return'			=> home_url(),
 				
 				// Order key
 				'custom'				=> $order_id,

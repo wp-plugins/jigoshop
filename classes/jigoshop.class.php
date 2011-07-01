@@ -19,7 +19,6 @@ class jigoshop {
 	public static $plugin_url;
 	public static $plugin_path;
 	
-	const VERSION = '0.9.7.8';
 	const SHOP_SMALL_W = '150';
 	const SHOP_SMALL_H = '150';
 	const SHOP_TINY_W = '36';
@@ -85,7 +84,7 @@ class jigoshop {
 	public static function get_var($var) {
 		$return = '';
 		switch ($var) :
-			case "version" : $return = self::VERSION; break;
+			case "version" : $return = JIGOSHOP_VERSION; break;
 			case "shop_small_w" : $return = self::SHOP_SMALL_W; break;
 			case "shop_small_h" : $return = self::SHOP_SMALL_H; break;
 			case "shop_tiny_w" : $return = self::SHOP_TINY_W; break;
@@ -138,7 +137,7 @@ class jigoshop {
 	 *
 	 * @return   bool
 	 */
-	function show_messages() {
+	public static function show_messages() {
 	
 		if (isset(self::$errors) && sizeof(self::$errors)>0) :
 			echo '<div class="jigoshop_error">'.self::$errors[0].'</div>';
@@ -187,13 +186,17 @@ class jigoshop {
 		$name = '_n';
 		$action = 'jigoshop-' . $action;
 		
-		if( $error_message === false ) $error_message = __('You have taken too long. Please refresh the page and retry.', 'jigoshop'); 
+		if( $error_message === false ) $error_message = __('Action failed. Please refresh the page and retry.', 'jigoshop'); 
 		
 		if(!in_array($method, array('_GET', '_POST', '_REQUEST'))) $method = '_POST';
 		
+		/*
 		$request = $GLOBALS[$method];
 		
 		if ( isset($request[$name]) && wp_verify_nonce($request[$name], $action) ) return true;
+		*/
+		
+		if ( isset($_REQUEST[$name]) && wp_verify_nonce($_REQUEST[$name], $action) ) return true;
 		
 		if( $error_message ) jigoshop::add_error( $error_message );
 		

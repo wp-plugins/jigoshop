@@ -116,11 +116,13 @@ function jigoshop_cart( $atts ) {
 					endif;
 				endforeach; 
 			endif;
+			
+			do_action( 'jigoshop_shop_table_cart' );
 			?>
 			<tr>
 				<td colspan="6" class="actions">
 					<div class="coupon">
-						<label for="coupon_code"><?php _e('Coupon', 'jigoshop'); ?>:</label> <span class="input-text"><input name="coupon_code" id="coupon_code" value="" /></span> <input type="submit" class="button" name="apply_coupon" value="<?php _e('Apply Coupon', 'jigoshop'); ?>" />
+						<label for="coupon_code"><?php _e('Coupon', 'jigoshop'); ?>:</label> <input name="coupon_code" class="input-text" id="coupon_code" value="" /> <input type="submit" class="button" name="apply_coupon" value="<?php _e('Apply Coupon', 'jigoshop'); ?>" />
 					</div>
 					<?php jigoshop::nonce_field('cart') ?>
 					<input type="submit" class="button" name="update_cart" value="<?php _e('Update Shopping Cart', 'jigoshop'); ?>" /> <a href="<?php echo jigoshop_cart::get_checkout_url(); ?>" class="checkout-button button-alt"><?php _e('Proceed to Checkout &rarr;', 'jigoshop'); ?></a>
@@ -176,7 +178,7 @@ function jigoshop_cart( $atts ) {
 		?>
 		</div>
 		
-		<?php jigoshop_get_template( 'cart/shipping_calculator.php' ); ?>
+		<?php jigoshop_shipping_calculator(); ?>
 		
 	</div>
 	<?php		

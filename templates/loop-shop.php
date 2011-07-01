@@ -1,51 +1,53 @@
 <?php
 
-global $columns, $post, $per_page;
+global $columns, $post, $per_page, $wp_query;
 
-jigoshop::show_messages();
+do_action('jigoshop_before_shop_loop');
 
 $loop = 0;
 
-if (!isset($columns) || !$columns) $columns = 4;
-if (!isset($per_page) || !$per_page) $per_page = get_option('posts_per_page');
+if (!isset($columns) || !$columns) $columns = apply_filters('loop_shop_columns', 4);
+if (!isset($per_page) || !$per_page) $per_page = apply_filters('loop_shop_per_page', get_option('posts_per_page'));
 
-$found = false;
+if ($per_page > get_option('posts_per_page')) query_posts( array_merge( $wp_query->query, array( 'posts_per_page' => $per_page ) ) );
+
 ob_start();
-if (have_posts()) : while (have_posts()) : the_post(); 
-					
-	$_product = &new jigoshop_product( $post->ID );
+
+if (have_posts()) : while (have_posts()) : the_post(); $_product = &new jigoshop_product( $post->ID ); $loop++;
 	
-	$loop++;
-	
-	$found = true;
-	
-	?><li class="product <?php if ($loop%$columns==0) echo 'last'; if (($loop-1)%$columns==0) echo 'first'; ?>"><a href="<?php the_permalink(); ?>">
-		<?php 
-			if ($_product->is_on_sale()) echo '<span class="onsale">'.__('Sale!', 'jigoshop').'</span>';
+	?>
+	<li class="product <?php if ($loop%$columns==0) echo 'last'; if (($loop-1)%$columns==0) echo 'first'; ?>">
 		
-			if (has_post_thumbnail()) the_post_thumbnail('shop_small'); 
-			else echo '<img src="'.jigoshop::plugin_url(). '/assets/images/placeholder.png" alt="Placeholder" width="'.jigoshop::get_var('shop_small_w').'" height="'.jigoshop::get_var('shop_small_h').'" />'; 
-		?>
-		<strong><?php the_title(); ?></strong>
-		<span class="price"><?php echo $_product->get_price_html(); ?></span>
-	</a>
-	<a href="<?php echo $_product->add_to_cart_url(); ?>" class="button"><?php _e('Add to cart', 'jigoshop'); ?></a>
+		<?php do_action('jigoshop_before_shop_loop_item'); ?>
+		
+		<a href="<?php the_permalink(); ?>">
+			
+			<?php do_action('jigoshop_before_shop_loop_item_title', $post, $_product); ?>
+			
+			<strong><?php the_title(); ?></strong>
+			
+			<?php do_action('jigoshop_after_shop_loop_item_title', $post, $_product); ?>
+		
+		</a>
+
+		<?php do_action('jigoshop_after_shop_loop_item', $post, $_product); ?>
+		
 	</li><?php 
 	
 	if ($loop==$per_page) break;
 	
-endwhile; else :
-	
-	$found = false;
-	
-endif;
+endwhile; endif;
 
-if (!$found) :
+if ($loop==0) :
+
 	echo '<p class="info">'.__('No products found which match your selection.', 'jigoshop').'</p>'; 
+	
 else :
 	
 	$found_posts = ob_get_clean();
+	
 	echo '<ul class="products">' . $found_posts . '</ul><div class="clear"></div>';
 	
-	
 endif;
+
+do_action('jigoshop_after_shop_loop');

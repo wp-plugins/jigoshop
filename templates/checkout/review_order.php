@@ -1,4 +1,22 @@
 <?php
+/**
+ * Review order form template
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Checkout
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
+ */
+?>
+
+<?php
 	if (!defined('JIGOSHOP_CHECKOUT')) define('JIGOSHOP_CHECKOUT', true);
 	
 	if (!defined('ABSPATH')) :
@@ -108,7 +126,7 @@
 					if ($_product->exists() && $values['quantity']>0) :
 						echo '
 							<tr>
-								<td>'.$_product->get_title().'</td>
+								<td class="product-name">'.$_product->get_title().jigoshop_get_formatted_variation( $values['variation'] ).'</td>
 								<td>'.$values['quantity'].'</td>
 								<td>'.jigoshop_price($_product->get_price_excluding_tax()*$values['quantity'], array('ex_tax_label' => 1)).'</td>
 							</tr>';
@@ -162,13 +180,17 @@
 			<?php jigoshop::nonce_field('process_checkout')?>
 			<input type="submit" class="button-alt" name="place_order" id="place_order" value="<?php _e('Place order', 'jigoshop'); ?>" />
 			
+			<?php do_action( 'jigoshop_review_order_before_submit' ); ?>
+			
 			<?php if (get_option('jigoshop_terms_page_id')>0) : ?>
 			<p class="form-row terms">
 				<label for="terms" class="checkbox"><?php _e('I accept the', 'jigoshop'); ?> <a href="<?php echo get_permalink(get_option('jigoshop_terms_page_id')); ?>" target="_blank"><?php _e('terms &amp; conditions', 'jigoshop'); ?></a></label>
 				<input type="checkbox" class="input-checkbox" name="terms" <?php if (isset($_POST['terms'])) echo 'checked="checked"'; ?> id="terms" />
 			</p>
 			<?php endif; ?>
-
+			
+			<?php do_action( 'jigoshop_review_order_after_submit' ); ?>
+			
 		</div>
 
 	</div>

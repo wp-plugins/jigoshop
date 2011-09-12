@@ -1,13 +1,20 @@
 <?php
 /**
- * Checkout
- * @class jigoshop_checkout
+ * Checkout Class
  * 
  * The JigoShop checkout class handles the checkout process, collecting user data and processing the payment.
  *
- * @author 		Jigowatt
- * @category 	Classes
- * @package 	JigoShop
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Checkout
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
 class jigoshop_checkout {
 	
@@ -17,8 +24,10 @@ class jigoshop_checkout {
 	var $must_create_account;
 	var $creating_account;
 	
+	protected static $instance;
+	
 	/** constructor */
-	function __construct () {
+	protected function __construct () {
 		
 		add_action('jigoshop_checkout_billing',array(&$this,'checkout_form_billing'));
 		add_action('jigoshop_checkout_shipping',array(&$this,'checkout_form_shipping'));
@@ -52,6 +61,15 @@ class jigoshop_checkout {
 			array( 'type'=> 'country', 'name'=>'shipping-country', 'label' => __('Country', 'jigoshop'), 'required' => true, 'class' => array('form-row-first'), 'rel' => 'shipping-state' ),
 			array( 'type'=> 'state', 'name'=>'shipping-state', 'label' => __('State/County', 'jigoshop'), 'required' => true, 'class' => array('form-row-last'), 'rel' => 'shipping-country' )
 		);
+	}
+	
+	public static function instance () {
+		if(!self::$instance) {
+			$class = __CLASS__;
+			self::$instance = new $class;
+		}
+		
+		return self::$instance;
 	}
 	
 	/** Output the billing information form */
@@ -102,7 +120,9 @@ class jigoshop_checkout {
 		if (jigoshop_cart::needs_shipping() && !jigoshop_cart::ship_to_billing_address_only()) :
 			
 			echo '<p class="form-row" id="shiptobilling"><input class="input-checkbox" ';
-			if ($this->get_value('shiptobilling') || !$_POST) echo 'checked="checked" '; 
+			
+			if (!$_POST) $shiptobilling = apply_filters('shiptobilling_default', 1); else $shiptobilling = $this->get_value('shiptobilling');
+			if ($shiptobilling) echo 'checked="checked" '; 
 			echo 'type="checkbox" name="shiptobilling" /> <label for="shiptobilling" class="checkbox">'.__('Ship to same address?', 'jigoshop').'</label></p>';
 			
 			echo '<h3>'.__('Shipping Address', 'jigoshop').'</h3>';
@@ -400,6 +420,9 @@ class jigoshop_checkout {
 						endif;
 						
 					endif;
+					
+					$shipping_first_name = $shipping_last_name = $shipping_company = $shipping_address_1 = 
+					$shipping_address_2 = $shipping_city = $shipping_state = $shipping_postcode = $shipping_country = '';
 
 					// Get shipping/billing
 					if ( !empty($this->posted['shiptobilling']) ) :
@@ -512,7 +535,7 @@ class jigoshop_checkout {
 					// Cart items
 					$order_items = array();
 					
-					foreach (jigoshop_cart::$cart_contents as $item_id => $values) :
+					foreach (jigoshop_cart::$cart_contents as $cart_item_key => $values) :
 						
 						$_product = $values['data'];
 			
@@ -522,19 +545,21 @@ class jigoshop_checkout {
 							$rate = $_tax->get_rate( $_product->data['tax_class'] );
 						endif;
 						
-						$order_items[] = array(
-					 		'id' 		=> $item_id,
-					 		'name' 		=> $_product->get_title(),
-					 		'qty' 		=> (int) $values['quantity'],
-					 		'cost' 		=> $_product->get_price_excluding_tax(),
-					 		'taxrate' 	=> $rate
-					 	);
+						$order_items[] = apply_filters('new_order_item', array(
+					 		'id' 			=> $values['product_id'],
+					 		'variation_id' 	=> $values['variation_id'],
+                            'variation'     => $values['variation'],
+					 		'name' 			=> $_product->get_title(),
+					 		'qty' 			=> (int) $values['quantity'],
+					 		'cost' 			=> $_product->get_price_excluding_tax(),
+					 		'taxrate' 		=> $rate
+					 	));
 					 	
 					 	// Check stock levels
 					 	if ($_product->managing_stock()) :
 							if (!$_product->is_in_stock() || !$_product->has_enough_stock( $values['quantity'] )) :
 								
-								jigoshop::add_error( sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologise for any inconvenience caused.', 'jigoshop'), $_product->get_title() ) );
+								jigoshop::add_error( sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order.  We have %d available at this time. Please edit your cart and try again.We apologize for any inconvenience caused.', 'jigoshop'), $_product->get_title(), $_product->get_stock_quantity() ) );
 		                		break;
 								
 							endif;
@@ -542,7 +567,7 @@ class jigoshop_checkout {
 						
 							if (!$_product->is_in_stock()) :
 							
-								jigoshop::add_error( sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologise for any inconvenience caused.', 'jigoshop'), $_product->get_title() ) );
+								jigoshop::add_error( sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. We have %d available at this time. Please edit your cart and try again. We apologize for any inconvenience caused.', 'jigoshop'), $_product->get_title(), $_product->get_stock_quantity() ) );
 		                		break;
 
 							endif;
@@ -552,16 +577,23 @@ class jigoshop_checkout {
 					endforeach;
 					
 					if (jigoshop::error_count()>0) break;
-
-					// Insert the post data
 					
-					$order_id = wp_insert_post( $order_data );
+					// Insert or update the post data
+					if (isset($_SESSION['order_awaiting_payment']) && $_SESSION['order_awaiting_payment'] > 0) :
+						
+						$order_id = (int) $_SESSION['order_awaiting_payment'];
+						$order_data['ID'] = $order_id;
+						wp_update_post( $order_data );
 					
-					if (is_wp_error($order_id)) :
-						jigoshop::add_error( 'Error: Unable to create order. Please try again.' );
-		                break;
+					else :
+						$order_id = wp_insert_post( $order_data );
+						
+						if (is_wp_error($order_id)) :
+							jigoshop::add_error( 'Error: Unable to create order. Please try again.' );
+			                break;
+						endif;
 					endif;
-					
+
 					// Update post meta
 					update_post_meta( $order_id, 'order_data', $data );
 					update_post_meta( $order_id, 'order_key', uniqid('order_') );
@@ -576,7 +608,7 @@ class jigoshop_checkout {
 
 					if (jigoshop_cart::needs_payment()) :
 						
-						// Store Order ID in session 
+						// Store Order ID in session so it can be re-used after payment failure
 						$_SESSION['order_awaiting_payment'] = $order_id;
 					
 						// Process Payment
@@ -640,7 +672,17 @@ class jigoshop_checkout {
 		if (isset( $this->posted[$input] ) && !empty($this->posted[$input])) :
 			return $this->posted[$input];
 		elseif (is_user_logged_in()) :
-			return get_user_meta( get_current_user_id(), $input, true );
+			if (get_user_meta( get_current_user_id(), $input, true )) return get_user_meta( get_current_user_id(), $input, true );
+			
+			$current_user = wp_get_current_user();
+
+			switch ( $input ) :
+				
+				case "billing-email" :
+					return $current_user->user_email;
+				break;
+				
+			endswitch;
 		endif;
 	}
 }

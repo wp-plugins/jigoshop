@@ -4,9 +4,17 @@
  * 
  * Functions specific to downloadable products (for the write panels)
  *
- * @author 		Jigowatt
- * @category 	Admin Write Panel Product Types
- * @package 	JigoShop
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Admin
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
   
 /**
@@ -35,7 +43,7 @@ function downloadable_product_type_options() {
 			echo '<p class="form-field">
 				<label for="'.$field['id'].'">'.$field['label'].':</label>
 				<input type="text" class="short" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$download_limit.'" /> <span class="description">' . __('Leave blank for unlimited re-downloads.', 'jigoshop') . '</span></p>';
-
+			do_action( 'additional_downloadable_product_type_options' )
 		?>
 	</div>
 	<?php
@@ -68,7 +76,7 @@ add_action('product_type_selector', 'downloadable_product_type_selector');
  * @param 		array $data The $data being saved
  * @param 		int $post_id The post id of the post being saved
  */
-function process_product_meta_downloadable( $data, $post_id ) {
+function filter_product_meta_downloadable( $data, $post_id ) {
 	
 	if (isset($_POST['file_path']) && $_POST['file_path']) update_post_meta( $post_id, 'file_path', $_POST['file_path'] );
 	if (isset($_POST['download_limit'])) update_post_meta( $post_id, 'download_limit', $_POST['download_limit'] );
@@ -76,4 +84,4 @@ function process_product_meta_downloadable( $data, $post_id ) {
 	return $data;
 
 }
-add_filter('process_product_meta_downloadable', 'process_product_meta_downloadable', 1, 2);
+add_filter('filter_product_meta_downloadable', 'filter_product_meta_downloadable', 1, 2);

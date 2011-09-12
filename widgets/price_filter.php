@@ -1,4 +1,23 @@
-<?php 
+<?php
+/**
+ * Price Filter Widget
+ * 
+ * Generates a range slider to filter products by price
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Widgets
+ * @author     Jigowatt
+ * @since	   1.0
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
+ */
+ 
 function jigoshop_price_filter_init() {
 	
 	unset($_SESSION['min_price']);
@@ -16,26 +35,15 @@ function jigoshop_price_filter_init() {
 	endif;
 	
 }
-add_action('init', 'jigoshop_price_filter_init');
 
-/**
- * Price Filter Widget
- * 
- * Generates a range slider to filter products by price
- *
- * @package		JigoShop
- * @category	Widgets
- * @author		Jigowatt
- * @since		1.0
- * 
- */
+add_action('init', 'jigoshop_price_filter_init');
 
 class Jigoshop_Widget_Price_Filter extends WP_Widget {
 
 	/** constructor */
 	function Jigoshop_Widget_Price_Filter() {
 		$widget_ops = array( 'description' => __( "Shows a price filter slider in a widget which lets you narrow down the list of shown products in categories.", 'jigoshop') );
-		parent::WP_Widget('price_filter', __('Price Filter', 'jigoshop'), $widget_ops);
+		parent::WP_Widget('price_filter', __('Jigoshop: Price Filter', 'jigoshop'), $widget_ops);
 	}
 
 	/** @see WP_Widget::widget */
@@ -59,7 +67,7 @@ class Jigoshop_Widget_Price_Filter extends WP_Widget {
 		
 		if ($_chosen_attributes) foreach ($_chosen_attributes as $attribute => $value) :
 		
-			$fields .= '<input type="hidden" name="'.str_replace('product_attribute_', 'filter_', $attribute).'" value="'.implode(',', $value).'" />';
+			$fields .= '<input type="hidden" name="'.str_replace('pa_', 'filter_', $attribute).'" value="'.implode(',', $value).'" />';
 		
 		endforeach;
 		
@@ -76,7 +84,15 @@ class Jigoshop_Widget_Price_Filter extends WP_Widget {
 			)
 		)"));
 		
-		echo '<form method="get">
+		if (defined('SHOP_IS_ON_FRONT')) :
+			$link = '';
+		elseif (is_post_type_archive('product') || is_page( get_option('jigoshop_shop_page_id') )) :
+			$link = get_post_type_archive_link('product');
+		else :					
+			$link = get_term_link( get_query_var('term'), get_query_var('taxonomy') );
+		endif;
+		
+		echo '<form method="get" action="'.$link.'">
 			<div class="price_slider_wrapper">
 				<div class="price_slider"></div>
 				<div class="price_slider_amount">

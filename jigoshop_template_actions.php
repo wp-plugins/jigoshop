@@ -1,8 +1,19 @@
 <?php
 /**
- * ACTIONS USED IN TEMPLATE FILES
+ * Actions used in template files
  *
- **/
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Core
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
+ */
 
 /* Content Wrappers */
 add_action( 'jigoshop_before_main_content', 'jigoshop_output_content_wrapper', 10);
@@ -50,6 +61,7 @@ add_action( 'simple_add_to_cart', 'jigoshop_simple_add_to_cart' );
 add_action( 'virtual_add_to_cart', 'jigoshop_simple_add_to_cart' ); 
 add_action( 'downloadable_add_to_cart', 'jigoshop_downloadable_add_to_cart' ); 
 add_action( 'grouped_add_to_cart', 'jigoshop_grouped_add_to_cart' ); 
+add_action( 'variable_add_to_cart', 'jigoshop_variable_add_to_cart' ); 
 
 /* Product Add to Cart forms */
 add_action( 'jigoshop_add_to_cart_form', 'jigoshop_add_to_cart_form_nonce', 10);
@@ -68,3 +80,11 @@ add_action( 'jigoshop_product_tab_panels', 'jigoshop_product_reviews_panel', 30 
 
 /* Checkout */
 add_action( 'before_checkout_form', 'jigoshop_checkout_login_form', 10 );
+
+/* Remove the singular class for jigoshop single product */
+add_action( 'after_setup_theme', 'jigoshop_body_classes_check' );
+
+function jigoshop_body_classes_check () {
+	if( has_filter( 'body_class', 'twentyeleven_body_classes' ) ) 
+		add_filter( 'body_class', 'jigoshop_body_classes' );
+}

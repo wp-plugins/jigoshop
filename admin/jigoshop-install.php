@@ -1,12 +1,18 @@
 <?php
 /**
- * JigoShop Install
- * 
  * Plugin install script which adds default pages, taxonomies, and database tables
  *
- * @author 		Jigowatt
- * @category 	Admin
- * @package 	JigoShop
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Admin
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
 
 /**
@@ -18,6 +24,8 @@
  */
 function install_jigoshop() {
 	
+	jigoshop_tables_install();		/* we need tables installed first to eliminate installation errors */
+
 	// Get options and define post types before we start
 	require_once ( 'jigoshop-admin-settings-options.php' );	
 	jigoshop_post_type();
@@ -25,9 +33,8 @@ function install_jigoshop() {
 	// Do install
 	jigoshop_default_options();
 	jigoshop_create_pages();
-	jigoshop_tables_install();
 	
-	jigoshop_post_type();
+	jigoshop_post_type();			/* TODO: do we need this 2nd call to this?  -JAP- */
 	jigoshop_default_taxonomies();
 	
 	// Clear cron
@@ -35,7 +42,7 @@ function install_jigoshop() {
 	update_option('jigoshop_update_sale_prices', 'no');
 	
 	// Flush Rules
-	flush_rewrite_rules();
+	flush_rewrite_rules( false );
 	
 	// Update version
 	update_option( "jigoshop_db_version", JIGOSHOP_VERSION );
@@ -78,7 +85,7 @@ function jigoshop_create_pages() {
 	        'post_author' => 1,
 	        'post_name' => $slug,
 	        'post_title' => __('Shop', 'jigoshop'),
-	        'post_content' => 'This page holds your shop front page',
+	        'post_content' => '',
 	        'comment_status' => 'closed'
         );
         $page_id = wp_insert_post($page_data);

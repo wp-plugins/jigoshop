@@ -1,13 +1,25 @@
 <?php
-
-/** Skrill Gateway **/
-
+/**
+ * Skrill / Moneybookers Gateway
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Checkout
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
+ */
 class skrill extends jigoshop_payment_gateway {
 		
 	public function __construct() { 
         $this->id			= 'skrill';
         $this->title 		= 'Skrill';
-        $this->icon 		= 'icons/skrill.png';
+        $this->icon 		= jigoshop::plugin_url() . '/assets/images/icons/skrill.png';
         $this->has_fields 	= false;
       	$this->enabled		= get_option('jigoshop_skrill_enabled');
 		$this->title 		= get_option('jigoshop_skrill_title');

@@ -1,13 +1,24 @@
 <?php
-
 /**
  * PayPal Standard Gateway
- **/
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Checkout
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
+ */
 class paypal extends jigoshop_payment_gateway {
 		
 	public function __construct() { 
         $this->id			= 'paypal';
-        $this->icon 		= 'icons/paypal.png';
+        $this->icon 		= jigoshop::plugin_url() . '/assets/images/icons/paypal.png';
         $this->has_fields 	= false;
       	$this->enabled		= get_option('jigoshop_paypal_enabled');
 		$this->title 		= get_option('jigoshop_paypal_title');
@@ -191,18 +202,39 @@ class paypal extends jigoshop_payment_gateway {
 		// Cart Contents
 		$item_loop = 0;
 		if (sizeof($order->items)>0) : foreach ($order->items as $item) :
-			$_product = &new jigoshop_product($item['id']);
+            
+            if(!empty($item['variation_id'])) {
+                $_product = &new jigoshop_product_variation($item['variation_id']);
+            } else {
+                $_product = &new jigoshop_product($item['id']);
+            }
+            
 			if ($_product->exists() && $item['qty']) :
 				
 				$item_loop++;
+            
+                $title = $_product->get_title();
+                
+                //if variation, insert variation details into product title
+                if ($_product instanceof jigoshop_product_variation) {
+                    $variation_details = array();
+                    
+                    foreach ($_product->get_variation_attributes() as $name => $value) {
+                        $variation_details[] = ucfirst(str_replace('tax_', '', $name)) . ': ' . ucfirst($value);
+                    }
+
+                    if (count($variation_details) > 0) {
+                        $title .= ' (' . implode(', ', $variation_details) . ')';
+                    }
+                }
 				
-				$paypal_args['item_name_'.$item_loop] = $_product->get_title();
+				$paypal_args['item_name_'.$item_loop] = $title;
 				$paypal_args['quantity_'.$item_loop] = $item['qty'];
 				$paypal_args['amount_'.$item_loop] = $_product->get_price_excluding_tax();
 				
 			endif;
 		endforeach; endif;
-		
+       
 		// Shipping Cost
 		$item_loop++;
 		$paypal_args['item_name_'.$item_loop] = __('Shipping cost', 'jigoshop');

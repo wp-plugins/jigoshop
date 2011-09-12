@@ -1,20 +1,27 @@
 <?php
 /**
- * Contains the main functions for jigoshop, stores variables, and handles error messages
+ * Contains the most low level methods & helpers in Jigoshop
  *
+ * DISCLAIMER
  *
- * @package		JigoShop
- * @category	Core
- * @author		Jigowatt
- * @since		1.0
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Core
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
 class jigoshop {
 	
 	private static $_instance;
+	private static $_cache;
 	
 	public static $errors = array();
 	public static $messages = array();
-	public static $attribute_taxonomies;
+	private static $attribute_taxonomies = NULL;
 	
 	public static $plugin_url;
 	public static $plugin_path;
@@ -27,13 +34,10 @@ class jigoshop {
 	const SHOP_THUMBNAIL_H = '90';
 	const SHOP_LARGE_W = '300';
 	const SHOP_LARGE_H = '300';
-	
+
 	/** constructor */
-	function __construct () {
-		global $wpdb;
-		
+	private function __construct () {		
 		// Vars
-		self::$attribute_taxonomies = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."jigoshop_attribute_taxonomies;");
 		if (isset($_SESSION['errors'])) self::$errors = $_SESSION['errors'];
 		if (isset($_SESSION['messages'])) self::$messages = $_SESSION['messages'];
 		
@@ -43,6 +47,8 @@ class jigoshop {
 		// Hooks
 		add_filter('wp_redirect', array(&$this, 'redirect'), 1, 2);
 	}
+    
+    private function __clone(){}
 	
 	/** get */
 	public static function get() {
@@ -52,6 +58,21 @@ class jigoshop {
         }
         return self::$_instance;
     }
+    
+    /**
+     * Get attribute taxonomies. Taxonomies are lazy loaded.
+     * 
+     * @return array of stdClass objects representing attributes
+     */
+    public static function getAttributeTaxonomies() {
+        global $wpdb;
+                
+        if(self::$attribute_taxonomies === NULL) {
+            self::$attribute_taxonomies = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."jigoshop_attribute_taxonomies;"); 
+        }
+        
+        return self::$attribute_taxonomies;
+    }
 	
 	/**
 	 * Get the plugin url
@@ -60,7 +81,9 @@ class jigoshop {
 	 */
 	public static function plugin_url() { 
 		if(self::$plugin_url) return self::$plugin_url;
-		return self::$plugin_url = WP_PLUGIN_URL . "/" . plugin_basename( dirname(dirname(__FILE__))); 
+		
+		// Untested in a wild environment needs further work
+		return self::$plugin_url = plugins_url(null, dirname(__FILE__));
 	}
 	
 	/**
@@ -71,6 +94,16 @@ class jigoshop {
 	public static function plugin_path() { 	
 		if(self::$plugin_path) return self::$plugin_path;
 		return self::$plugin_path = WP_PLUGIN_DIR . "/" . plugin_basename( dirname(dirname(__FILE__))); 
+	 }
+	 
+	/**
+	 * Return the URL with https if SSL is on
+	 *
+	 * @return  string	url
+	 */
+	public static function force_ssl( $url ) { 	
+		if (is_ssl()) $url = str_replace('http:', 'https:', $url);
+		return $url;
 	 }
 	
 	/**
@@ -96,7 +129,7 @@ class jigoshop {
 		endswitch;
 		return apply_filters( 'jigoshop_get_var_'.$var, $return );
 	}
-	
+
 	/**
 	 * Add an error
 	 *
@@ -217,4 +250,34 @@ class jigoshop {
 		return $location;
 	}
 	
+	static public function shortcode_wrapper ($function, $atts=array()) {
+		if( $content = jigoshop::cache_get( $function . '-shortcode', $atts ) ) return $content;
+		
+		ob_start();
+		call_user_func($function, $atts);
+		return jigoshop::cache( $function . '-shortcode', ob_get_clean(), $atts);
+	}
+	
+	/**
+	 * Cache API
+	 */
+	
+	public static function cache ( $id, $data, $args=array() ) {
+
+		if( ! isset(self::$_cache[ $id ]) ) self::$_cache[ $id ] = array();
+		
+		if( empty($args) ) self::$_cache[ $id ][0] = $data;
+		else self::$_cache[ $id ][ serialize($args) ] = $data;
+		
+		return $data;
+		
+	}
+	public static function cache_get ( $id, $args=array() ) {
+
+		if( ! isset(self::$_cache[ $id ]) ) return null;
+		
+		if( empty($args) && isset(self::$_cache[ $id ][0]) ) return self::$_cache[ $id ][0];
+		elseif ( isset(self::$_cache[ $id ][ serialize($args) ] ) ) return self::$_cache[ $id ][ serialize($args) ];
+		
+	}
 }

@@ -1,28 +1,31 @@
 <?php
 /**
- * JigoShop Admin
- * 
  * Main admin file which loads all settings panels and sets up the menus.
  *
- * @author 		Jigowatt
- * @category 	Admin
- * @package 	JigoShop
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Admin
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
 
-
-
 require_once ( 'jigoshop-install.php' );
-
 require_once ( 'jigoshop-admin-dashboard.php' );
 require_once ( 'jigoshop-write-panels.php' );
 require_once ( 'jigoshop-admin-settings.php' );
 require_once ( 'jigoshop-admin-attributes.php' );
 require_once ( 'jigoshop-admin-post-types.php' );
-	
 
 function jigoshop_admin_init () {
-	require_once ( 'jigoshop-admin-settings-options.php' );	
+	require_once ( 'jigoshop-admin-settings-options.php' );
 }
+
 add_action('admin_init', 'jigoshop_admin_init');
 
 /**
@@ -35,9 +38,9 @@ add_action('admin_init', 'jigoshop_admin_init');
 function jigoshop_admin_menu() {
 	global $menu;
 	
-	$menu[] = array( '', 'read', 'separator-jigoshop', '', 'wp-menu-separator' );
+	$menu[] = array( '', 'read', 'separator-jigoshop', '', 'wp-menu-separator jigoshop' );
 	
-    add_menu_page(__('Jigoshop'), __('Jigoshop'), 'manage_options', 'jigoshop' , 'jigoshop_dashboard', jigoshop::plugin_url() . '/assets/images/icons/menu_icons.png', 56);
+    add_menu_page(__('Jigoshop'), __('Jigoshop'), 'manage_options', 'jigoshop' , 'jigoshop_dashboard', jigoshop::plugin_url() . '/assets/images/icons/menu_icons.png', 55);
     add_submenu_page('jigoshop', __('Dashboard', 'jigoshop'), __('Dashboard', 'jigoshop'), 'manage_options', 'jigoshop', 'jigoshop_dashboard'); 
     add_submenu_page('jigoshop', __('General Settings', 'jigoshop'),  __('Settings', 'jigoshop') , 'manage_options', 'settings', 'jigoshop_settings');
     add_submenu_page('jigoshop', __('System Info','jigoshop'), __('System Info','jigoshop'), 'manage_options', 'sysinfo', 'jigoshop_system_info');
@@ -48,19 +51,26 @@ function jigoshop_admin_menu_order( $menu_order ) {
 
 	// Initialize our custom order array
 	$jigoshop_menu_order = array();
-
+	
 	// Get the index of our custom separator
 	$jigoshop_separator = array_search( 'separator-jigoshop', $menu_order );
-
+	$jigoshop_product = array_search( 'edit.php?post_type=product', $menu_order );
+	$jigoshop_order = array_search( 'edit.php?post_type=shop_order', $menu_order );
+	
 	// Loop through menu order and do some rearranging
 	foreach ( $menu_order as $index => $item ) :
 
-		if ( ( ( 'jigoshop' ) == $item ) ) :
+		if ( 'jigoshop' == $item ) :
 			$jigoshop_menu_order[] = 'separator-jigoshop';
+			$jigoshop_menu_order[] = $item;
+			$jigoshop_menu_order[] = 'edit.php?post_type=product';
+			$jigoshop_menu_order[] = 'edit.php?post_type=shop_order';
+			
 			unset( $menu_order[$jigoshop_separator] );
-		endif;
-
-		if ( !in_array( $item, array( 'separator-jigoshop' ) ) ) :
+			unset( $menu_order[$jigoshop_product] );
+			unset( $menu_order[$jigoshop_order] );
+			
+		elseif ( !in_array( $item, array( 'separator-jigoshop' ) ) ) :
 			$jigoshop_menu_order[] = $item;
 		endif;
 
@@ -71,10 +81,9 @@ function jigoshop_admin_menu_order( $menu_order ) {
 }
 
 function jigoshop_admin_custom_menu_order() {
-	if ( !current_user_can( 'manage_options' ) ) return false;
-
-	return true;
+	return current_user_can( 'manage_options' );
 }
+
 add_action('admin_menu', 'jigoshop_admin_menu');
 add_action('menu_order', 'jigoshop_admin_menu_order');
 add_action('custom_menu_order', 'jigoshop_admin_custom_menu_order');
@@ -114,6 +123,7 @@ function jigoshop_system_info() {
 	<div class="wrap jigoshop">
 		<div class="icon32 icon32-jigoshop-debug" id="icon-jigoshop"><br/></div>
 	    <h2><?php _e('System Information','jigoshop') ?></h2>
+	    <p>Use the information below when submitting technical support requests via the Jigoshop community / premium <a href="http://jigoshop.com/forums/" title="Jigoshop Support Forums" target="_blank">support forums</a>.</p>
 		<div id="tabs-wrap">
 			<ul class="tabs">
 				<li><a href="#versions"><?php _e('Environment', 'jigoshop'); ?></a></li>
@@ -123,7 +133,7 @@ function jigoshop_system_info() {
 				<table class="widefat fixed" style="width:850px;">
 		            <thead>		            
 		            	<tr>
-		                    <th scope="col" width="200px"><?php _e('Versions','jigoshop')?></th>
+		                    <th scope="col" width="200px"><?php _e('Software Versions','jigoshop')?></th>
 		                    <th scope="col">&nbsp;</th>
 		                </tr>
 		           	</thead>
@@ -140,7 +150,7 @@ function jigoshop_system_info() {
 		            <thead>
 		                <tr>
 		                    <th scope="col" width="200px"><?php _e('Server','jigoshop')?></th>
-		                    <th scope="col">&nbsp;</th>
+		                    <th scope="col"><?php echo (defined('PHP_OS')) ? (string)(PHP_OS) : 'N/A'; ?></th>
 		                </tr>
 		            </thead>
 		           	<tbody>
@@ -182,11 +192,11 @@ function jigoshop_system_info() {
 		                </tr>
 		                 <tr>
 		                    <td class="titledesc"><?php _e('WP_DEBUG','jigoshop')?></td>
-		                    <td class="forminp"><?php if (WP_DEBUG) echo __('On', 'jigoshop'); else __('Off', 'jigoshop'); ?></td>
+		                    <td class="forminp"><?php echo (WP_DEBUG) ? __('On', 'jigoshop') : __('Off', 'jigoshop'); ?></td>
 		                </tr>
 		                <tr>
 		                    <td class="titledesc"><?php _e('DISPLAY_ERRORS','jigoshop')?></td>
-		                    <td class="forminp"><?php if(function_exists('phpversion')) echo ini_get('display_errors'); ?></td>
+		                    <td class="forminp"><?php echo (ini_get('display_errors')) ? 'On (' . ini_get('display_errors') . ')' : 'N/A'; ?></td>
 		                </tr>
 		                <tr>
 		                    <td class="titledesc"><?php _e('FSOCKOPEN','jigoshop')?></td>
@@ -267,6 +277,20 @@ function jigoshop_get_current_post_type() {
 }
 
 /**
+ * Permalink structure needs to be saved twice for structure to take effect
+ * Common bug with wordpress 3.1+ as of yet unresolved
+ *
+ * @returns		notice
+ */
+function permalink_save_twice_notice() {
+	if( isset($_POST['_wp_http_referer']) && strpos($_POST['_wp_http_referer'], 'options-permalink.php') ) {
+		print_r('<div id="message" class="updated"><p>'.__('Note: Please make sure you save your permalink settings <strong>twice</strong> in order for them to be applied correctly in Jigoshop', 'jigoshop' ).'</p></div>');
+	}
+}
+
+add_action('admin_notices', 'permalink_save_twice_notice');
+
+/**
  * Categories ordering
  */
 
@@ -305,3 +329,33 @@ function jigoshop_categories_ordering () {
 	
 }
 add_action('wp_ajax_jigoshop-categories-ordering', 'jigoshop_categories_ordering');
+
+
+if (!function_exists('boolval')) {
+	/**
+	 * Helper function to get the boolean value of a variable. If not strict, this function will return true
+	 * if the variable is not false and not empty. If strict, the value of the variable must exactly match a
+	 * value in the true test array to evaluate to true
+	 * 
+	 * @param $in The input variable
+	 * @param bool $strict
+	 * @return bool|null|string
+	 */
+	function boolval($in, $strict = false) {
+		if (is_bool($in)){
+			return $in;
+		}
+		$in = strtolower($in);
+		$out = null;
+		if (in_array($in, array('false', 'no', 'n', 'off', '0', 0, null), true)) {
+			$out = false;
+		} else if ($strict) {
+			if (in_array($in, array('true', 'yes', 'y', 'on', '1', 1), true)) {
+				$out = true;
+			}
+		} else {
+			$out = ($in ? true : false);
+		}
+		return $out;
+	}
+}

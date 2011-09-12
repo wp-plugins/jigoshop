@@ -4,14 +4,20 @@
  * 
  * The attributes section lets users add custom attributes to assign to products - they can also be used in the layered nav widgets.
  *
- * @author 		Jigowatt
- * @category 	Admin
- * @package 	JigoShop
+ * DISCLAIMER
+ *
+ * Do not edit or add directly to this file if you wish to upgrade Jigoshop to newer
+ * versions in the future. If you wish to customise Jigoshop core for your needs,
+ * please use our GitHub repository to publish essential changes for consideration.
+ *
+ * @package    Jigoshop
+ * @category   Admin
+ * @author     Jigowatt
+ * @copyright  Copyright (c) 2011 Jigowatt Ltd.
+ * @license    http://jigoshop.com/license/commercial-edition
  */
 
 /**
- * Attributes admin panel
- * 
  * Shows the created attributes and lets you add new ones.
  * The added attributes are stored in the database and can be used for layered navigation.
  *
@@ -28,7 +34,7 @@ function jigoshop_attributes() {
 		$attribute_type = (string) $_POST['attribute_type'];
 		if (isset($_POST['show-on-product-page']) && $_POST['show-on-product-page']) $product_page = 1; else $product_page = 0;
 		
-		if ($attribute_name && $attribute_type && !taxonomy_exists('product_attribute_'.strtolower(sanitize_title($attribute_name)))) :
+		if ($attribute_name && $attribute_type && !taxonomy_exists('pa_'.strtolower(sanitize_title($attribute_name)))) :
 		
 			$wpdb->insert( $wpdb->prefix . "jigoshop_attribute_taxonomies", array( 'attribute_name' => $attribute_name, 'attribute_type' => $attribute_type ), array( '%s', '%s' ) );
 			
@@ -37,6 +43,8 @@ function jigoshop_attributes() {
 			wp_safe_redirect( get_admin_url() . 'admin.php?page=attributes' );
 			exit;
 			
+		else :
+			print_r('<div id="message" class="error"><p>'.__('That attribute already exists, no additions were made.', 'jigoshop' ).'</p></div>');
 		endif;
 		
 	elseif (isset($_POST['save_attribute']) && $_POST['save_attribute'] && isset($_GET['edit'])) :
@@ -64,7 +72,7 @@ function jigoshop_attributes() {
 			
 			if ($att_name && $wpdb->query("DELETE FROM " . $wpdb->prefix . "jigoshop_attribute_taxonomies WHERE attribute_id = '$delete'")) :
 				
-				$taxonomy = 'product_attribute_'.strtolower(sanitize_title($att_name));
+				$taxonomy = 'pa_'.strtolower(sanitize_title($att_name));
 				
 				if (taxonomy_exists($taxonomy)) :
 				
@@ -167,20 +175,20 @@ function jigoshop_add_attribute() {
 				        </thead>
 				        <tbody>
 				        	<?php
-				        		$attribute_taxonomies = jigoshop::$attribute_taxonomies;
+				        		$attribute_taxonomies = jigoshop::getAttributeTaxonomies();
 				        		if ( $attribute_taxonomies ) :
 				        			foreach ($attribute_taxonomies as $tax) :
 				        				?><tr>
 
-				        					<td><a href="edit-tags.php?taxonomy=product_attribute_<?php echo strtolower(sanitize_title($tax->attribute_name)); ?>&amp;post_type=product"><?php echo $tax->attribute_name; ?></a>
+				        					<td><a href="edit-tags.php?taxonomy=pa_<?php echo strtolower(sanitize_title($tax->attribute_name)); ?>&amp;post_type=product"><?php echo $tax->attribute_name; ?></a>
 				        					
 				        					<div class="row-actions"><span class="edit"><a href="<?php echo add_query_arg('edit', $tax->attribute_id, 'admin.php?page=attributes') ?>"><?php _e('Edit', 'jigoshop'); ?></a> | </span><span class="delete"><a class="delete" href="<?php echo add_query_arg('delete', $tax->attribute_id, 'admin.php?page=attributes') ?>"><?php _e('Delete', 'jigoshop'); ?></a></span></div>				        					
 				        					</td>
 				        					<td><?php echo ucwords($tax->attribute_type); ?></td>
 				        					<td><?php 
-				        						if (taxonomy_exists('product_attribute_'.strtolower(sanitize_title($tax->attribute_name)))) :
+				        						if (taxonomy_exists('pa_'.strtolower(sanitize_title($tax->attribute_name)))) :
 					        						$terms_array = array();
-					        						$terms = get_terms( 'product_attribute_'.strtolower(sanitize_title($tax->attribute_name)), 'orderby=name&hide_empty=0' );
+					        						$terms = get_terms( 'pa_'.strtolower(sanitize_title($tax->attribute_name)), 'orderby=name&hide_empty=0' );
 					        						if ($terms) :
 						        						foreach ($terms as $term) :
 															$terms_array[] = $term->name;

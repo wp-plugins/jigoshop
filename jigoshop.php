@@ -14,7 +14,7 @@
  * Author:				Jigowatt
  * Author URI:			http://jigowatt.co.uk
  *
- * Version:				0.9.9.3
+ * Version:				0.9.9.3.1
  * Requires at least:	3.1
  * Tested up to:		3.3 Beta 3
  *

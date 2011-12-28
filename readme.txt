@@ -24,8 +24,6 @@ Styled to work with Twenty Ten, setting up a clean stylish store is easy.
 
 Find out more on the official <a href="http://jigoshop.com" title="WordPress eCommerce">Jigoshop web site</a>.
 
-[vimeo http://vimeo.com/21797311]
-
 = Jigoshop core features: =
 
 * Sell physical, digital and virtual products

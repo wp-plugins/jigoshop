@@ -45,7 +45,7 @@ class jigoshop_bank_transfer extends jigoshop_payment_gateway {
 	 **/
 	public function admin_options() {
     	?>
-    	<thead><tr><th scope="col" width="200px"><?php _e('Bank Transfer', 'jigoshop'); ?></th><th scope="col" class="desc"><?php _e('Accept Bank Transfers as a method of payment, there is no automated process associated with this, you must manually process when you receive payment.', 'jigoshop'); ?></th></tr></thead>
+    	<thead><tr><th scope="col" width="200px"><?php _e('Bank Transfer', 'jigoshop'); ?></th><th scope="col" class="desc"><?php _e('Accept Bank Transfers as a method of payment. There is no automated process associated with this, you must manually process an order when you receive payment.', 'jigoshop'); ?></th></tr></thead>
     	<tr>
 	        <td class="titledesc"><?php _e('Enable Bank Transfer', 'jigoshop') ?>:</td>
 	        <td class="forminp">
@@ -100,7 +100,7 @@ class jigoshop_bank_transfer extends jigoshop_payment_gateway {
 	    <tr>
 	        <td class="titledesc"><a href="#" tip="<?php _e('Additional information you want to display to your customer.','jigoshop') ?>" class="tips" tabindex="99"></a><?php _e('Additional Info', 'jigoshop') ?>:</td>
 	        <td class="forminp">
-	        	<textarea class="input-text" name="jigoshop_bank_transfer_additional" id="jigoshop_bank_transfer_additional"><?php if ($value = get_option('jigoshop_bank_transfer_additional')) echo $value; ?></textarea>
+	        	<textarea class="input-text" name="jigoshop_bank_transfer_additional" id="jigoshop_bank_transfer_additional"><?php if ($value = get_option('jigoshop_bank_transfer_additional')) echo esc_textarea( $value ); ?></textarea>
 	        </td>
 	    </tr>
     	<?php
@@ -166,7 +166,7 @@ class jigoshop_bank_transfer extends jigoshop_payment_gateway {
 	 **/
 	function process_payment( $order_id ) {
 		
-		$order = &new jigoshop_order( $order_id );
+		$order = new jigoshop_order( $order_id );
 		$order->update_status('on-hold', __('Awaiting Bank Transfer', 'jigoshop'));
 		jigoshop_cart::empty_cart();
 		$checkout_redirect = apply_filters( 'jigoshop_get_checkout_redirect_page_id', get_option( 'jigoshop_thanks_page_id' ) );

@@ -113,7 +113,7 @@ However, if you want priority, dedicated support from Jigoshop staff, we do offe
 
 == Changelog ==
 
-= 1.2 - TBA =
+= 1.2 - 2012-05-08 =
 * New: Permalink options:
 	* Allow `%product_cat%` for permalinks
 	* Prepend product urls with category

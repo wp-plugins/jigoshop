@@ -3,8 +3,8 @@ Contributors: Jigowatt
 Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, widgets, reports, shipping, tax, paypal, jigowatt, shipping, inventory, stock, online, sell, sales, weights, dimensions, configurable, variable, downloadable, external, affiliate, download, virtual, physical
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=paypal@jigowatt.co.uk&item_name=Donation+for+Jigoshop
 Requires at least: 3.2.1
-Tested up to: 3.4-beta3
-Stable tag: 1.2.3
+Tested up to: 3.4.1
+Stable tag: 1.3
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -112,6 +112,62 @@ However, if you want priority, dedicated support from Jigoshop staff, we do offe
 4. Standard customer checkout screen
 
 == Changelog ==
+= 1.3 - 2012-13-08 =
+* New: Redesigned settings pages using the WordPress Settings API
+	* new settings types including checkboxes, radio buttons, range sliders
+	* each settings tab saves independently of other tabs
+	* searchable pop-up selects for longer option lists
+	* Redesigned Jigoshop Options simplify extension, payment gateway, and shipping method development
+* New: Coupon features
+	* Removed from settings, now a WordPress custom post type with a submenu under Jigoshop Menu
+	* Show coupon input field on checkout page
+	* Allow coupons to be removed from cart
+	* Free shipping option
+	* Limit amount of times coupon can be used, & show a counter
+	* Min & max order subtotal
+	* Specify products to allow / deny
+	* Specify product categories to allow / deny
+	* Specify payment methods to allow
+* New: Reports
+	* Show reports within a custom timeframe
+	* List of most sales generated from products
+	* List of most quantity sold from products
+	* Total customers
+	* Total orders
+	* Total sales
+* New: Category images
+	* Add an image to your product categories
+* New: Beta Tester updater
+	* Enabling this checkbox in the settings will allow beta versions to appear in the WP Plugin Manager
+	* Allows Jigoshop Beta Testers to update directly to a beta version
+* New: Product on Sale shortcode
+* New: Force users to login before downloading a purchased product
+* New: Mark 1 month or older orders from 'pending' to 'on-hold' with an option in the Settings to enable
+* New: Select multiple countries and states for tax rules
+* New: Support for WordPress' admin classic theme
+* New: Include dummy product .xml file for WordPress importer for testing and demonstration
+* Tweak: Add shipping method to emails
+* Tweak: Shop address is used for Shipping address for local_pickup in notification emails
+* Tweak: Allow default tax classes to be translated
+* Tweak: UI Sortable helper on attributes now has no border radius
+* Tweak: Pages & CPT's now use menu_position. Fixes array key duplication
+* Tweak: Emails are now utf-8 compatible
+* Tweak: Subtotals and Shipping can now display either with or without tax on both the Cart and Checkout
+* Tweak: Cart widget now allows user defined text to display on the Go to Cart/Checkout buttons
+* Tweak: Provide easier means of altering Jigoshop frontend styles
+	* create 'jigoshop' folder in theme folder, create style.css, add styles to over-ride Jigoshop frontend.css
+	* both Jigoshop frontend.css and new style.css can be used together, just change a few things, no .less required
+* Fix: Star Ratings width css calculation now works for Recent Reviews widget
+* Fix: Paypal gateway now sends shipping address info instead of billing when setting enabled
+* Fix: When uninstalling, will now only delete Jigoshop created pages instead of pages specified in settings
+* Fix: Variable products now have proper titles, not "#xxx: Child Variaton" anymore
+* Fix: Edit Address on My Account page now shows correct saved state
+* Fix: Local Pickup shipping always charges Shop Base Country and State tax
+* Fix: Backorder notification and other emails now show variation sku's
+* Fix: When products are on backorder, customers are now emailed notification if product is set for 'notify'
+* Fix: Coupons applied after taxes now works as expected
+* Fix: Manual Order creation Calculate Totals now works
+
 = 1.2.3 - 2012-05-28 =
 * New: Add filters for new Jigoshop Product Addons extension
 * New: Add CSS classes to product attributes on variations for the front end to allow special effects

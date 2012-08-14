@@ -28,7 +28,6 @@ class jigoshop_product_meta
 		wp_set_object_terms( $post_id, sanitize_title($_POST['product-type']), 'product_type');
 
 		// Process general product data
-		// How to sanitize this block?
 		update_post_meta( $post_id, 'regular_price', !empty($_POST['regular_price']) ? jigoshop_sanitize_num($_POST['regular_price']) : '');
 
 		$sale_price = ! empty( $_POST['sale_price'] )
@@ -42,6 +41,14 @@ class jigoshop_product_meta
 			// silently fail if entered sale price > regular price (or nothing entered)
 			update_post_meta( $post_id, 'sale_price', '' );
 		}
+		// finally, if this product is a 'variable' or 'grouped', then there should never be a sale_price here
+		// perhaps it was a 'simple' product once and was changed (see rhr #437)
+		$terms = wp_get_object_terms( $post_id, 'product_type' );
+		if ( ! empty( $terms ))
+			if ( ! is_wp_error( $terms ))
+				if ( sizeof( $terms ) == 1 )
+					if ( in_array( $terms[0]->slug, array( 'variable', 'grouped' ) ) )
+						delete_post_meta( $post_id, 'sale_price' );
 		
 		update_post_meta( $post_id, 'weight',        (float) $_POST['weight']);
 		update_post_meta( $post_id, 'length',        (float) $_POST['length']);
@@ -67,10 +74,12 @@ class jigoshop_product_meta
 		}
 
 		// Process the SKU
-		( $this->is_unique_sku( $post_id, $_POST['sku'] ) )
-			? update_post_meta( $post_id, 'sku', $_POST['sku'])
-			: delete_post_meta( $post_id, 'sku' );
-
+		if ( Jigoshop_Base::get_options()->get_option('jigoshop_enable_sku') !== 'no' ) {
+			( $this->is_unique_sku( $post_id, $_POST['sku'] ) )
+				? update_post_meta( $post_id, 'sku', $_POST['sku'])
+				: delete_post_meta( $post_id, 'sku' );
+		}
+		
 		// Process the attributes
 		update_post_meta( $post_id, 'product_attributes', $this->process_attributes($_POST, $post_id));
 
@@ -128,8 +137,10 @@ class jigoshop_product_meta
 	 **/
 	private function process_stock( array $post ) {
 
+        $jigoshop_options = Jigoshop_Base::get_options();
+        
 		// If the global stock switch is off
-		if ( ! get_option('jigoshop_manage_stock', false) )
+		if ( !$jigoshop_options->get_option('jigoshop_manage_stock') )
 			return false;
 
 		// Don't hold stock info for external & grouped products
@@ -139,6 +150,7 @@ class jigoshop_product_meta
 		// Always return the stock switch
 		$array = array(
 			'manage_stock' 	=> isset($post['manage_stock']),
+			'stock_status'  => $post['stock_status']
 		);
 
 		// Store suitable stock data
@@ -146,8 +158,8 @@ class jigoshop_product_meta
 			$array['stock']        = absint( $post['stock'] );
 			$array['backorders']   = $post['backorders']; // should have a space
 			$array['stock_status'] = -1; // Discount if stock is managed
-			if ( get_option( 'jigoshop_hide_no_stock_product' ) == 'yes' ) {
-				if ( $array['stock'] <= get_option( 'jigoshop_notify_no_stock_amount' ) ) {
+			if ( $jigoshop_options->get_option( 'jigoshop_hide_no_stock_product' ) == 'yes' ) {
+				if ( $array['stock'] <= $jigoshop_options->get_option( 'jigoshop_notify_no_stock_amount' ) ) {
 					if ( $post['product-type'] <> 'grouped' && $post['product-type'] <> 'variable' ) {
 						update_post_meta( $post['ID'], 'visibility', 'hidden' );
 					} else {
@@ -156,10 +168,8 @@ class jigoshop_product_meta
 					}
 				}
 			}
-		} else {
-			$array['stock_status'] = $post['stock_status'];
 		}
-		
+				
 		return $array;
 	}
 

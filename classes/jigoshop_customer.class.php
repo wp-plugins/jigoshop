@@ -17,14 +17,14 @@
  * @license             http://jigoshop.com/license/commercial-edition
  */
 
-class jigoshop_customer extends jigoshop_singleton {
+class jigoshop_customer extends Jigoshop_Singleton {
 
 	/** constructor */
 	protected function __construct() {
 
 		if ( !isset( jigoshop_session::instance()->customer ) ) :
 
-			$default = get_option('jigoshop_default_country');
+			$default = self::get_options()->get_option('jigoshop_default_country');
         	if (strstr($default, ':')) :
         		$country = current(explode(':', $default));
         		$state = end(explode(':', $default));
@@ -219,9 +219,9 @@ class jigoshop_customer extends jigoshop_singleton {
 
 		$title = '<h3>';
 		if($load_address=='billing'):
-			$title .=_e('Billing Address', 'jigoshop');
+			$title .= __('Billing Address', 'jigoshop');
 		else:
-			$title .= _e('Shipping Address', 'jigoshop');
+			$title .= __('Shipping Address', 'jigoshop');
 		endif;
 		$title .='</h3>';
 		echo $title;
@@ -292,7 +292,6 @@ class jigoshop_customer extends jigoshop_singleton {
 
 			break;
 			case "state" :
-
 				$field = '<p class="form-row '.implode(' ', $args['class']).'">
 					<label for="' . esc_attr( $args['name'] ) . '" class="'.implode(' ', $args['label_class']).'">'.$args['label'].$required.'</label>';
 
@@ -304,12 +303,12 @@ class jigoshop_customer extends jigoshop_singleton {
 
 				$states = jigoshop_countries::get_states( $current_cc );
 
-				if (isset( $states[$current_cc][$current_r] )) :
+				if (!empty( $states )) :
 					// Dropdown
 					$field .= '<select name="'.esc_attr($args['name']).'" id="'.esc_attr($args['name']).'" class="'.esc_attr($input_required).'"><option value="">'.__('Select a state&hellip;', 'jigoshop').'</option>';
-					foreach($states[$current_cc] as $key=>$value) :
+					foreach ($states as $key=>$value) :
 						$field .= '<option value="'.esc_attr($key).'"';
-						if ($current_r==$key) $field .= 'selected="selected"';
+						if ($current_r==$key) $field .= ' selected="selected"';
 						$field .= '>'.__($value, 'jigoshop').'</option>';
 					endforeach;
 					$field .= '</select>';
@@ -365,7 +364,6 @@ class jigoshop_customer extends jigoshop_singleton {
 		endswitch;
 
 		apply_filters('jigoshop_address_field_types', $field, $args);
-
 
 		if ($args['return']) return $field; else echo $field;
 	}

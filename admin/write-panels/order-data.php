@@ -73,13 +73,21 @@ function jigoshop_order_data_meta_box($post) {
 			<select id="order_status" name="order_status">
 				<?php
 					$statuses = (array) get_terms('shop_order_status', array('hide_empty' => 0, 'orderby' => 'id'));
+					$names = jigoshop_order::get_order_statuses_and_names();
 					foreach ($statuses as $status) :
 						echo '<option value="'.esc_attr($status->slug).'" ';
 						if ($status->slug==$data['order_status']) echo 'selected="selected"';
-						echo '>'. __($status->name,'jigoshop').'</option>';
+						echo '>'. $names[$status->name] .'</option>';
 					endforeach;
 				?>
 			</select></p>
+			<script type="text/javascript">
+				/*<![CDATA[*/
+					jQuery(function() {
+						jQuery("#order_status").select2({ width: '150px' });
+					});
+				/*]]>*/
+			</script>
 
 			<p class="form-field"><label for="customer_user"><?php _e('Customer:', 'jigoshop') ?></label>
 			<select id="customer_user" name="customer_user">
@@ -92,6 +100,13 @@ function jigoshop_order_data_meta_box($post) {
 					endforeach;
 				?>
 			</select></p>
+			<script type="text/javascript">
+				/*<![CDATA[*/
+					jQuery(function() {
+						jQuery("#customer_user").select2({ width: '300px' });
+					});
+				/*]]>*/
+			</script>
 
 			<p class="form-field"><label for="excerpt"><?php _e('Customer Note:', 'jigoshop') ?></label>
 				<textarea rows="1" cols="40" name="excerpt" tabindex="6" id="excerpt" placeholder="<?php _e('Customer\'s notes about the order', 'jigoshop'); ?>"><?php echo esc_textarea( $post->post_excerpt ); ?></textarea></p>
@@ -102,17 +117,17 @@ function jigoshop_order_data_meta_box($post) {
             //display billing fieds and values
 
                 $billing_fields = array(
+					'company'   => __('Company', 'jigoshop'),
+					'first_name'=> __('First Name', 'jigoshop'),
+					'last_name' => __('Last Name', 'jigoshop'),
 					'address_1' => __('Address 1', 'jigoshop'),
 					'address_2' => __('Address 2', 'jigoshop'),
 					'city'      => __('City', 'jigoshop'),
-					'company'   => __('Company', 'jigoshop'),
-					'country'   => __('Country', 'jigoshop'),
-					'email'     => __('Email Address', 'jigoshop'),
-					'first_name'=> __('First Name', 'jigoshop'),
-					'last_name' => __('Last Name', 'jigoshop'),
-					'phone'     => __('Tel', 'jigoshop'),
 					'postcode'  => __('Postcode', 'jigoshop'),
+					'country'   => __('Country', 'jigoshop'),
 					'state'     => __('State/County', 'jigoshop'),
+					'phone'     => __('Tel', 'jigoshop'),
+					'email'     => __('Email Address', 'jigoshop'),
 				);
 
                 foreach($billing_fields as $field_id => $field_desc) {
@@ -137,14 +152,14 @@ function jigoshop_order_data_meta_box($post) {
             //display shipping fieds and values
 
                 $shipping_fields = array(
+					'company'   => __('Company', 'jigoshop'),
+					'first_name'=> __('First Name', 'jigoshop'),
+					'last_name' => __('Last Name', 'jigoshop'),
 					'address_1' => __('Address 1', 'jigoshop'),
 					'address_2' => __('Address 2', 'jigoshop'),
 					'city'      => __('City', 'jigoshop'),
-					'company'   => __('Company', 'jigoshop'),
-					'country'   => __('Country', 'jigoshop'),
-					'first_name'=> __('First Name', 'jigoshop'),
-					'last_name' => __('Last Name', 'jigoshop'),
 					'postcode'  => __('Postcode', 'jigoshop'),
+					'country'   => __('Country', 'jigoshop'),
 					'state'     => __('State/County', 'jigoshop')
 				);
 
@@ -271,47 +286,47 @@ function jigoshop_order_items_meta_box($post) {
 		</table>
 	</div>
 	<p class="buttons">
-		<select class="item_id">
-			<?php
-				$args = array(
-					'post_type' 		=> 'product',
-					'posts_per_page' 	=> -1,
-					'post_status'		=> 'publish',
-					'post_parent'		=> 0,
-					'order'				=> 'ASC',
-					'orderby'			=> 'title'
-				);
-				$products = get_posts( $args );
-
-				if ($products) foreach ($products as $product) :
-
-					$sku = get_post_meta($product->ID, 'SKU', true);
-
-					if ($sku) $sku = ' SKU: '.$sku;
-
-					echo '<option value="'.esc_attr($product->ID).'">'.$product->post_title.$sku.' (#'.$product->ID.''.$sku.')</option>';
-
-					$args_get_children = array(
-						'post_type' => array( 'product_variation', 'product' ),
-						'posts_per_page' 	=> -1,
-						'order'				=> 'ASC',
-						'orderby'			=> 'title',
-						'post_parent'		=> $product->ID
-					);
-
-					if ( $children_products = get_children( $args_get_children ) ) :
-
-						foreach ($children_products as $child) :
-
-							echo '<option value="'.esc_attr($child->ID).'">&nbsp;&nbsp;&mdash;&nbsp;'.$child->post_title.'</option>';
-
-						endforeach;
-
-					endif;
-
-				endforeach;
-			?>
-		</select>
+		<input type='text' class='item_id' name='order_product_select' id='order_product_select' value='' placeholder="<?php _e('Choose a Product', 'jigoshop'); ?>" />
+		<script type="text/javascript">
+			jQuery(function() {
+				jQuery("#order_product_select").select2({
+					minimumInputLength: 3,
+					multiple: false,
+					closeOnSelect: true,
+					ajax: {
+						url: "<?php echo (!is_ssl()) ? str_replace('https', 'http', admin_url('admin-ajax.php')) : admin_url('admin-ajax.php'); ?>",
+						dataType: 'json',
+						quietMillis: 100,
+						data: function(term, page) {
+							return {
+								term:       term,
+								action:     'jigoshop_json_search_products_and_variations',
+								security:   '<?php echo wp_create_nonce( "search-products" ); ?>'
+							};
+						},
+						results: function( data, page ) {
+							return { results: data };
+						}
+					},
+					initSelection: function( element, callback ) {
+						var stuff = {
+							action:     'jigoshop_json_search_products_and_variations',
+							security:   '<?php echo wp_create_nonce( "search-products" ); ?>',
+							term:       element.val()
+						};
+						jQuery.ajax({
+							type: 		'GET',
+							url:        "<?php echo (!is_ssl()) ? str_replace('https', 'http', admin_url('admin-ajax.php')) : admin_url('admin-ajax.php'); ?>",
+							dataType: 	"json",
+							data: 		stuff,
+							success: 	function( result ) {
+								callback( result );
+							}
+						});
+					}
+				});
+			});
+		</script>
 
 		<button type="button" class="button button-primary add_shop_order_item"><?php _e('Add item', 'jigoshop'); ?></button>
 	</p>
@@ -385,25 +400,63 @@ function jigoshop_order_totals_meta_box($post) {
 			<label><?php _e('Discount: ', 'jigoshop'); ?><span class="applied-coupons-values"><?php echo implode( ',', $coupons ); ?></span></label>
 			<input type="text" id="order_discount" name="order_discount" placeholder="0.00" value="<?php echo esc_attr( $_order->get_value_from_data('order_discount') ); ?>" />
 		</li>
-
+		<?php
+			$shipping_methods = jigoshop_shipping::get_all_methods();
+			$shipping_select = "<select id='shipping_method' name='shipping_method' class='last' data-placeholder=".__('Choose', 'jigoshop').">";
+			$shipping_select .= "<option></option>";
+			if ( ! empty( $shipping_methods )) foreach( $shipping_methods as $index => $method ) {
+				$mark = '';
+				if ( $_order->get_value_from_data('shipping_method') == $method->id ) {
+					$mark = 'selected="selected"';
+				}
+				$shipping_select .= "<option value='{$method->id}' {$mark}>{$method->title}</option>";
+			}
+			$shipping_select .= "</select>";
+		?>
 		<li>
 			<label><?php _e('Shipping:', 'jigoshop'); ?></label>
-            <input type="text" id="order_shipping" name="order_shipping" placeholder="0.00 <?php _e('(ex. tax)', 'jigoshop'); ?>" value="<?php echo esc_attr( $_order->get_value_from_data('order_shipping') ); ?>" class="first" /> <input type="text" name="shipping_method" id="shipping_method" value="<?php echo esc_attr( $_order->get_value_from_data('shipping_method') ); ?>" class="last" placeholder="<?php _e('Shipping Method', 'jigoshop'); ?>" />
+            <input type="text" id="order_shipping" name="order_shipping" placeholder="0.00 <?php _e('(ex. tax)', 'jigoshop'); ?>" value="<?php echo esc_attr( $_order->get_value_from_data('order_shipping') ); ?>" class="first" /> <?php echo $shipping_select; ?>
+			<script type="text/javascript">
+				/*<![CDATA[*/
+					jQuery(function() {
+						jQuery("#shipping_method").select2({ width: '120px' });
+					});
+				/*]]>*/
+			</script>
         </li>
 
 		<li class="left">
-			<label><?php _e('Shipping Tax:', 'jigoshop'); ?></label>
-			<input type="text" id="order_shipping_tax" name="order_shipping_tax" placeholder="0.00" value="<?php echo esc_attr( $_order->get_value_from_data('order_shipping_tax') ); ?>" class="first" />
-		</li>
-
-		<li class="right">
-			<label><?php _e('Tax:', 'jigoshop'); ?></label>
+			<label><?php _e('Total Tax:', 'jigoshop'); ?></label>
 			<input type="text" id="order_tax" name="order_tax_total" placeholder="0.00" value="<?php echo esc_attr( $_order->get_total_tax() ); ?>" class="first" />
 		</li>
 
+		<li class="right">
+			<label><?php _e('Shipping Tax:', 'jigoshop'); ?></label>
+			<input type="text" id="order_shipping_tax" name="order_shipping_tax" placeholder="0.00" value="<?php echo esc_attr( $_order->get_value_from_data('order_shipping_tax') ); ?>" class="first" />
+		</li>
+		<?php
+			$payment_methods = jigoshop_payment_gateways::get_available_payment_gateways();
+			$payment_select = "<select id='payment_method' name='payment_method' class='last' data-placeholder=".__('Choose', 'jigoshop').">";
+			$payment_select .= "<option></option>";
+			if ( ! empty( $payment_methods )) foreach( $payment_methods as $index => $method ) {
+				$mark = '';
+				if ( $_order->get_value_from_data('payment_method') == $method->id ) {
+					$mark = 'selected="selected"';
+				}
+				$payment_select .= "<option value='{$method->id}' {$mark}>{$method->title}</option>";
+			}
+			$payment_select .= "</select>";
+		?>
 		<li>
 			<label><?php _e('Total:', 'jigoshop'); ?></label>
-            <input type="text" id="order_total" name="order_total" placeholder="0.00" value="<?php echo esc_attr( $_order->get_value_from_data('order_total') ); ?>" class="first" /> <input type="text" name="payment_method" id="payment_method" value="<?php echo esc_attr( $_order->get_value_from_data('payment_method') ); ?>" class="last" placeholder="<?php _e('Payment Method', 'jigoshop'); ?>" />
+            <input type="text" id="order_total" name="order_total" placeholder="0.00" value="<?php echo esc_attr( $_order->get_value_from_data('order_total') ); ?>" class="first" /> <?php echo $payment_select; ?>
+			<script type="text/javascript">
+				/*<![CDATA[*/
+					jQuery(function() {
+						jQuery("#payment_method").select2({ width: '120px' });
+					});
+				/*]]>*/
+			</script>
 		</li>
 
 	</ul>

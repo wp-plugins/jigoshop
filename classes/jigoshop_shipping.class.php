@@ -14,7 +14,7 @@
  * @copyright           Copyright © 2011-2012 Jigowatt Ltd.
  * @license             http://jigoshop.com/license/commercial-edition
  */
-class jigoshop_shipping extends jigoshop_singleton {
+class jigoshop_shipping extends Jigoshop_Singleton {
 
     protected static $enabled = false;
     protected static $shipping_methods = array();
@@ -29,7 +29,7 @@ class jigoshop_shipping extends jigoshop_singleton {
     protected function __construct() {
 
         self::shipping_inits();
-        if (get_option('jigoshop_calc_shipping') != 'no') :
+        if (self::get_options()->get_option('jigoshop_calc_shipping') != 'no') :
             self::$enabled = true;
         endif;
     }
@@ -73,7 +73,7 @@ class jigoshop_shipping extends jigoshop_singleton {
     }
 
     public static function show_shipping_calculator() {
-        return (self::is_enabled() && get_option('jigoshop_enable_shipping_calc')=='yes' && jigoshop_cart::needs_shipping());
+        return (self::is_enabled() && self::get_options()->get_option('jigoshop_enable_shipping_calc')=='yes' && jigoshop_cart::needs_shipping());
     }
 
     public static function get_available_shipping_methods() {
@@ -81,8 +81,11 @@ class jigoshop_shipping extends jigoshop_singleton {
         $_available_methods = array();
 
         if (self::$enabled == 'yes') :
-
+			
             foreach (self::get_all_methods() as $method) :
+
+				if ( jigoshop_cart::has_free_shipping_coupon() && $method->id == 'free_shipping' )
+                    $_available_methods[$method->id] = $method;
 
                 if ($method->is_available()) :
 
@@ -151,7 +154,7 @@ class jigoshop_shipping extends jigoshop_singleton {
                 endif;
             endif;
         endforeach;
-        
+
         if (!empty($_selected_service)) :
             $available_methods[$_cheapest_method]->set_selected_service_index($_selected_service);
         endif;
@@ -159,6 +162,21 @@ class jigoshop_shipping extends jigoshop_singleton {
         return $_cheapest_method;
     }
 
+    /**
+     * 
+     * @return mixed the id of the chosen shipping method or false if none are chosen
+     */
+    public static function get_chosen_method() {
+        $_available_methods = self::get_available_shipping_methods();
+        
+        foreach ($_available_methods as $method) :
+            if ($method->is_chosen()) :
+                return $method->id;
+            endif;
+        endforeach;
+        
+        return false;
+    }
     /**
      * Calculate the shipping price
      *

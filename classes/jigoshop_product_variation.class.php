@@ -36,21 +36,23 @@ class jigoshop_product_variation extends jigoshop_product {
 		// Get the meta & for each meta item overwrite with the variations ID
 		$meta = get_post_custom( $ID );
 		foreach( $meta as $key => $array ) {
-
-			if( $array[0] )
-				$this->meta[$key] = $array;
+			if ( $array[0] ) $this->meta[$key] = $array;
+			if ( $key == 'sku' ) if ( empty( $array[0] )) $tempsku = $ID;
 		}
 
 		// Merge with the variation data
 		$this->variation_id = $ID;
 		if ( isset( $this->meta['variation_data'][0] ))
 			$this->variation_data = maybe_unserialize( $this->meta['variation_data'][0] );
-		parent::__construct( $ID );
+		
 
+		parent::__construct( $ID );
+				
 		// Restore the parent ID
 		$this->ID = $parent_id;
 		$this->id = $parent_id;
-
+		if ( ! empty( $tempsku )) $this->sku = $tempsku;
+		
 		return $this;
 	}
 
@@ -94,15 +96,15 @@ class jigoshop_product_variation extends jigoshop_product {
 		update_post_meta( $this->variation_id, 'stock', $this->stock );
 		update_post_meta( $this->variation_id, 'stock_sold', $amount_sold );
 		
-		if ( get_option('jigoshop_notify_no_stock_amount') >= 0
-			&& get_option('jigoshop_notify_no_stock_amount') >= $this->stock
-			&& get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
+		if ( self::get_options()->get_option('jigoshop_notify_no_stock_amount') >= 0
+			&& self::get_options()->get_option('jigoshop_notify_no_stock_amount') >= $this->stock
+			&& self::get_options()->get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
 			
 			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $this->variation_id ) );
 			
-		} else if ( $this->stock > get_option('jigoshop_notify_no_stock_amount')
+		} else if ( $this->stock > self::get_options()->get_option('jigoshop_notify_no_stock_amount')
 			&& get_post_status( $this->variation_id ) == 'draft'
-			&& get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
+			&& self::get_options()->get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
 			
 			$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $this->variation_id ) );
 		}

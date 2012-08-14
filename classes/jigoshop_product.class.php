@@ -14,7 +14,7 @@
  * @copyright           Copyright © 2011-2012 Jigowatt Ltd.
  * @license             http://jigoshop.com/license/commercial-edition
  */
-class jigoshop_product {
+class jigoshop_product extends Jigoshop_Base {
 
 	// LEGACY
 	private static $attribute_taxonomies = NULL;
@@ -54,6 +54,7 @@ class jigoshop_product {
 
 	private	$attributes   = array();
 	public  $children     = array(); // : jigoshop_template_functions.php on line 328
+    protected $jigoshop_options; // : jigoshop_product_variation.php uses as well
 
 	/**
 	 * Loads all product data from custom fields
@@ -230,16 +231,16 @@ class jigoshop_product {
 		update_post_meta( $this->ID, 'stock', $this->stock );
 		update_post_meta( $this->ID, 'stock_sold', $amount_sold );
 
-		if ( get_option('jigoshop_notify_no_stock_amount') >= 0
-			&& get_option('jigoshop_notify_no_stock_amount') >= $this->stock
-			&& get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
-
+		if ( self::get_options()->get_option('jigoshop_notify_no_stock_amount') >= 0
+			&& self::get_options()->get_option('jigoshop_notify_no_stock_amount') >= $this->stock
+			&& self::get_options()->get_option( 'jigoshop_hide_no_stock_product' ) == 'yes' ) {
+			
 			update_post_meta( $this->ID, 'visibility', 'hidden' );
-
-		} else if ( $this->stock > get_option('jigoshop_notify_no_stock_amount')
+			
+		} else if ( $this->stock > self::get_options()->get_option('jigoshop_notify_no_stock_amount')
 			&& $this->visibility == 'hidden'
-			&& get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
-
+			&& self::get_options()->get_option( 'jigoshop_hide_no_stock_product' )  == 'yes' ) {
+			
 			update_post_meta( $this->ID, 'visibility', 'visible' );
 		}
 
@@ -366,7 +367,7 @@ class jigoshop_product {
 	public function managing_stock() {
 
 		// If we're not managing stock at all
-		if (get_option('jigoshop_manage_stock') != 'yes')
+		if (self::get_options()->get_option('jigoshop_manage_stock') != 'yes')
 			return false;
 
 		return (bool) $this->manage_stock;
@@ -375,12 +376,13 @@ class jigoshop_product {
 	/**
 	 * Returns whether or not the product is in stock
 	 *
+	 * @param   bool    Whether to compare against the global setting for no stock threshold
 	 * @return  bool
 	 */
-	public function is_in_stock() {
+	public function is_in_stock( $below_stock_threshold = false ) {
 
 		// Always return in stock if product is in stock
-		if (get_option('jigoshop_manage_stock') != 'yes')
+		if (self::get_options()->get_option('jigoshop_manage_stock') != 'yes')
 			return true;
 
 		if ( $this->is_type( array('grouped', 'variable') ) ) {
@@ -404,7 +406,7 @@ class jigoshop_product {
 			return true;
 
 		// Check if we have stock
-		if( $this->managing_stock() && $this->stock )
+		if( $this->managing_stock() && ($below_stock_threshold ? $this->stock >= self::get_options()->get_option('jigoshop_notify_no_stock_amount') : $this->stock > 0 ) )
 			return true;
 
 		return false;
@@ -462,9 +464,10 @@ class jigoshop_product {
 	 * @return  string
 	 */
 	public function get_availability() {
-
+		
+		
 		// Do not display availability if we aren't managing stock
-		if ( get_option('jigoshop_manage_stock') != 'yes' )
+		if ( self::get_options()->get_option('jigoshop_manage_stock') != 'yes' )
 			return false;
 
 		// Start as in stock
@@ -475,7 +478,7 @@ class jigoshop_product {
 
 		// If stock is being managed & has stock
 		if ( $this->managing_stock() && $this->stock ) {
-			$notice['availability'] .= (get_option('jigoshop_show_stock') == 'yes') ? " &ndash; {$this->stock} ".__(' available', 'jigoshop' ) : '';
+			$notice['availability'] .= (self::get_options()->get_option('jigoshop_show_stock') == 'yes') ? " &ndash; {$this->stock} ".__(' available', 'jigoshop' ) : '';
 
 			// If customers require backorder notification
 			if ( $this->backorders_allowed() && $this->backorders_require_notification() ) {
@@ -576,25 +579,24 @@ class jigoshop_product {
 	}
 
 	/**
-     * Returns the price (excluding tax)
-     * @param int $quantity - provide the amount of the same product to this calculation.
-     * To calculate tax from prices include tax, we need to provide the quantity, as calculating
-     * each and every product with reverse taxes will cause rounding errors. Therefore calculate
-     * with the quantity of the product used.
+     * Get the product total price excluding tax
+     *
+     * @param   int     $quantity
+     *
+     * $return  float   the total price of the product times the quantity without any tax included
      */
-	function get_price_excluding_tax($quantity = 1) {
+	function get_price_excluding_tax( $quantity = 1 ) {
 
-        // to avoid rounding errors multiply by 100. Since we loop through the cart, rather than provide
-        // a full subtotal, this is necessary.
+        // to avoid rounding errors multiply by 100
         $price = $this->get_price() * 100;
 
-        if (get_option('jigoshop_prices_include_tax') == 'yes') :
+        if ( self::get_options()->get_option('jigoshop_prices_include_tax') == 'yes' ) {
+        
             $rates = (array) $this->get_tax_base_rate();
 
-            if (count($rates > 0)) :
+            if ( count( $rates > 0 )) {
 
-                // rates array sorted so that taxes applied to retail value come first. To reverse taxes
-                // need to reverse this array
+                // rates array sorted so that taxes applied to retail value come first. To reverse taxes, need to reverse this array
                 $new_rates = array_reverse($rates, true);
 
                 $tax_applied_after_retail = 0;
@@ -605,38 +607,93 @@ class jigoshop_product {
                 foreach ( $new_rates as $key=>$value ) :
 
                     if ($value['is_not_compound_tax']) :
-                        $tax_totals += $_tax->calc_tax(($price * $quantity) - $tax_applied_after_retail, $value['rate'], true);
+                        $tax_totals += $_tax->calc_tax(( $price * $quantity ) - $tax_applied_after_retail, $value['rate'], true );
                     else :
-                        $tax_amount[$key] = $_tax->calc_tax($price * $quantity, $value['rate'], true);
+                        $tax_amount[$key] = $_tax->calc_tax( $price * $quantity, $value['rate'], true );
                         $tax_applied_after_retail += $tax_amount[$key];
                         $tax_totals += $tax_amount[$key];
                     endif;
 
                 endforeach;
 
-                $price = $price * $quantity - $tax_totals;
+				// Product prices are always 2 decimal digits.
+				// Will get rounding errors on backwards tax calcs if we don't round
+                return round( ($price * $quantity - $tax_totals) / 100, 2 );
 
-            endif;
+            }
 
-        endif;
+        } else {
 
-        // product prices are always 2 decimal digits. Will get rounding errors on backwards tax calcs if
-        // we don't round
-        return round($price / 100, 2);
+			// Product prices are always 2 decimal digits.
+			// Will get rounding errors on backwards tax calcs if we don't round
+			return round( $price * $quantity / 100, 2 );
+			
+        }
 
     }
 
 	/**
-	 * Returns the base tax rate
-	 * TODO: why is this here? shouldn't it be in the tax class?
-	 *
-	 * @return  ???|false
+     * Get the product total price including tax
+     *
+     * @param   int     $quantity
+     *
+     * $return  float   the total price of the product times the quantity and destination tax included
+     */
+	function get_price_with_tax( $quantity = 1 ) {
+	
+        // to avoid rounding errors multiply by 100
+        $price = $this->get_price() * 100;
+
+        if ( self::get_options()->get_option('jigoshop_prices_include_tax') == 'no' ) {
+
+			$rates = (array) $this->get_tax_destination_rate();
+			
+			if ( count( $rates > 0 )) {
+	
+				// rates array sorted so that taxes applied to retail value come first. To reverse taxes, need to reverse this array
+				$new_rates = array_reverse( $rates, true );
+	
+				$tax_applied_after_retail = 0;
+				$tax_totals = 0;
+	
+				$_tax = new jigoshop_tax( 100 );
+	
+				foreach ( $new_rates as $key => $value ) {
+					
+					if ( $value['is_not_compound_tax'] ) {
+						$tax_totals += $_tax->calc_tax(( $price * $quantity ) - $tax_applied_after_retail, $value['rate'], false );
+					} else {
+						$tax_amount[$key] = $_tax->calc_tax( $price * $quantity, $value['rate'], false );
+						$tax_applied_after_retail += $tax_amount[$key];
+						$tax_totals += $tax_amount[$key];
+					}
+					
+				}
+	
+				// Product prices are always 2 decimal digits.
+				// Will get rounding errors on backwards tax calcs if we don't round
+				return round( ($price * $quantity + $tax_totals) / 100, 2 );
+	
+			}
+	
+        } else {
+
+			// Product prices are always 2 decimal digits.
+			// Will get rounding errors on backwards tax calcs if we don't round
+			return round( $price * $quantity / 100, 2 );
+			
+        }
+
+	}
+	
+	/**
+	 * Returns the base Country and State tax rate
 	 */
 	public function get_tax_base_rate() {
 
 		$rate = array();
 
-        if ($this->is_taxable() && get_option('jigoshop_calc_taxes') == 'yes') :
+        if ($this->is_taxable() && self::get_options()->get_option('jigoshop_calc_taxes') == 'yes') :
             $_tax = new jigoshop_tax();
 
             if ($_tax->get_tax_classes_for_base()) foreach ( $_tax->get_tax_classes_for_base() as $tax_class ) :
@@ -651,6 +708,33 @@ class jigoshop_product {
             endforeach;
 
         endif;
+
+        return $rate;
+	}
+
+	/**
+	 * Returns the destination Country and State tax rate
+	 */
+	public function get_tax_destination_rate() {
+
+		$rate = array();
+
+        if ( $this->is_taxable() && self::get_options()->get_option('jigoshop_calc_taxes') == 'yes' ) {
+        
+            $_tax = new jigoshop_tax();
+
+            if ( $_tax->get_tax_classes_for_base() ) foreach ( $_tax->get_tax_classes_for_base() as $tax_class ) {
+
+                if ( ! in_array( $tax_class, $this->get_tax_classes() )) continue;
+                $my_rate = $_tax->get_rate( $tax_class );
+
+                if ( $my_rate > 0 ) {
+                    $rate[$tax_class] = array( 'rate' => $my_rate, 'is_not_compound_tax' => ! $_tax->is_compound_tax() );
+                }
+
+            }
+
+        }
 
         return $rate;
 	}
@@ -716,9 +800,9 @@ class jigoshop_product {
 		else if ( $this->sale_price )
 			 return $this->sale_price;
 
-		else return $this->regular_price;
+        else return apply_filters('jigoshop_product_get_regular_price', $this->regular_price, $this->ID);
 
-	}
+    }
 
 	/**
 	 * Returns the products sale value, either with or without a percentage
@@ -814,8 +898,8 @@ class jigoshop_product {
 		if ( $this->regular_price == '' )
 			$html = __( 'Price Not Announced', 'jigoshop' );
 
-		return $html;
-	}
+        return apply_filters('jigoshop_product_get_price_html', $html, $this, $this->regular_price);
+    }
 
 	/**
 	 * Returns the upsell product ids
@@ -1053,7 +1137,7 @@ class jigoshop_product {
 	 */
 	public function has_dimensions($all_dimensions = false) {
 
-		if ( get_option('jigoshop_enable_dimensions') != 'yes' )
+		if ( self::get_options()->get_option('jigoshop_enable_dimensions') != 'yes' )
 			return false;
 
 		return ( $all_dimensions ? ($this->get_length() && $this->get_width() && $this->get_height()) :($this->get_length() || $this->get_width() || $this->get_height()));
@@ -1066,7 +1150,7 @@ class jigoshop_product {
 	 */
 	public function has_weight() {
 
-		if ( get_option('jigoshop_enable_weight') != 'yes' )
+		if ( self::get_options()->get_option('jigoshop_enable_weight') != 'yes' )
 			return false;
 
 		return (bool) $this->get_weight();
@@ -1078,7 +1162,8 @@ class jigoshop_product {
 	 * @return  html
 	 **/
 	public function list_attributes() {
-
+		
+		
 		// Check that we have some attributes that are visible
 		if ( !( $this->has_attributes() || $this->has_dimensions() || $this->has_weight() ) )
 			return false;
@@ -1087,18 +1172,18 @@ class jigoshop_product {
 		$html = '<table cellspacing="0" class="shop_attributes">';
 
 		// Output weight if we have it
-		if (get_option('jigoshop_enable_weight')=='yes' && $this->get_weight() ) {
-			$html .= '<tr><th>'.__('Weight', 'jigoshop').'</th><td>'. $this->get_weight() . get_option('jigoshop_weight_unit') .'</td></tr>';
+		if (self::get_options()->get_option('jigoshop_enable_weight')=='yes' && $this->get_weight() ) {
+			$html .= '<tr><th>'.__('Weight', 'jigoshop').'</th><td>'. $this->get_weight() . self::get_options()->get_option('jigoshop_weight_unit') .'</td></tr>';
 		}
 
 		// Output dimensions if we have it
-		if (get_option('jigoshop_enable_dimensions')=='yes') {
+		if (self::get_options()->get_option('jigoshop_enable_dimensions')=='yes') {
 			if ( $this->get_length() )
-				$html .= '<tr><th>'.__('Length', 'jigoshop').'</th><td>'. $this->get_length() . get_option('jigoshop_dimension_unit') .'</td></tr>';
+				$html .= '<tr><th>'.__('Length', 'jigoshop').'</th><td>'. $this->get_length() . self::get_options()->get_option('jigoshop_dimension_unit') .'</td></tr>';
 			if ( $this->get_width() )
-				$html .= '<tr><th>'.__('Width', 'jigoshop').'</th><td>'. $this->get_width() . get_option('jigoshop_dimension_unit') .'</td></tr>';
+				$html .= '<tr><th>'.__('Width', 'jigoshop').'</th><td>'. $this->get_width() . self::get_options()->get_option('jigoshop_dimension_unit') .'</td></tr>';
 			if ( $this->get_height() )
-				$html .= '<tr><th>'.__('Height', 'jigoshop').'</th><td>'. $this->get_height() . get_option('jigoshop_dimension_unit') .'</td></tr>';
+				$html .= '<tr><th>'.__('Height', 'jigoshop').'</th><td>'. $this->get_height() . self::get_options()->get_option('jigoshop_dimension_unit') .'</td></tr>';
 		}
 
 		$attributes = $this->get_attributes();

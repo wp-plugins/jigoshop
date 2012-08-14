@@ -295,7 +295,11 @@ jQuery(function(){
 			jQuery('.shop_attributes').append(variation.a_height);
 		}
 
-		jQuery('.variations_button, .single_variation').slideDown();
+		if ( ! variation.in_stock ) {
+			jQuery('.single_variation').slideDown();
+		} else {
+			jQuery('.variations_button, .single_variation').slideDown();
+		}
 	}
 
 	//when one of attributes is changed - check everything to show only valid options
@@ -358,7 +362,7 @@ jQuery(function(){
 
 });
 
-if (params.is_checkout==1) {
+if ( params.is_checkout ) {
 
 	var updateTimer;
 	var jqxhr;
@@ -367,21 +371,22 @@ if (params.is_checkout==1) {
 
 		if (jqxhr) jqxhr.abort();
 
-		var method		   = jQuery('#shipping_method').val();
-		var payment_method = jQuery('input[name=payment_method]:checked').val();
-		var country 	   = jQuery('#billing-country').val();
-		var state 		   = jQuery('#billing-state').val();
-		var postcode 	   = jQuery('input#billing-postcode').val();
+		var method        = jQuery('#shipping_method').val();
+		var coupon        = jQuery('#coupon_code').val();
+		var payment_method= jQuery('input[name=payment_method]:checked').val();
+		var country       = jQuery('#billing-country').val();
+		var state         = jQuery('#billing-state').val();
+		var postcode      = jQuery('input#billing-postcode').val();
 
 		if (jQuery('#shiptobilling input').is(':checked') || jQuery('#shiptobilling input').size()==0) {
-			var s_country 	= jQuery('#billing-country').val();
-			var s_state 	= jQuery('#billing-state').val();
-			var s_postcode 	= jQuery('input#billing-postcode').val();
+			var s_country = jQuery('#billing-country').val();
+			var s_state   = jQuery('#billing-state').val();
+			var s_postcode= jQuery('input#billing-postcode').val();
 
 		} else {
-			var s_country 	= jQuery('#shipping-country').val();
-			var s_state 	= jQuery('#shipping-state').val();
-			var s_postcode 	= jQuery('input#shipping-postcode').val();
+			var s_country = jQuery('#shipping-country').val();
+			var s_state   = jQuery('#shipping-state').val();
+			var s_postcode= jQuery('input#shipping-postcode').val();
 		}
 
 		jQuery('#order_methods, #order_review').block({message: null, overlayCSS: {background: '#fff url(' + params.assets_url + '/assets/images/ajax-loader.gif) no-repeat center', opacity: 0.6}});
@@ -397,6 +402,7 @@ if (params.is_checkout==1) {
 			s_state: 			s_state,
 			s_postcode: 		s_postcode,
 			payment_method:     payment_method,
+			coupon_code:        coupon,
 			post_data:			jQuery('form.checkout').serialize()
 		};
 
@@ -405,6 +411,8 @@ if (params.is_checkout==1) {
 			url: 		params.ajax_url,
 			data: 		data,
 			success: 	function( response ) {
+				/* Prevent stacking of errors. */
+				jQuery('.jigoshop_error, .jigoshop_message').remove();
 				jQuery('#order_methods, #order_review').remove();
 				jQuery('#order_review_heading').after(response);
 				jQuery('#order_review input[name=payment_method]:checked').click();
@@ -464,6 +472,10 @@ if (params.is_checkout==1) {
 			clearTimeout(updateTimer);
 			update_checkout();
 		}).change();
+		jQuery('#coupon_code').live('change', function(e){
+			clearTimeout(updateTimer);
+			update_checkout();
+		}).change();
 		jQuery('input#billing-country, input#billing-state, #billing-postcode, input#shipping-country, input#shipping-state, #shipping-postcode').live('keydown', function(){
 			clearTimeout(updateTimer);
 			updateTimer = setTimeout("update_checkout()", '5000');
@@ -482,17 +494,17 @@ if (params.is_checkout==1) {
 				url: 		params.checkout_url,
 				data: 		jQuery(form).serialize(),
 				success: 	function( code ) {
-								jQuery('.jigoshop_error, .jigoshop_message').remove();
-								try {
-									success = jQuery.parseJSON( code );
-									window.location = decodeURI(success.redirect);
-								}
-								catch(err) {
-								  	jQuery(form).prepend( code );
-									jQuery(form).unblock();
-									jQuery.scrollTo(jQuery(form).parent(), {easing:'swing'});
-								}
-							},
+					jQuery('.jigoshop_error, .jigoshop_message').remove();
+					try {
+						success = jQuery.parseJSON( code );
+						window.location = decodeURI(success.redirect);
+					}
+					catch(err) {
+						jQuery(form).prepend( code );
+						jQuery(form).unblock();
+						jQuery.scrollTo(jQuery(form).parent(), {easing:'swing'});
+					}
+				},
 				dataType: 	"html"
 			});
 			return false;

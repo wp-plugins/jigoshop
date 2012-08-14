@@ -21,7 +21,7 @@ add_action('jigoshop_process_shop_order_meta', 'jigoshop_process_shop_order_meta
 function jigoshop_process_shop_order_meta($post_id, $post) {
 
     global $wpdb;
-
+    $jigoshop_options = Jigoshop_Base::get_options();
     $jigoshop_errors = array();
 
     $order = new jigoshop_order($post_id);
@@ -35,7 +35,7 @@ function jigoshop_process_shop_order_meta($post_id, $post) {
     // Order status
 //    if ( $order->update_status($_POST['order_status'] ) && empty($_POST['invoice']) ) return; // there were errors with status changes, don't continue
 	$order->update_status($_POST['order_status'] );
-	
+
     // Add/Replace data to array
 	$customerDetails = array(
         'billing_first_name',
@@ -92,24 +92,42 @@ function jigoshop_process_shop_order_meta($post_id, $post) {
 			else if (strstr($adr, 'address_2')) $adr = str_replace('address_1', 'address2' , $adr);
 
 			$data[$key] = get_user_meta( $_POST['customer_user'], $adr, true );
+
 		endif;
 
 	endforeach;
 
-    //run stripslashes on all valid fields
-    foreach ($order_fields as $field_name) {
-        if ( isset( $_POST[$field_name] ) && !empty( $data[$field_name] ) )
-			$data[$field_name] = stripslashes( $_POST[$field_name] );
-    }
+	//run stripslashes on all valid fields
+	foreach ($order_fields as $field_name) :
 
+		if ( isset( $_POST[$field_name] ) )
+			$data[$field_name] = stripslashes( $_POST[$field_name] );
+
+	endforeach;
+	
+	// if a shipping or payment methods has changed, update the method title for pretty display
+	if ( isset( $_POST['shipping_method'] )) {
+		$data['shipping_method_title'] = '';
+		$shipping_methods = jigoshop_shipping::get_all_methods();
+		if ( ! empty( $shipping_methods )) foreach( $shipping_methods as $index => $method ) {
+			if ( $_POST['shipping_method'] == $method->id ) $data['shipping_method_title'] = $method->title;
+		}
+	}
+	if ( isset( $_POST['payment_method'] )) {
+		$data['payment_method_title'] = '';
+		$payment_methods = jigoshop_payment_gateways::get_available_payment_gateways();
+		if ( ! empty( $payment_methods )) foreach( $payment_methods as $index => $method ) {
+			if ( $_POST['payment_method'] == $method->id ) $data['payment_method_title'] = $method->title;
+		}
+	}
+	
     // if total tax has been modified from order tax, then create a customized tax array
     // just for the order. At this point, we no longer know about multiple tax classes.
     // Even if we used the old tax array data, we still don't know how to break down
     // the amounts since they're customized.
-    if ($order->get_total_tax() != $data['order_tax_total']) :
-        // need to create new tax array string
+    if (isset($data['order_tax_total']) && $order->get_total_tax() != $data['order_tax_total']) :
         $new_tax = $data['order_tax_total'];
-        $data['order_tax'] = jigoshop_tax::create_custom_tax($data['order_total'] - $data['order_tax_total'], $data['order_tax_total'], $data['order_shipping_tax'], $data['order_tax_divisor']);
+        $data['order_tax'] = jigoshop_tax::create_custom_tax($data['order_total'] - $data['order_tax_total'], $data['order_tax_total'], $data['order_shipping_tax'], isset( $data['order_tax_divisor'] ) ? $data['order_tax_divisor'] : null);
     endif;
 
     // Customer
@@ -119,12 +137,12 @@ function jigoshop_process_shop_order_meta($post_id, $post) {
     $order_items = array();
 
     if (isset($_POST['item_id'])) {
-        $item_id = $_POST['item_id'];
-        $item_variation = $_POST['item_variation_id'];
-        $item_name = $_POST['item_name'];
-        $item_quantity = $_POST['item_quantity'];
-        $item_cost = $_POST['item_cost'];
-        $item_tax_rate = $_POST['item_tax_rate'];
+		$item_id        = $_POST['item_id'];
+		$item_variation = $_POST['item_variation_id'];
+		$item_name      = $_POST['item_name'];
+		$item_quantity  = $_POST['item_quantity'];
+		$item_cost      = $_POST['item_cost'];
+		$item_tax_rate  = $_POST['item_tax_rate'];
 
         for ($i = 0; $i < count($item_id); $i++) {
 
@@ -189,14 +207,14 @@ function jigoshop_process_shop_order_meta($post_id, $post) {
                     if ($new_quantity < 0) {
                     	if ( $old_stock < 0 ) $backorder_qty = $order_item['qty'];
                     	else $backorder_qty = $old_stock - $order_item['qty'];
-						do_action( 'jigoshop_product_on_backorder_notification', $post_id, $order_item['id'], $backorder_qty );
+						do_action( 'jigoshop_product_on_backorder_notification', $post_id, $_product, $backorder_qty );
                    }
 
                     // stock status notifications
-                    if (get_option('jigoshop_notify_no_stock_amount') >= 0 && get_option('jigoshop_notify_no_stock_amount') >= $new_quantity) {
-                        do_action('jigoshop_no_stock_notification', $order_item['id']);
-                    } else if (get_option('jigoshop_notify_low_stock_amount') && get_option('jigoshop_notify_low_stock_amount') >= $new_quantity) {
-                        do_action('jigoshop_low_stock_notification', $order_item['id']);
+                    if ($jigoshop_options->get_option('jigoshop_notify_no_stock_amount') >= 0 && $jigoshop_options->get_option('jigoshop_notify_no_stock_amount') >= $new_quantity) {
+                        do_action('jigoshop_no_stock_notification', $_product);
+                    } else if ($jigoshop_options->get_option('jigoshop_notify_low_stock_amount') && $jigoshop_options->get_option('jigoshop_notify_low_stock_amount') >= $new_quantity) {
+                        do_action('jigoshop_low_stock_notification', $_product);
                     }
                 }
             } else {
@@ -239,6 +257,6 @@ function jigoshop_process_shop_order_meta($post_id, $post) {
 
     // Error Handling
     if (count($jigoshop_errors) > 0) {
-        update_option('jigoshop_errors', $jigoshop_errors);
+        $jigoshop_options->set_option('jigoshop_errors', $jigoshop_errors);
     }
 }

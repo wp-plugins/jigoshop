@@ -48,10 +48,14 @@ function jigoshop_upgrade() {
 	if ( $jigoshop_db_version < 1202280 ) {
 		jigoshop_upgrade_111();
 	}
-    
+
     if ( $jigoshop_db_version < 1203310 ) {
         jigoshop_upgrade_120();
     }
+
+	if ( $jigoshop_db_version < 1207160 ) {
+		jigoshop_upgrade_130();
+	}
 
 	// Update the db option
 	update_site_option( 'jigoshop_db_version', JIGOSHOP_VERSION );
@@ -116,19 +120,9 @@ function jigoshop_convert_db_version() {
 		case '0.9.9.3':
 			update_site_option( 'jigoshop_db_version', 1111092 );
 			break;
-        //TODO: I'm not sure why cases 1.0 -> are here... the verion of db was
-        // updated since 1.0 to the new standard. No point on continuing to 
+        // The verion of db was updated since 1.0 to the new standard. No point on continuing to
         // add entries here, since anyone that has post 1.0 will also have the
         // new db versions. Anyone before, will get converted from this function.
-		case '1.0':
-			update_site_option( 'jigoshop_db_version', 1202090 );
-			break;
-		case '1.1':
-			update_site_option( 'jigoshop_db_version', 1202130 );
-			break;
-		case '1.1.1':
-			update_site_option( 'jigoshop_db_version', 1202280 );
-			break;
 	}
 }
 
@@ -344,7 +338,7 @@ function jigoshop_upgrade_100() {
 		$parent_id = $post->post_parent;
 		$parent_reg_price = get_post_meta( $parent_id, 'regular_price', true );
 		$parent_sale_price = get_post_meta( $parent_id, 'sale_price', true );
-		
+
         // weight and dimensions were in pre 1.0. Therefore, make sure all of this
         // data gets converted as well
 		$parent_weight = get_post_meta( $parent_id, 'weight', true );
@@ -357,16 +351,16 @@ function jigoshop_upgrade_100() {
 
 		if( ! get_post_meta( $post->ID, 'sale_price', true) && $parent_sale_price )
 			update_post_meta( $post->ID, 'sale_price', $parent_sale_price );
-			
+
 		if( ! get_post_meta( $post->ID, 'weight', true) && $parent_weight )
 			update_post_meta( $post->ID, 'weight', $parent_weight );
-			
+
 		if( ! get_post_meta( $post->ID, 'length', true) && $parent_length )
 			update_post_meta( $post->ID, 'length', $parent_length );
-		
+
 		if( ! get_post_meta( $post->ID, 'height', true) && $parent_height )
 			update_post_meta( $post->ID, 'height', $parent_height );
-			
+
 		if( ! get_post_meta( $post->ID, 'width', true) && $parent_width )
 			update_post_meta( $post->ID, 'width', $parent_width );
 
@@ -424,7 +418,6 @@ function jigoshop_upgrade_111() {
 
 }
 
-
 function get_old_taxes_as_array($taxes_as_string) {
 
     $tax_classes = array();
@@ -454,12 +447,12 @@ function get_old_taxes_as_array($taxes_as_string) {
 
 /**
  * Execute changes made in Jigoshop 1.2.0
- * 
+ *
  * @since 1.2
  */
 function jigoshop_upgrade_120() {
-    
-    // update orders 
+
+    // update orders
 	$args = array(
 		'post_type'	  => 'shop_order',
 		'numberposts' => -1,
@@ -470,23 +463,115 @@ function jigoshop_upgrade_120() {
 
 	foreach( $posts as $post ) :
         $order_data = get_post_meta($post->ID, 'order_data', true);
-    
+
         if (!empty($order_data['order_tax'])) :
 
             // means someone has posted a manual order. Need to update to new tax string
             if (strpos($order_data['order_tax'], ':') === false) :
                 $order_data['order_tax_total'] = $order_data['order_tax'];
-                $order_data['order_tax'] = jigoshop_tax::create_custom_tax($order_data['order_total'] - $order_data['order_tax_total'], $order_data['order_tax_total'], $order_data['order_shipping_tax'], $order_data['order_tax_divisor']);                
+                $order_data['order_tax'] = jigoshop_tax::create_custom_tax($order_data['order_total'] - $order_data['order_tax_total'], $order_data['order_tax_total'], $order_data['order_shipping_tax'], $order_data['order_tax_divisor']);
             else :
                 $tax_array = get_old_taxes_as_array($order_data['order_tax']);
                 $order_data['order_tax'] = jigoshop_tax::array_implode($tax_array);
             endif;
-            
+
             update_post_meta($post->ID, 'order_data', $order_data);
-            
+
         endif;
-            
+
     endforeach;
     
+}
+
+/**
+ * Execute changes made in Jigoshop 1.3
+ *
+ * @since 1.3
+ */
+function jigoshop_upgrade_130() {
+	
+	global $wpdb;
+	
+	/* Update all product variation titles to something useful. */
+	$args = array(
+		'post_type' => 'product',
+		'tax_query' => array(
+			array(
+				'taxonomy'=> 'product_type',
+				'terms'   => 'variable',
+				'field'   => 'slug',
+				'operator'=> 'IN'
+			)
+		)
+	);
+	$posts_array = get_posts( $args );
+
+	foreach ( $posts_array as $post ) {
+
+		$product = new jigoshop_product ( $post->ID );
+		$var = $product->get_children();
+
+		foreach ( $var as $id ) {
+
+			$variation = $product->get_child( $id )->variation_data;
+			$taxes     = array();
+
+			foreach ( $variation as $k => $v ) :
+
+				if ( strstr ( $k, 'tax_' ) ) {
+					$tax  = substr( $k, 4 );
+					$taxes[] = sprintf('[%s: %s]', $tax, !empty($v) ? $v : 'Any ' . $tax );
+				}
+
+			endforeach;
+
+			if ( !strstr (get_the_title($id), 'Child Variation' ) )
+				continue;
+
+			$title = sprintf('%s - %s', get_the_title($post->ID), implode( $taxes, ' ' ) );
+			if ( !empty($title) )
+				$wpdb->update( $wpdb->posts, array('post_title' => $title), array('ID' => $id) );
+
+		}
+
+	}
+	
+	// Convert coupon options to new 'shop_coupon' custom post type and create posts
+	$args = array(
+		'numberposts'	=> -1,
+		'post_type'		=> 'shop_coupon',
+		'post_status'	=> 'publish'
+	);
+	$new_coupons = (array) get_posts( $args );
+	if ( empty( $new_coupons )) {   /* probably an upgrade from 1.2.3 or less, convert options based coupons */
+		$coupons = get_option( 'jigoshop_coupons' );
+		$coupon_data = array(
+			'post_status'    => 'publish',
+			'post_type'      => 'shop_coupon',
+			'post_author'    => 1,
+			'post_name'      => '',
+			'post_content'   => '',
+			'comment_status' => 'closed'
+		);
+		if ( ! empty( $coupons )) foreach ( $coupons as $coupon ) {
+			$coupon_data['post_name'] = $coupon['code'];
+			$coupon_data['post_title'] = $coupon['code'];
+			$post_id = wp_insert_post( $coupon_data );
+			update_post_meta( $post_id, 'type', $coupon['type'] );
+			update_post_meta( $post_id, 'amount', $coupon['amount'] );
+			update_post_meta( $post_id, 'include_products', $coupon['products'] );
+			update_post_meta( $post_id, 'date_from', ($coupon['date_from'] <> 0) ? $coupon['date_from'] : '' );
+			update_post_meta( $post_id, 'date_to', ($coupon['date_to'] <> 0) ? $coupon['date_to'] : '' );
+			update_post_meta( $post_id, 'individual_use', ($coupon['individual_use'] == 'yes') );
+		}
+	} else {                        /* if CPT based coupons from RC1, convert data for incorrect products meta */
+		foreach ( $new_coupons as $id => $coupon ) {
+			$product_ids = get_post_meta( $coupon->ID, 'products', true );
+			if ( $product_ids <> '' ) update_post_meta( $coupon->ID, 'include_products', $product_ids );
+			delete_post_meta( $coupon->ID, 'products', $product_ids );
+		}
+	}
+	
+	flush_rewrite_rules( true );
 
 }

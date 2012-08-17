@@ -34,7 +34,7 @@ class jigoshop_cron extends Jigoshop_Base {
 		add_action( 'http_request_args',                        array( $this, 'no_ssl_http_request_args'), 10, 2);
 		add_action( 'jigoshop_cron_pending_orders',             array( $this, 'jigoshop_update_pending_orders' ) );
 		add_action( 'jigoshop_cron_check_beta',                 array( $this, 'jigoshop_update_beta_init' ) );
-		add_action( 'init',                                     array( $this, 'jigoshop_update_beta_now' ) );
+		add_action( 'wp_loaded',                                array( $this, 'jigoshop_update_beta_now' ) );
 
 		add_filter( 'pre_set_site_transient_update_plugins',    array( $this, 'jigoshop_update_beta_checker'   ) );
 		add_filter( 'upgrader_post_install',                    array( $this, 'jigoshop_upgrader_post_install' ), 10, 3 );
@@ -188,4 +188,4 @@ class jigoshop_cron extends Jigoshop_Base {
 		return get_plugin_data(WP_PLUGIN_DIR.'/jigoshop/jigoshop.php');
 	}
 		
-} new jigoshop_cron();
+}

@@ -4,7 +4,7 @@ Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, wid
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=paypal@jigowatt.co.uk&item_name=Donation+for+Jigoshop
 Requires at least: 3.2.1
 Tested up to: 3.4.1
-Stable tag: 1.3
+Stable tag: 1.3.1
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -112,7 +112,14 @@ However, if you want priority, dedicated support from Jigoshop staff, we do offe
 4. Standard customer checkout screen
 
 == Changelog ==
-= 1.3 - 2012-13-08 =
+= 1.3.1 - 2012-17-08 =
+* Tweak: updated German translations for v1.3 courtesy @deckerweb
+* Tweak: Minor translation string updates for translators
+* Fix: Translations for the Jigoshop Settings will now appear in the Admin
+* Fix: Floating point numbers can now be entered for Product weights and dimensions when Editing a product
+* Fix: A number of minor PHP warnings resolved
+
+= 1.3 - 2012-14-08 =
 * New: Redesigned settings pages using the WordPress Settings API
 	* new settings types including checkboxes, radio buttons, range sliders
 	* each settings tab saves independently of other tabs

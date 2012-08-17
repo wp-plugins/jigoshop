@@ -22,7 +22,7 @@
  * Author:              Jigowatt
  * Author URI:          http://jigowatt.co.uk
  *
- * Version:             1.3
+ * Version:             1.3.1
  * Requires at least:   3.2.1
  * Tested up to:        3.4.1
  *
@@ -42,7 +42,7 @@
  * @license             http://jigoshop.com/license/commercial-edition
  */
 
-if ( !defined( "JIGOSHOP_VERSION" )) define( "JIGOSHOP_VERSION", 1207160) ;
+if ( !defined( "JIGOSHOP_VERSION" )) define( "JIGOSHOP_VERSION", 1208170) ;
 if ( !defined( "JIGOSHOP_OPTIONS" )) define( "JIGOSHOP_OPTIONS", 'jigoshop_options' );
 if ( !defined( 'JIGOSHOP_TEMPLATE_URL' ) ) define( 'JIGOSHOP_TEMPLATE_URL', 'jigoshop/' );
 if ( !defined( "PHP_EOL" )) define( "PHP_EOL", "\r\n" );
@@ -128,18 +128,22 @@ function jigoshop_init() {
 
 	/* ensure nothing is output to the browser prior to this (other than headers) */
 	ob_start();
-
+	
+	// instantiate options after loading text domains
     $jigoshop_options = Jigoshop_Base::get_options();
 	
-	jigoshop_post_type();						// register taxonomies
-	jigoshop_set_image_sizes();					// called after our Options are loaded
+	jigoshop_post_type();                       // register taxonomies
+
+	new jigoshop_cron();                        // after- text domains, options instantiation, allow settings translations
+
+	jigoshop_set_image_sizes();                 // called after our Options are loaded
 
 	// add Singletons here so that the taxonomies are loaded before calling them.
-	jigoshop::instance();						// Utility functions, starts sessions
-	jigoshop_customer::instance();				// Customer class, sorts session data such as location
-	jigoshop_shipping::instance();				// Shipping class. loads shipping methods
-	jigoshop_payment_gateways::instance();		// Payment gateways class. loads payment methods
-	jigoshop_cart::instance();					// Cart class
+	jigoshop::instance();                       // Utility functions, starts sessions
+	jigoshop_customer::instance();              // Customer class, sorts session data such as location
+	jigoshop_shipping::instance();              // Shipping class. loads shipping methods
+	jigoshop_payment_gateways::instance();      // Payment gateways class. loads payment methods
+	jigoshop_cart::instance();                  // Cart class
 
 	if ( ! is_admin()) {
 	

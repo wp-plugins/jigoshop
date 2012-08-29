@@ -73,7 +73,7 @@ msgstr "Neu "
 msgid "You have taken too long. Please go back and refresh the page."
 msgstr "Sie haben zu lange gebraucht. Bitte gehen Sie zurück und laden Sie die Seite neu."
 
-#@ jigowatt
+#@ jigoshop
 #: jigoshop.php:976
 msgid "Please rate the product."
 msgstr "Bitte bewerten Sie das Produkt."

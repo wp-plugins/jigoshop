@@ -4,7 +4,7 @@ Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, wid
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=paypal@jigowatt.co.uk&item_name=Donation+for+Jigoshop
 Requires at least: 3.2.1
 Tested up to: 3.4.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -112,6 +112,19 @@ However, if you want priority, dedicated support from Jigoshop staff, we do offe
 4. Standard customer checkout screen
 
 == Changelog ==
+= 1.3.2 - 2012-27-08 =
+* Tweak: updated Spanish translations for v1.3 courtesy - Jorge Figueroa
+* Tweak: Allow variable products 'add to cart' when parent product is Search only
+* Fix: Danish translation now works thanks to @IvicaDelic
+* Fix: Order Tracking page now shows correct order status completion time
+* Fix: Bank Transfer gateway Account Holder value will now appear in emails
+* Fix: The word 'Array' no longer appears on products in emails
+* Fix: uninstalling Jigoshop will no longer produce a fatal error
+* Fix: Installing Jigoshop will notify if unable to create needed database tables
+* Fix: Allow Chrome to process floating point numbers on Product Sale Price and Weights with 'step = any'
+* Fix: Cart Totals display for Firefox
+* Fix: Shipping Tab in the Settings is now properly translated and shipping modules will install for all languages
+
 = 1.3.1 - 2012-17-08 =
 * Tweak: updated German translations for v1.3 courtesy @deckerweb
 * Tweak: Minor translation string updates for translators

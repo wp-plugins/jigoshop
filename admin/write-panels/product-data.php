@@ -142,6 +142,7 @@ function jigoshop_product_data_box() {
 					'label'         => __('Sale Price','jigoshop'),
 					'after_label'   => ' ('.get_jigoshop_currency_symbol(). __(' or %','jigoshop') . ')',
 					'type'          => 'number',
+					'step'          => 'any',
 					'desc'          => '<a href="#" class="sale_schedule">'.__('Schedule','jigoshop').'</a>',
 					'placeholder'   => __('15% or 19.99','jigoshop'),
 				);
@@ -253,6 +254,7 @@ function jigoshop_product_data_box() {
 						'label'         => __( 'Weight', 'jigoshop' ),
 						'after_label'   => ' ('.Jigoshop_Base::get_options()->get_option('jigoshop_weight_unit').')',
 						'type'          => 'number',
+						'step'          => 'any',
 						'placeholder'   => '0.00',
 					);
 					echo Jigoshop_Forms::input( $args );

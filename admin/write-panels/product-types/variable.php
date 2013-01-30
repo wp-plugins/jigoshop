@@ -35,12 +35,12 @@ function jigoshop_product_meta_variable_script( $hook ) {
 class jigoshop_product_meta_variable extends jigoshop_product_meta
 {
 	public function __construct() {
-		add_action( 'jigoshop_product_write_panel_tabs',       array(&$this, 'register_tab') );
-		add_action( 'jigoshop_process_product_meta_variable',  array(&$this, 'save'), 1 );
-		add_action( 'jigoshop_product_write_panels',	           array(&$this, 'display') );
-		add_action( 'admin_enqueue_scripts',                   array(&$this, 'admin_enqueue_scripts') );
+		add_action( 'jigoshop_product_write_panel_tabs',       array($this, 'register_tab') );
+		add_action( 'jigoshop_process_product_meta_variable',  array($this, 'save'), 1 );
+		add_action( 'jigoshop_product_write_panels',	       array($this, 'display') );
+		add_action( 'admin_enqueue_scripts',                   array($this, 'admin_enqueue_scripts') );
 
-		add_action( 'wp_ajax_jigoshop_remove_variation',       array(&$this, 'remove') );
+		add_action( 'wp_ajax_jigoshop_remove_variation',       array($this, 'remove') );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 	 */
 	public function register_tab() {
 		echo '<li class="variable_tab">
-				<a href="#variable_product_options">Variations</a>
+				<a href="#variable_product_options">'.__('Variations','jigoshop').'</a>
 			</li>';
 	}
 
@@ -69,7 +69,6 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 
 		// wp_enqueue_script('jigoshop-variable-js', jigoshop::assets_url() . '/assets/js/variable.js', array('postbox', 'jquery'), true);
 
-		// Shouldn't we namespace? -Rob
 		wp_localize_script( 'jigoshop-variable-js', 'varmeta', array(
 			'assets_url'  => jigoshop::assets_url(),
 			'ajax_url'    => admin_url('admin-ajax.php'),
@@ -258,6 +257,8 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 			}
 
 			update_post_meta( $ID, 'variation_data', $variation_data );
+			
+			do_action( 'jigoshop_variable_product_table_data_save' , $ID, $meta);	
 		}
 	}
 
@@ -295,7 +296,7 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 						<option value="set_all_height"><?php _e('Height', 'jigoshop') ?></option>
 					</optgroup>
 				</select>
-				<input id="do_actions" type="submit" class="button-secondary" value="Apply">
+				<input id="do_actions" type="submit" class="button-secondary" value="<?php _e('Apply','jigoshop'); ?>">
 					<button type='button' class='button button-seconday add_variation'><?php _e('Add Variation', 'jigoshop') ?></button>
 			</div>
 		<?php endif; ?>
@@ -528,6 +529,9 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 			<div class="inside">
 				<table cellpadding="0" cellspacing="0" class="jigoshop_variable_attributes">
 					<tbody>
+					
+						<?php do_action('jigoshop_variable_product_table_begin', $variation, $attributes)?>
+					
 						<tr>
 							<td class="upload_image" rowspan="2">
 								<a href="#" class="upload_image_button <?php if (isset($image_id)) echo 'remove'; ?>" rel="<?php echo $variation->ID; ?>">
@@ -544,9 +548,9 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 								?>
 								<label class="clearlabel"><?php _e('Type', 'jigoshop') ?></label>
 								<select class="product_type" name="<?php echo esc_attr( $this->field_name('product-type', $variation) ); ?>">
-									<option value="simple" <?php selected('simple', $product_type) ?>>Simple</option>
-									<option value="downloadable" <?php selected('downloadable', $product_type) ?>>Downloadable</option>
-									<option value="virtual" <?php selected('virtual', $product_type) ?>>Virtual</option>
+									<option value="simple" <?php selected('simple', $product_type) ?>><?php _e('Simple', 'jigoshop') ?></option>
+									<option value="downloadable" <?php selected('downloadable', $product_type) ?>><?php _e('Downloadable', 'jigoshop') ?></option>
+									<option value="virtual" <?php selected('virtual', $product_type) ?>><?php _e('Virtual', 'jigoshop') ?></option>
 								</select>
 							</td>
 
@@ -588,9 +592,9 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 							</td>
 							<td colspan="4" class="dimensions">
 								<label><?php _e('Dimensions', 'jigoshop') ?> <?php echo '('. Jigoshop_Base::get_options()->get_option('jigoshop_dimension_unit'). ')' ?></label>
-								<input type="text" name="<?php echo esc_attr( $this->field_name('length', $variation) ); ?>" placeholder="Length" value="<?php echo esc_attr( isset($meta['length'][0]) ? $meta['length'][0] : null ); ?>" />
-								<input type="text" name="<?php echo esc_attr( $this->field_name('width', $variation) ); ?>" placeholder="Width" value="<?php echo esc_attr( isset($meta['width'][0]) ? $meta['width'][0] : null ); ?>" />
-								<input type="text" name="<?php echo esc_attr( $this->field_name('height', $variation) ); ?>" placeholder="Height" value="<?php echo esc_attr( isset($meta['height'][0]) ? $meta['height'][0] : null ); ?>" />
+								<input type="text" name="<?php echo esc_attr( $this->field_name('length', $variation) ); ?>" placeholder="<?php _e('Length', 'jigoshop') ?>" value="<?php echo esc_attr( isset($meta['length'][0]) ? $meta['length'][0] : null ); ?>" />
+								<input type="text" name="<?php echo esc_attr( $this->field_name('width', $variation) ); ?>" placeholder="<?php _e('Width', 'jigoshop') ?>" value="<?php echo esc_attr( isset($meta['width'][0]) ? $meta['width'][0] : null ); ?>" />
+								<input type="text" name="<?php echo esc_attr( $this->field_name('height', $variation) ); ?>" placeholder="<?php _e('Height', 'jigoshop') ?>" value="<?php echo esc_attr( isset($meta['height'][0]) ? $meta['height'][0] : null ); ?>" />
 								<td colspan="3"></td>
 							</td>
 						</tr>
@@ -611,6 +615,9 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 								&nbsp;
 							</td>
 						</tr>
+						
+						<?php do_action( 'jigoshop_variable_product_table_end' , $variation, $attributes)?>
+						
 					</tbody>
 				</table>
 			</div>

@@ -11,26 +11,27 @@
  * @package             Jigoshop
  * @category            Catalog
  * @author              Jigowatt
- * @copyright           Copyright © 2011-2012 Jigowatt Ltd.
+ * @copyright           Copyright © 2011-2013 Jigowatt Ltd.
  * @license             http://jigoshop.com/license/commercial-edition
  */
 ?>
 
 <?php
-global $columns, $per_page;
+global $columns, $per_page, $jigoshop_sale_products, $post;
+
+ob_start();
 
 do_action('jigoshop_before_shop_loop');
 
 $loop = 0;
 
 if (!isset($columns) || !$columns) $columns = apply_filters('loop_shop_columns', 4);
-//if (!isset($per_page) || !$per_page) $per_page = apply_filters('loop_shop_per_page', get_option('posts_per_page'));
 
-//if ($per_page > get_option('posts_per_page')) query_posts( array_merge( $wp_query->query, array( 'posts_per_page' => $per_page ) ) );
+foreach ( $jigoshop_sale_products as $post ) :
 
-ob_start();
-
-if (have_posts()) : while (have_posts()) : the_post(); $_product = new jigoshop_product( $post->ID ); $loop++;
+	setup_postdata( $post );
+	
+	 $_product = new jigoshop_product( $post->ID ); $loop++;
 
 	?>
 	<li class="product <?php if ($loop%$columns==0) echo 'last'; if (($loop-1)%$columns==0) echo 'first'; ?>">
@@ -53,7 +54,7 @@ if (have_posts()) : while (have_posts()) : the_post(); $_product = new jigoshop_
 
 	if ($loop==$per_page) break;
 
-endwhile; endif;
+endforeach;
 
 if ($loop==0) :
 

@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Jigoshop v1.6\n"
+"Project-Id-Version: Jigoshop v1.6.1\n"
 "Report-Msgid-Bugs-To: Jeff Parsons <jeff.parsons@jigoshop.com>\n"
-"POT-Creation-Date: 2013-03-18 05:48-0400\n"
-"PO-Revision-Date: 2013-03-18 05:48-0400\n"
+"POT-Creation-Date: 2013-03-20 07:19-0400\n"
+"PO-Revision-Date: 2013-03-20 07:19-0400\n"
 "Last-Translator: Jeff Parsons <jeff.parsons@jigoshop.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -34,7 +34,7 @@ msgstr "Cliente"
 #: ../jigoshop.php:239
 #, fuzzy
 msgid "Shop Manager"
-msgstr "Não gerenciado"
+msgstr "Gerente da Loja"
 
 # @ jigoshop
 #: ../jigoshop.php:344 ../jigoshop_template_functions.php:835
@@ -77,7 +77,7 @@ msgstr " <small>(sem taxas)</small>"
 # @ jigoshop
 #: ../jigoshop.php:827
 msgid " <small>(inc. tax)</small>"
-msgstr " <small>(incluindo taxa)</small>"
+msgstr " <small>(taxas inclusas)</small>"
 
 # @ jigoshop
 #: ../jigoshop.php:1070
@@ -157,12 +157,12 @@ msgstr "Adicionar Informação"
 #: ../jigoshop_actions.php:106 ../admin/jigoshop-write-panels.php:184
 #: ../admin/write-panels/order-data.php:287
 msgid "Quantity e.g. 2"
-msgstr "Quantidade"
+msgstr "Quantidade (ex. 2)"
 
 # @ jigoshop
 #: ../jigoshop_actions.php:107 ../admin/write-panels/order-data.php:290
 msgid "Cost per unit ex. tax e.g. 2.99"
-msgstr "Custo por unidade (sem taxas 2,99)"
+msgstr "Custo por unidade (ex. sem taxas 2,99)"
 
 # @ jigoshop
 #: ../jigoshop_actions.php:108 ../admin/jigoshop-write-panels.php:186
@@ -1282,13 +1282,13 @@ msgstr "Selecionar"
 
 # @ jigoshop
 #: ../admin/jigoshop-admin-attributes.php:159
-#: ../admin/jigoshop-admin-attributes.php:266
+#: ../admin/jigoshop-admin-attributes.php:264
 msgid "Multiselect"
 msgstr "Multiseleção"
 
 # @ jigoshop
 #: ../admin/jigoshop-admin-attributes.php:160
-#: ../admin/jigoshop-admin-attributes.php:267
+#: ../admin/jigoshop-admin-attributes.php:266
 #: ../admin/jigoshop-admin-help.php:27
 msgid "Text"
 msgstr "Texto"
@@ -1357,13 +1357,13 @@ msgid "Slug for your attribute (optional)."
 msgstr "Slug para o seu atributo (opcional)."
 
 # @ jigoshop
-#: ../admin/jigoshop-admin-attributes.php:273
+#: ../admin/jigoshop-admin-attributes.php:272
 #: ../admin/write-panels/product-data.php:471
 msgid "Add Attribute"
 msgstr "Adicionar Atributo"
 
 # @ jigoshop
-#: ../admin/jigoshop-admin-attributes.php:283
+#: ../admin/jigoshop-admin-attributes.php:282
 msgid "Are you sure you want to delete this?"
 msgstr "Tem certeza de que deseja deletar isto?"
 
@@ -2286,7 +2286,7 @@ msgstr ""
 # @ jigoshop
 #: ../admin/jigoshop-admin-help.php:248 ../admin/jigoshop-write-panels.php:190
 #: ../admin/write-panels/product-data.php:558
-#: ../admin/write-panels/product-data.php:659
+#: ../admin/write-panels/product-data.php:658
 msgid "Display on product page"
 msgstr "Exibir na página de produtos"
 
@@ -2304,7 +2304,7 @@ msgstr ""
 # @ jigoshop
 #: ../admin/jigoshop-admin-help.php:249 ../admin/jigoshop-write-panels.php:191
 #: ../admin/write-panels/product-data.php:563
-#: ../admin/write-panels/product-data.php:663
+#: ../admin/write-panels/product-data.php:662
 msgid "Is for variations"
 msgstr "É para variações"
 
@@ -3022,7 +3022,7 @@ msgstr "As configurações de \"%s\" foram salvas."
 #: ../admin/jigoshop-admin-settings-api.php:1176
 #: ../admin/write-panels/order-data.php:228
 #: ../admin/write-panels/product-data.php:538
-#: ../admin/write-panels/product-data.php:643
+#: ../admin/write-panels/product-data.php:642
 #: ../admin/write-panels/product-types/variable.php:503
 msgid "Remove"
 msgstr "Remover"
@@ -4628,13 +4628,13 @@ msgstr "Taxa Reduzida%sTaxa Zero"
 #: ../admin/jigoshop-admin-settings-options.php:889
 #: ../classes/jigoshop_options.class.php:1577
 msgid "Tax rates"
-msgstr "Taxas de impostos"
+msgstr "Alíquotas"
 
 # @ jigoshop
 #: ../admin/jigoshop-admin-settings-options.php:891
 #: ../classes/jigoshop_options.class.php:1579
 msgid "To avoid rounding errors, insert tax rates with 4 decimal places."
-msgstr "Para evitar erros, insira taxas com 4 casas decimais."
+msgstr "Para evitar erros, insira alíquotas com 4 casas decimais."
 
 # @ jigoshop
 #: ../admin/jigoshop-admin-settings.php:343
@@ -5524,7 +5524,7 @@ msgstr "Custo"
 # @ jigoshop
 #: ../admin/write-panels/order-data.php:227
 msgid "Tax Rate"
-msgstr "Taxa de imposto"
+msgstr "Alíquota"
 
 # @ jigoshop
 #: ../admin/write-panels/order-data.php:254
@@ -5792,13 +5792,13 @@ msgstr "Padrão"
 
 # @ jigoshop
 #: ../admin/write-panels/product-data.php:256
-#: ../admin/write-panels/product-data.php:609
+#: ../admin/write-panels/product-data.php:608
 msgid "Check All"
 msgstr "Marcar Todos"
 
 # @ jigoshop
 #: ../admin/write-panels/product-data.php:257
-#: ../admin/write-panels/product-data.php:610
+#: ../admin/write-panels/product-data.php:609
 msgid "Uncheck All"
 msgstr "Desmarcar Todos"
 
@@ -5955,23 +5955,23 @@ msgstr "Atributo de produto personalizado"
 
 # @ jigoshop
 #: ../admin/write-panels/product-data.php:539
-#: ../admin/write-panels/product-data.php:644
+#: ../admin/write-panels/product-data.php:643
 #, fuzzy
 msgid "Click to toggle"
 msgstr "Clique para fazer login"
 
 # @ jigoshop
-#: ../admin/write-panels/product-data.php:572
+#: ../admin/write-panels/product-data.php:571
 msgid "Choose an option&hellip;"
 msgstr "Escolha uma opção&hellip;"
 
 # @ jigoshop
-#: ../admin/write-panels/product-data.php:611
+#: ../admin/write-panels/product-data.php:610
 msgid "Toggle"
 msgstr "Alternar"
 
 # @ jigoshop
-#: ../admin/write-panels/product-data.php:612
+#: ../admin/write-panels/product-data.php:611
 #, fuzzy
 msgid "Show All"
 msgstr "Exibir todos"
@@ -7373,13 +7373,13 @@ msgstr "O botão de catálogo de produtos exibe"
 # @ jigoshop
 #: ../classes/jigoshop_options.class.php:1078
 msgid ""
-"This will determine the type of button and the action it will used when "
+"This will determine the type of button and the action it will use when "
 "clicked on the Shop and Category product listings.  You can also set it to "
 "use no button."
 msgstr ""
-"Isto determinará o tipo de botão e a ação que será usada quando clicado, nas "
-"listagens da Loja e das Categorias de Produtos.  Você também defini-lo para "
-"não usar nenhum botão."
+"Isto determinará o tipo de botão e a ação a ser usada quando clicado, nas "
+"listagens de Loja e Categoria de Produto.  Você também poderá definir que "
+"nenhum botão seja usado."
 
 # @ jigoshop
 #: ../classes/jigoshop_options.class.php:1083
@@ -7654,7 +7654,7 @@ msgstr "Habilitar campo de peso"
 #: ../classes/jigoshop_options.class.php:1411
 #, fuzzy
 msgid "Product thumbnail images per row"
-msgstr "Cortar imagens Miniatura"
+msgstr "Miniaturas de produtos por linha"
 
 # @ jigoshop
 #: ../classes/jigoshop_options.class.php:1413

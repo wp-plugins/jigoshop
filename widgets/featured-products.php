@@ -33,10 +33,6 @@ class Jigoshop_Widget_Featured_Products extends WP_Widget {
 		// Create the widget
 		parent::__construct( 'jigoshop_featured_products', __( 'Jigoshop: Featured Products', 'jigoshop' ), $options );
 
-		// Flush cache after every save
-		add_action( 'save_post',	array(&$this, 'flush_widget_cache') );
-		add_action( 'deleted_post', array(&$this, 'flush_widget_cache') );
-		add_action( 'switch_theme', array(&$this, 'flush_widget_cache') );
 	}
 
 	/**

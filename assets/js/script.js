@@ -448,7 +448,7 @@ if ( jigoshop_params.is_checkout ) {
 				jQuery('.jigoshop_error, .jigoshop_message').remove();
 				jQuery('#order_methods, #order_review').remove();
 				jQuery('#order_review_heading').after(response);
-				jQuery('#order_review input[name=payment_method]:checked').click();
+				jQuery('#payment input[name=payment_method]:checked').click();
 			}
 		});
 
@@ -491,7 +491,7 @@ if ( jigoshop_params.is_checkout ) {
 			}
 		});
 
-		jQuery('#order_review input[name=payment_method]:checked').click();
+		jQuery('#payment input[name=payment_method]:checked').click();
 
 		jQuery('form.login').hide();
 

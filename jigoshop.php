@@ -123,10 +123,10 @@ function jigoshop_init() {
 
 	/* ensure nothing is output to the browser prior to this (other than headers) */
 	ob_start();
-
+	
 	// http://www.geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
 	// this means that all Jigoshop extensions, shipping modules and gateways must load their text domains on the 'init' action hook
-	//
+	// 
 	// Override default translations with custom .mo's found in wp-content/languages/jigoshop first.
 	load_textdomain( 'jigoshop', WP_LANG_DIR.'/jigoshop/jigoshop-'.get_locale().'.mo' );
 	load_plugin_textdomain( 'jigoshop', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -144,7 +144,7 @@ function jigoshop_init() {
 	jigoshop_session::instance();               // Start sessions if they aren't already
 	jigoshop::instance();                       // Utility functions, uses sessions
 	jigoshop_customer::instance();              // Customer class, sorts session data such as location
-
+	
 	// Jigoshop will instantiate gateways and shipping methods on this same 'init' action hook
 	// with a very low priority to ensure text domains are loaded first prior to installing any external options
 	jigoshop_shipping::instance();              // Shipping class. loads shipping methods
@@ -286,7 +286,7 @@ function jigoshop_roles_init() {
 add_action( 'template_redirect', 'jigoshop_frontend_scripts' );
 function jigoshop_frontend_scripts() {
 
-	if ( ! is_jigoshop() || is_admin() ) return false;
+	if ( ! is_jigoshop() && is_admin() ) return false;
 
     $jigoshop_options = Jigoshop_Base::get_options();
 
@@ -531,7 +531,7 @@ add_action( 'wp_footer', 'jigoshop_demo_store' );
 function jigoshop_demo_store() {
 
 	if ( Jigoshop_Base::get_options()->get_option( 'jigoshop_demo_store' ) == 'yes' && is_jigoshop() ) :
-
+		
 		$bannner_text = apply_filters( 'jigoshop_demo_banner_text', __('This is a demo store for testing purposes &mdash; no orders shall be fulfilled.', 'jigoshop') );
 		echo '<p class="demo_store">'.$bannner_text.'</p>';
 

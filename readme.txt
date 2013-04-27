@@ -112,9 +112,6 @@ However, if you want priority, dedicated support from Jigoshop staff, we do offe
 4. Standard customer checkout screen
 
 == Changelog ==
-= 1.7 - yyyy-mm-dd =
-* Tweak: Re-factor Checkout display to increase conversions (affects form.php and review_order.php)
-
 = 1.6.5 - 2013-04-25 =
 * Fix: Featured Product Widget Cache warning
 

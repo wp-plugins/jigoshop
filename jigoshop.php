@@ -22,9 +22,9 @@
  * Author:              Jigoshop
  * Author URI:          http://jigoshop.com
  *
- * Version:             1.7.3
+ * Version:             1.8
  * Requires at least:   3.5
- * Tested up to:        3.6 -beta4
+ * Tested up to:        3.6.1
  *
  * Text Domain:         jigoshop
  * Domain Path:         /languages/
@@ -42,7 +42,7 @@
  * @license             http://jigoshop.com/license/commercial-edition
  */
 
-if ( !defined( "JIGOSHOP_VERSION" )) define( "JIGOSHOP_VERSION", 1306250 ) ;
+if ( !defined( "JIGOSHOP_VERSION" )) define( "JIGOSHOP_VERSION", 1307110 ) ;
 if ( !defined( "JIGOSHOP_OPTIONS" )) define( "JIGOSHOP_OPTIONS", 'jigoshop_options' );
 if ( !defined( 'JIGOSHOP_TEMPLATE_URL' ) ) define( 'JIGOSHOP_TEMPLATE_URL', 'jigoshop/' );
 if ( !defined( "PHP_EOL" )) define( "PHP_EOL", "\r\n" );
@@ -50,6 +50,7 @@ if ( !defined( "PHP_EOL" )) define( "PHP_EOL", "\r\n" );
 /**
  * Include core files and classes
  **/
+
 include_once( 'classes/abstract/jigoshop_base.class.php' );
 include_once( 'classes/abstract/jigoshop_singleton.class.php' );
 include_once( 'classes/jigoshop_options.class.php' );
@@ -69,6 +70,7 @@ include_once( 'classes/jigoshop_orders.class.php' );
 include_once( 'classes/jigoshop_tax.class.php' );
 include_once( 'classes/jigoshop_shipping.class.php' );
 include_once( 'classes/jigoshop_coupons.class.php' );
+include_once( 'classes/jigoshop_licence_validator.class.php' );
 
 include_once( 'gateways/gateways.class.php' );
 include_once( 'gateways/gateway.class.php' );
@@ -77,6 +79,7 @@ include_once( 'gateways/cheque.php' );
 include_once( 'gateways/cod.php' );
 include_once( 'gateways/paypal.php' );
 include_once( 'gateways/futurepay.php' );
+include_once( 'gateways/worldpay.php' );
 
 include_once( 'shipping/shipping_method.class.php' );
 include_once( 'shipping/jigoshop_calculable_shipping.php' );
@@ -85,6 +88,8 @@ include_once( 'shipping/free_shipping.php' );
 include_once( 'shipping/local_pickup.php' );
 
 include_once( 'classes/jigoshop_query.class.php' );
+include_once( 'classes/jigoshop_request_api.class.php' );
+
 include_once( 'classes/jigoshop.class.php' );
 include_once( 'classes/jigoshop_cart.class.php' );
 include_once( 'classes/jigoshop_checkout.class.php' );
@@ -160,6 +165,7 @@ function jigoshop_init() {
 		add_filter( 'loop_shop_per_page', create_function( '', 'return ' . $jigoshop_options->get_option('jigoshop_catalog_per_page') . ';' ) );
 
 		jigoshop_catalog_query::instance();		// front end queries class
+		jigoshop_request_api::instance();		// front end request api for URL's
 
 	}
 
@@ -290,23 +296,6 @@ function jigoshop_frontend_scripts() {
 
     $jigoshop_options = Jigoshop_Base::get_options();
 
-	/**
-	 * Frontend Styles
-	 *
-	 * For Jigoshop 1.3 or better there are 2 CSS related options
-	 * The ususal 'jigoshop_disable_css' must be off to use -any- Jigoshop CSS
-	 *      otherwise the theme is expected to provide -all- CSS located wherever it likes, loaded by the theme
-	 * A user can also copy both frontend.less and frontend.css to a 'jigoshop' folder in the theme folder and
-	 *      rename them to style.less and style.css and compile changes with SimpLESS
-	 *      http://wearekiss.com/simpless
-	 *      If Jigoshop finds this file, it will load -only- that file, or if not found will default to our frontend.css
-	 * A user can also with the second option 'jigoshop_frontend_with_theme_css' enabled, load -both- the default frontend.css
-	 *      -and- any extra bits found in the same 'theme/jigoshop/style.css'
-	 *      This allows only a few modifications to be added in after the default frontend.css
-	 *      It will also allow for easier additions to frontend.css that get missed if themers don't upgrade their version.
-	 * With these 2 options, users should either provide the complete frontend.css (style.css in the theme jigoshop folder)
-	 *      or just the few changes again in the style.css in the theme jigoshop folder and set the 2nd option accordingly
-	 */
 	$frontend_css = jigoshop::assets_url() . '/assets/css/frontend.css';
 	$theme_css = file_exists( get_stylesheet_directory() . '/jigoshop/style.css')
 		? get_stylesheet_directory_uri() . '/jigoshop/style.css'
@@ -314,23 +303,32 @@ function jigoshop_frontend_scripts() {
 
 	if ( $jigoshop_options->get_option( 'jigoshop_disable_css' ) == 'no' ) {
 		if ( $jigoshop_options->get_option( 'jigoshop_frontend_with_theme_css' ) == 'yes' ) {
-			wp_enqueue_style( 'jigoshop_frontend_styles', $frontend_css );
+			wp_enqueue_style( 'jigoshop_theme_styles', $frontend_css );
 		}
-		wp_enqueue_style( 'jigoshop_theme_styles', $theme_css );
+		wp_enqueue_style( 'jigoshop_styles', $theme_css );
 	}
 
+	wp_enqueue_script( 'jigoshop_global', jigoshop::assets_url().'/assets/js/global.js', array('jquery'), '', true );
+	
 	if ( $jigoshop_options->get_option( 'jigoshop_disable_fancybox' ) == 'no' ) {
-		wp_enqueue_style( 'prettyphoto_styles', jigoshop::assets_url().'/assets/css/prettyPhoto.css' );
-		wp_enqueue_script( 'prettyphoto', jigoshop::assets_url().'/assets/js/jquery.prettyPhoto.js', array('jquery'), '1.4.15');
+		wp_enqueue_script( 'prettyphoto', jigoshop::assets_url().'/assets/js/jquery.prettyPhoto.js', array('jquery'), '', true );
 	}
 
-	wp_enqueue_style( 'jqueryui_styles', jigoshop::assets_url().'/assets/css/ui.css' );
-	wp_enqueue_script( 'jqueryui', jigoshop::assets_url().'/assets/js/jquery-ui-1.9.2.min.js', array('jquery'), '1.9.2');
+	wp_enqueue_script( 'jigoshop_blockui', jigoshop::assets_url().'/assets/js/blockui.js', array('jquery'), '', true );
 
-	wp_enqueue_script( 'jigoshop_blockui', jigoshop::assets_url().'/assets/js/blockui.js', array('jquery') );
-	wp_enqueue_script( 'jigoshop_frontend', jigoshop::assets_url().'/assets/js/jigoshop_frontend.js', array('jquery') );
-	wp_enqueue_script( 'jigoshop_script', jigoshop::assets_url().'/assets/js/script.js', array('jquery') );
-
+	if ( is_cart() ) {
+		wp_enqueue_script( 'jigoshop-cart', jigoshop::assets_url().'/assets/js/cart.js', array( 'jquery' ), '', true );
+	}
+		
+	if ( is_checkout() ) {
+//		wp_enqueue_script( 'jigoshop-select2', jigoshop::assets_url().'/assets/js/select2.min.js', array( 'jquery' ), '', true );
+		wp_enqueue_script( 'jigoshop-checkout', jigoshop::assets_url().'/assets/js/checkout.js', array( 'jquery' ), '', true );
+	}
+		
+	if ( is_product() ) {
+		wp_enqueue_script( 'jigoshop-single-product', jigoshop::assets_url().'/assets/js/single-product.js', array( 'jquery' ), '', true );
+	}
+	
 	/* Script.js variables */
 	// TODO: clean this up, a lot aren't even used anymore, do away with it
 	$jigoshop_params = array(
@@ -340,7 +338,7 @@ function jigoshop_frontend_scripts() {
 		'countries' 					=> json_encode(jigoshop_countries::$states),
 		'currency_symbol' 				=> get_jigoshop_currency_symbol(),
 		'get_variation_nonce' 			=> wp_create_nonce("get-variation"),
-		'load_fancybox'					=> $jigoshop_options->get_option( 'jigoshop_disable_fancybox' )=='no'?true:false,
+		'load_fancybox'					=> $jigoshop_options->get_option( 'jigoshop_disable_fancybox' )=='no',
 		'option_guest_checkout'			=> $jigoshop_options->get_option('jigoshop_enable_guest_checkout'),
 		'select_state_text' 			=> __('Select a state&hellip;', 'jigoshop'),
 		'state_text' 					=> __('state', 'jigoshop'),
@@ -359,7 +357,7 @@ function jigoshop_frontend_scripts() {
 
 	$jigoshop_params = apply_filters('jigoshop_params', $jigoshop_params);
 
-	wp_localize_script( 'jigoshop_script', 'jigoshop_params', $jigoshop_params );
+	wp_localize_script( 'jigoshop_global', 'jigoshop_params', $jigoshop_params );
 
 }
 
@@ -401,9 +399,9 @@ function jigoshop_admin_styles() {
 
 	if ( ! jigoshop_is_admin_page() ) return false;
 	wp_enqueue_style( 'jigoshop_admin_styles', jigoshop::assets_url() . '/assets/css/admin.css' );
-	wp_enqueue_style( 'jigoshop-select2', jigoshop::assets_url() . '/assets/css/select2.css', '', '3.1', 'screen' );
 	wp_enqueue_style( 'jquery-ui-jigoshop-styles', jigoshop::assets_url() . '/assets/css/jquery-ui-1.8.16.jigoshop.css' );
 	wp_enqueue_style( 'thickbox' );
+	wp_enqueue_style( 'jigoshop-required', jigoshop::assets_url() . '/assets/css/required.css' );
 
 }
 
@@ -415,7 +413,7 @@ function jigoshop_admin_scripts() {
 
 	$pagenow = jigoshop_is_admin_page();
 
-	wp_enqueue_script( 'jigoshop-select2', jigoshop::assets_url().'/assets/js/select2.min.js', array( 'jquery' ), '3.1' );
+	wp_enqueue_script( 'jigoshop-select2', jigoshop::assets_url().'/assets/js/select2.min.js', array( 'jquery' ) );
 	wp_enqueue_script( 'jquery-ui-datepicker', jigoshop::assets_url().'/assets/js/jquery-ui-datepicker-1.8.16.min.js', array( 'jquery' ), '1.8.16' );
 	wp_enqueue_script( 'jigoshop_blockui', jigoshop::assets_url() . '/assets/js/blockui.js', array( 'jquery' ), '2.4.6' );
 	wp_enqueue_script( 'jigoshop_backend', jigoshop::assets_url() . '/assets/js/jigoshop_backend.js', array( 'jquery' ), '1.0' );
@@ -451,6 +449,21 @@ function jigoshop_check_jquery() {
 		wp_deregister_script( 'jquery' );
 		wp_register_script( 'jquery', '/wp-includes/js/jquery/jquery.js', array(), '1.8.3' );
 		wp_enqueue_script( 'jquery' );
+	}
+}
+
+
+/**
+ *  Jigoshop 1.8 has a change that moves javascript library CSS to our frontend.css instead of loading
+ *  individually (PrettyPhoto, jQuery UI, Select2)
+ *  For Shops that might have our frontend.css disabled, install the required bits for these libraries
+ */
+add_action( 'wp_print_scripts', 'jigoshop_check_required_css', 99 );
+function jigoshop_check_required_css() {
+	global $wp_styles;
+
+	if ( empty( $wp_styles->registered['jigoshop_styles'] )) {
+		wp_enqueue_style( 'jigoshop-required', jigoshop::assets_url() . '/assets/css/required.css' );
 	}
 }
 
@@ -582,23 +595,14 @@ function jigoshop_sharethis() {
 
 
 /**
- * Mail from name/email
+ * Jigoshop Mail 'from' name on emails
+ * We will add a filter to WordPress to get this as the site name when emails are sent
  **/
-add_filter( 'wp_mail_from_name', 'jigoshop_mail_from_name' );
 function jigoshop_mail_from_name( $name ) {
 	$name = get_bloginfo('name');
 	$name = esc_attr($name);
 	return $name;
 }
-
-
-/*
-add_filter( 'wp_mail_from', 'jigoshop_mail_from' );
-function jigoshop_mail_from( $email ) {
-	$email = Jigoshop_Base::get_options()->get_option('jigoshop_email');
-	return $email;
-}
-*/
 
 
 /**
@@ -1006,10 +1010,7 @@ function jigowatt_clean( $var ) {
 
 // Returns a float value
 function jigoshop_sanitize_num( $var ) {
-	// TODO: as it stands, it doesn't allow negative values (-JAP-)
-	// should be - preg_replace("/^[^[\-\+]0-9\.]/","",$var)
-	// currently only used for prices in product-data-save.php
-	return strip_tags(stripslashes(floatval(preg_replace("/^[^0-9\.]/","",$var))));
+	return strip_tags(stripslashes(floatval(preg_replace("/^[^[\-\+]0-9\.]/","",$var))));
 }
 
 // Author: Sergey Biryukov

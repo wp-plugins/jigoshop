@@ -136,7 +136,7 @@ class jigoshop_product extends Jigoshop_Base {
 			return get_the_post_thumbnail( $this->ID, $size );
 
 		// Otherwise just return a placeholder
-			return '<img src="'.jigoshop::assets_url().'/assets/images/placeholder.png" alt="Placeholder" width="'.$image_size[0].'px" height="'.$image_size[1].'px" />';
+			return '<img src="'.jigoshop::assets_url().'/assets/images/placeholder.png" alt="Placeholder" width="'.$size[0].'px" height="'.$size[1].'px" />';
 	}
 
 	/**
@@ -175,7 +175,7 @@ class jigoshop_product extends Jigoshop_Base {
 		));
 
 		$this->children = apply_filters( 'jigoshop_get_product_children', $children, $this );
-		
+
 		return $this->children;
 	}
 
@@ -410,6 +410,10 @@ class jigoshop_product extends Jigoshop_Base {
 			return true;
 
 		// Check if we have stock
+		if ( $this->stock == '-9999999' ) {
+			$_parent = new jigoshop_product( $this->ID );
+			$this->stock = $_parent->stock;
+		}
 		if( $this->managing_stock() && ($below_stock_threshold ? $this->stock >= self::get_options()->get_option('jigoshop_notify_no_stock_amount') : $this->stock > 0 ) )
 			return true;
 
@@ -565,7 +569,7 @@ class jigoshop_product extends Jigoshop_Base {
 		if ( $this->sale_price_dates_from	<= $time &&
 			 $this->sale_price_dates_to		>= $time &&
 			 $this->sale_price) {
-			 
+
 			return true;
 		}
 		// Otherwise if we have a sale price
@@ -1375,7 +1379,7 @@ class jigoshop_product extends Jigoshop_Base {
 				$label = ucfirst( $name );
 			}
 		} else {  // taxonomies aren't created for custom text attributes, get name from the attribute instead
-		
+
 			// Discovered in Jigoshop 1.7, this function can be incorrectly called from
 			// 'jigoshop_get_formatted_variation' as a static class method
 			// make sure we have an instance to work with here for custom text attributes before calling $this
@@ -1404,10 +1408,6 @@ class jigoshop_product extends Jigoshop_Base {
 	 */
 	public static function get_product_ids_on_sale() {
 
-		$product_ids_on_sale = get_transient( 'jigoshop_products_on_sale' );
-
-		if ( false !== $product_ids_on_sale ) return $product_ids_on_sale;
-
 		$on_sale = get_posts( array(
 			'post_type'      => array( 'product', 'product_variation' ),
 			'posts_per_page' => -1,
@@ -1429,9 +1429,18 @@ class jigoshop_product extends Jigoshop_Base {
 			'fields'         => 'id=>parent',
 		) );
 
-		$product_ids = array_keys( $on_sale );
-		$parent_ids  = array_values( $on_sale );
-
+		// filter out duplicates and 0 id's leaving only actual parent product ID's for variations
+		$parent_ids  = array_filter( array_unique( array_values( $on_sale ) ) );
+		// remove the variable products from the originals ID's
+		foreach ( $on_sale as $id => $parent ) {
+			if ( $parent <> 0 ) unset( $on_sale[$id] );
+		}
+		// these are non-variable products
+		$all_ids = array_keys( $on_sale );
+		// munge the variable parents and other products together
+		$product_ids = array_unique( array_merge( $all_ids, $parent_ids ) );
+		
+		// now check the sale date fields on the main products
 		foreach ( $product_ids as $key => $id ) {
 			$sale_from = get_post_meta( $id, 'sale_price_dates_from', true );
 			if ( ! empty( $sale_from )) {
@@ -1448,11 +1457,7 @@ class jigoshop_product extends Jigoshop_Base {
 			}
 		}
 
-		$product_ids_on_sale = array_unique( array_merge( $product_ids, $parent_ids ) );
-
-		set_transient( 'jigoshop_products_on_sale', $product_ids_on_sale );
-
-		return $product_ids_on_sale;
+		return $product_ids;
 	}
-	
+
 }

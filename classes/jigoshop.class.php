@@ -50,7 +50,7 @@ class jigoshop extends Jigoshop_Singleton {
 	public static function jigoshop_path() {
 		return plugin_dir_path( dirname( __FILE__ ) );
 	}
-	
+
 	/**
 	 * Get the current version of Jigoshop
 	 *
@@ -166,7 +166,7 @@ class jigoshop extends Jigoshop_Singleton {
 		return !empty(self::$errors);
 	}
 
-	public static function has_messages() { 
+	public static function has_messages() {
 		return !empty(self::$messages);
 	}
 
@@ -175,11 +175,19 @@ class jigoshop extends Jigoshop_Singleton {
 	 */
 	public static function show_messages() {
 		if ( self::has_errors() ) {
-			echo '<div class="jigoshop_error">'.self::$errors[0].'</div>';
+			echo '<div class="jigoshop_error">';
+			foreach ( self::$errors as $error ) {
+				echo '<span>'.$error.'</span><br />';
+			}
+			echo '</div>';
 		}
 
 		if ( self::has_messages() ) {
-			echo '<div class="jigoshop_message">'.self::$messages[0].'</div>';
+			echo '<div class="jigoshop_message">';
+			foreach ( self::$messages as $message ) {
+				echo '<span>'.$message.'</span><br />';
+			}
+			echo '</div>';
 		}
 
 		self::clear_messages();
@@ -198,7 +206,7 @@ class jigoshop extends Jigoshop_Singleton {
 
 		return add_query_arg( $name, wp_create_nonce( $action ), $url);
 	}
-	
+
 	/**
 	 * Check a nonce and sets jigoshop error in case it is invalid
 	 * To fail silently, set the error_message to an empty string
@@ -236,7 +244,7 @@ class jigoshop extends Jigoshop_Singleton {
 		jigoshop_session::instance()->messages = self::$messages;
 		return apply_filters('jigoshop_session_location_filter', $location);
 	}
-	
+
 	// http://www.xe.com/symbols.php
 	public static function currency_symbols() {
 		$symbols = array(
@@ -306,6 +314,7 @@ class jigoshop extends Jigoshop_Singleton {
 			'LRD' => '$',                       /*'Liberia Dollar'*/
 			'LTL' => 'Lt',                      /*'Lithuania Litas'*/
 			'LVL' => 'Ls',                      /*'Latvia Lat'*/
+			'MAD' => '&#1583;.&#1605;.',        /*'Moroccan Dirham'*/
 			'MKD' => '&#1076;&#1077;&#1085;',   /*'Macedonia Denar'*/
 			'MNT' => '&#8366;',                 /*'Mongolia Tughrik'*/
 			'MUR' => '&#8360;',                 /*'Mauritius Rupee'*/
@@ -356,11 +365,11 @@ class jigoshop extends Jigoshop_Singleton {
 			'ZAR' => 'R',                       /*'South Africa Rand'*/
 			'ZWD' => 'Z$',                      /*'Zimbabwe Dollar'*/
 		);
-		
+
 		ksort( $symbols );
 		return $symbols;
 	}
-	
+
 	public static function currency_countries() {
 		$countries = array(
 			'AED' => __('United Arab Emirates dirham', 'jigoshop'),
@@ -429,6 +438,7 @@ class jigoshop extends Jigoshop_Singleton {
 			'LRD' => __('Liberia Dollar', 'jigoshop'),
 			'LTL' => __('Lithuania Litas', 'jigoshop'),
 			'LVL' => __('Latvia Lat', 'jigoshop'),
+			'MAD' => __('Moroccan Dirham', 'jigoshop'),
 			'MKD' => __('Macedonia Denar', 'jigoshop'),
 			'MNT' => __('Mongolia Tughrik', 'jigoshop'),
 			'MUR' => __('Mauritius Rupee', 'jigoshop'),
@@ -479,9 +489,9 @@ class jigoshop extends Jigoshop_Singleton {
 			'ZAR' => __('South Africa Rand', 'jigoshop'),
 			'ZWD' => __('Zimbabwe Dollar', 'jigoshop'),
 		);
-		
+
 		asort( $countries );
 		return $countries;
 	}
-	
+
 }

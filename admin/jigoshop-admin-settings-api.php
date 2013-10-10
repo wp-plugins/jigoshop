@@ -49,7 +49,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
     	wp_register_script( 'jigoshop-bootstrap-tooltip', jigoshop::assets_url() . '/assets/js/bootstrap-tooltip.min.js', array( 'jquery' ), '2.0.3' );
     	wp_enqueue_script( 'jigoshop-bootstrap-tooltip' );
 
-    	wp_register_script( 'jigoshop-select2', jigoshop::assets_url() . '/assets/js/select2.min.js', array( 'jquery' ), '3.1' );
+    	wp_register_script( 'jigoshop-select2', jigoshop::assets_url() . '/assets/js/select2.min.js', array( 'jquery' ) );
     	wp_enqueue_script( 'jigoshop-select2' );
 
 	}
@@ -62,7 +62,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 	 */
 	public function settings_styles() {
 
-		wp_register_style( 'jigoshop-select2', jigoshop::assets_url() . '/assets/css/select2.css', '', '3.1', 'screen' );
+		wp_register_style( 'jigoshop-select2', jigoshop::assets_url() . '/assets/css/select2.css' );
 		wp_enqueue_style( 'jigoshop-select2' );
 
 		do_action( 'jigoshop_settings_styles' );	// user defined stylesheets should be registered and queued
@@ -125,6 +125,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 			'desc'			=> '',
 			'tip'			=> '',
 			'std'			=> '',
+			'multiple'		=> false,
 			'choices'		=> array(),
 			'class'			=> '',
 			'display'		=> null,
@@ -144,6 +145,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 			'desc'			=> $desc,
 			'tip'			=> $tip,
 			"std"			=> $std,
+			'multiple'		=> $multiple,
 			'choices'		=> $choices,
 			'label_for'		=> $id,
 			'class'			=> $class,
@@ -370,8 +372,10 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 				}
 				
 				// get this settings options
-				foreach ( $defaults as $default_index => $option ) {
-					if ( in_array( $setting['id'], $option ) ) {
+				$option = array();
+				foreach ( $defaults as $default_index => $default_options ) {
+					if ( in_array( $setting['id'], $default_options, true ) ) {
+						$option = $default_options;
 						break;
 					}
 				}
@@ -430,6 +434,28 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 				case 'longtext' :
 				case 'textarea' :
 					$valid_input[$setting['id']] = esc_attr( jigowatt_clean( $value ) );
+					update_option( $setting['id'], $valid_input[$setting['id']] ); // TODO: remove in v1.5 - provides compatibility
+					break;
+
+				case 'codeblock' :
+					$allowedtags = array(
+						'a' => array( 'href' => true, 'title' => true ),
+						'img' => array( 'src' => true, 'title' => true, 'alt' => true ),
+						'abbr' => array( 'title' => true ),
+						'acronym' => array( 'title' => true ),
+						'b' => array(),
+						'blockquote' => array( 'cite' => true ),
+						'cite' => array(),
+						'code' => array(),
+						'script' => array( 'src' => true, 'language' => true, 'type' => true ),
+						'del' => array( 'datetime' => true ),
+						'em' => array(),
+						'i' => array(),
+						'q' => array( 'cite' => true ),
+						'strike' => array(),
+						'strong' => array(),
+					);
+					$valid_input[$setting['id']] = wp_kses( $value, $allowedtags );
 					update_option( $setting['id'], $valid_input[$setting['id']] ); // TODO: remove in v1.5 - provides compatibility
 					break;
 
@@ -962,7 +988,6 @@ class Jigoshop_Options_Parser {
 				size="20"
 				value="'. esc_attr( $data[$item['id']] ).'" />';
 			break;
-
 		case 'midtext':
 			$display .= '<input
 				id="'.$item['id'].'"
@@ -993,6 +1018,7 @@ class Jigoshop_Options_Parser {
 				value="'. esc_attr( $data[$item['id']] ).'" />';
 			break;
 
+		case 'codeblock':
 		case 'textarea':
 			$cols = '60';
 			$ta_value = '';
@@ -1099,10 +1125,19 @@ class Jigoshop_Options_Parser {
 			break;
 
 		case 'select':
+			$multiple =  ( ! empty( $item['multiple'] ) &&  $item['multiple'] == true )
+				? 'multiple="multiple"'
+				: ""; 
+			$brckt = "";
+			$width = 250;
+			if ( $item['multiple'] ){
+				$brckt = "[]";
+				$width = 500;
+			}
 			$display .= '<select
 				id="'.$item['id'].'"
 				class="jigoshop-input jigoshop-select '.$class.'"
-				name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" >';
+				name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']'.$brckt.'"' .$multiple .' >';
 			foreach ( $item['choices'] as $value => $label ) {
 				if ( is_array( $label )) {
 					$display .= '<optgroup label="'.$value.'">';
@@ -1125,7 +1160,7 @@ class Jigoshop_Options_Parser {
 				<script type="text/javascript">
 				/*<![CDATA[*/
 					jQuery(function() {
-						jQuery("#<?php echo $id; ?>").select2({ width: '250px' });
+						jQuery("#<?php echo $id; ?>").select2({ width: '<?= $width; ?>px' });
 					});
 				/*]]>*/
 				</script>

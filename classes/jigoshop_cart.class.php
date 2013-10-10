@@ -82,7 +82,7 @@ class jigoshop_cart extends Jigoshop_Singleton {
 	
 	
     /** Empty the cart */
-    function empty_cart() {
+    public static function empty_cart() {
         self::$cart_contents = array();
         self::$applied_coupons = array();
         self::reset_totals();
@@ -1179,6 +1179,8 @@ class jigoshop_cart extends Jigoshop_Singleton {
                     $name = get_taxonomy( 'pa_'.$name )->labels->name;
                     $name = jigoshop_product::attribute_label('pa_'.$name);
 
+                else: $name = jigoshop_product::attribute_label('pa_'.$name); 
+                   $value = apply_filters('jigoshop_product_attribute_value_custom',$value,'pa_'.$name);
                 endif;
 
                 $variation_list[] = $flat

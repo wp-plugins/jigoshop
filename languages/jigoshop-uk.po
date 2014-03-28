@@ -9,16 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jigoshop v1.8.1\n"
 "Report-Msgid-Bugs-To: Jeff Parsons <jeff.parsons@jigoshop.com>\n"
-"POT-Creation-Date: 2014-01-03 09:32-0400\n"
-"PO-Revision-Date: 2014-01-03 09:53-0400\n"
-"Last-Translator: Jeff Parsons <jeff.parsons@jigoshop.com>\n"
+"POT-Creation-Date: 2013-10-10 06:46-0400\n"
+"PO-Revision-Date: 2013-10-17 12:09+0300\n"
+"Last-Translator: Anatolii Sakhnik <sakhnik@gmail.com>\n"
 "Language-Team: українська <>\n"
 "Language: Ukrainian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Generator: Poedit 1.5.7\n"
 "X-Textdomain-Support: yes\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -36,7 +35,7 @@ msgstr "Покупець"
 msgid "Shop Manager"
 msgstr "Менеджер магазину"
 
-#: ../jigoshop.php:343 ../jigoshop_template_functions.php:892
+#: ../jigoshop.php:343 ../jigoshop_template_functions.php:889
 #: ../classes/jigoshop_checkout.class.php:375
 #: ../classes/jigoshop_customer.class.php:453
 msgid "Select a state&hellip;"
@@ -972,12 +971,13 @@ msgid ""
 "Order and totals adjusted.  You may enter your EU VAT Number either with, or "
 "without, the 2 character EU country code in front."
 msgstr ""
-"Якщо ви задали номер ПДВ ЄС, його буде знайдено, коли ви <strong>надсилаєте</"
-"strong> ваше замовлення, і перевірено. <strong><em>тільки</em></strong> тоді "
-"ПДВ буде прибрано з остаточного Замовлення, і підсумки поновлено.  Можете "
-"ввести ваш номер ПДВ ЄС з або без дволітерного коду країни ЄС на початку."
+"Якщо ви задали номер ПДВ ЄС, його буде знайдено, коли ви "
+"<strong>надсилаєте</strong> ваше замовлення, і перевірено. "
+"<strong><em>тільки</em></strong> тоді ПДВ буде прибрано з остаточного "
+"Замовлення, і підсумки поновлено.  Можете ввести ваш номер ПДВ ЄС з або без "
+"дволітерного коду країни ЄС на початку."
 
-#: ../jigoshop_template_functions.php:1035
+#: ../jigoshop_template_functions.php:1032
 msgctxt "breadcrumb"
 msgid "Home"
 msgstr "Головна"
@@ -5017,7 +5017,7 @@ msgstr "Заплановано"
 #: ../admin/write-panels/product-data.php:170
 #, php-format
 msgid "15% or 19.99"
-msgstr ""
+msgstr "15% чи 19.99"
 
 #: ../admin/write-panels/product-data.php:176
 msgid "On Sale Between"
@@ -7051,8 +7051,7 @@ msgid ""
 "Please enter your shipping destination and postal code to view shipping "
 "options and rates."
 msgstr ""
-"Будь ласка, введіть призначення і поштовий код, щоб побачити опції і ціну "
-"доставки."
+"Будь ласка, введіть призначення і поштовий код, щоб побачити опції і ціну доставки."
 
 #: ../classes/jigoshop_shipping.class.php:99
 msgid ""
@@ -7481,7 +7480,6 @@ msgid "Enable PayPal sandbox"
 msgstr "Увімкнути пісочницю PayPal"
 
 #: ../gateways/paypal.php:144
-#, fuzzy
 msgid ""
 "Turn on to enable the PayPal sandbox for testing.  Visit <a href=\"http://"
 "developer.paypal.com/\">http://developer.paypal.com/</a> for more "
@@ -7937,7 +7935,6 @@ msgstr ""
 #: ../gateways/worldpay.php:701
 msgid "Receive Error Logs"
 msgstr "Отримувати журнал помилок"
-
 #: ../gateways/worldpay.php:703
 msgid ""
 "Do you want to receive emails for the error logs from Jigoshop security/"

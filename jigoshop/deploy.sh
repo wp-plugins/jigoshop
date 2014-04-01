@@ -59,7 +59,6 @@ svn co "$SVNURL/trunk" $SVNPATH
 echo 
 echo "Exporting from git to the trunk of SVN"
 cp -R $GITPATH/ $SVNPATH
-rm -rf $SVNPATH/.git
 
 echo 
 echo "Changing directory to SVN and committing to trunk"

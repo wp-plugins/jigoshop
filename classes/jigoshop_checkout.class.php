@@ -362,15 +362,31 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				$field = '<p class="form-row '.implode(' ', $args['class']).'">
 					<label for="' . esc_attr( $args['name'] ) . '" class="'.implode(' ', $args['label_class']).'">'.$args['label'].$required.'</label>';
 
+				$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
 				$current_cc = $this->get_value($args['rel']);
-				if (!$current_cc) $current_cc = jigoshop_customer::get_country();
+
+				if(!$current_cc){
+					$current_cc = jigoshop_customer::get_country();
+				}
+
+				if($allowed_countries === 'specific'){
+					$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+					if(!in_array($current_cc, $specific_countries)){
+						$current_cc = jigoshop_countries::get_base_country();
+					}
+				}
 
 				$current_r = $this->get_value($args['name']);
-				if (!$current_r) $current_r = jigoshop_customer::get_state();
+				if(!$current_r){
+					$current_r = jigoshop_customer::get_state();
+				}
 
 				$states = jigoshop_countries::get_states( $current_cc );
+				if(!in_array($current_r, $states)){
+					$current_r = jigoshop_countries::get_base_state();
+				}
 
-				if ( isset( $states[$current_r] ) || jigoshop_countries::country_has_states( $current_cc )) {
+				if ( jigoshop_countries::country_has_states( $current_cc ) ) {
 					// Dropdown
 					$field .= '<select name="'.esc_attr($args['name']).'" id="'.esc_attr($args['name']).'" class="'.esc_attr($input_required).'"><option value="">'.__('Select a state&hellip;', 'jigoshop').'</option>';
 					foreach ( $states as $key => $value ) {
@@ -614,6 +630,25 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		if (jigoshop_cart::ship_to_billing_address_only()) $this->posted['shiptobilling'] = 'true';
 		$country  = isset($_POST['billing-country']) ? jigowatt_clean($_POST['billing-country']) : '';
 		$state    = isset($_POST['billing-state']) ? jigowatt_clean($_POST['billing-state']) : '';
+
+		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+
+		if($allowed_countries === 'specific'){
+			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+			if(!in_array($country, $specific_countries)){
+				jigoshop::add_error(__('Invalid shipping country.', 'jigoshop'));
+				return;
+			}
+		}
+
+		if(jigoshop_countries::country_has_states($country)){
+			$states = jigoshop_countries::get_states( $country );
+			if(!in_array($state, $states)){
+				jigoshop::add_error(__('Invalid shipping state.', 'jigoshop'));
+				return;
+			}
+		}
+
 		$postcode = isset($_POST['billing-postcode']) ? jigowatt_clean($_POST['billing-postcode']) : '';
 		jigoshop_customer::set_location($country, $state, $postcode);
 		if ( $this->posted['shiptobilling'] ) {

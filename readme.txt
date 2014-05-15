@@ -4,7 +4,7 @@ Tags: ecommerce, wordpress ecommerce, store, shop, shopping, cart, checkout, wid
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=paypal@jigowatt.co.uk&item_name=Donation+for+Jigoshop
 Requires at least: 3.8
 Tested up to: 3.9.1
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -113,6 +113,17 @@ However, if you want priority, dedicated support from Jigoshop staff, we dp offe
 
 == Changelog ==
 
+= 1.9.3 - 2014-05-15 =
+* New: "New" order status.
+* Fix: First activation warnings.
+* Fix: Taxes are calculated even when not set for base country.
+* Fix: Database version checking on PHP 5.5.
+* Fix: Ability to add taxes to single state. Thanks to elitistdogg!
+* Fix: Order email warnings.
+* Fix: Properly display variation details. Thanks to Jared Weiss!
+* Fix: `jigoshop_localize_script()` now works properly.
+* Improve: Remove lots of backwards compatibility code from Jigoshop_Options class. WARNING: Old plugins may stop working!
+* Improve: Use `jigoshop_localize_script()` in order to avoid problems with external jQuery versions.
 = 1.9.2 - 2014-05-13 =
 * New: System Info icon.
 * Improved: Code formatting of settings and tax classes.

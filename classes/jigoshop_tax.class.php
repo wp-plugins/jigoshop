@@ -301,13 +301,18 @@ class jigoshop_tax extends Jigoshop_Base {
 		}
 
 		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
-		$country = ($this->shippable ? jigoshop_customer::get_shipping_country() : jigoshop_customer::get_country());
-		$state = ($this->shippable ? jigoshop_customer::get_shipping_state() : jigoshop_customer::get_state());
+		$country = jigoshop_customer::get_country();
+		$state = jigoshop_customer::get_state();
 
 		if($allowed_countries === 'specific'){
 			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
-			if(!in_array($country, $specific_countries)){
-				$country = array_shift($specific_countries);
+			$base_cc = jigoshop_countries::get_base_country();
+			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
+				if(in_array($base_cc, $specific_countries)){
+					$country = $base_cc;
+				} else {
+					$country = array_shift($specific_countries);
+				}
 			}
 			if(jigoshop_countries::country_has_states($country) && !in_array($state, array_keys(jigoshop_countries::get_states($country)))){
 				if(isset($this->rates[$country])){
@@ -359,12 +364,12 @@ class jigoshop_tax extends Jigoshop_Base {
 		}
 
 		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
-		$country = ($this->shippable ? jigoshop_customer::get_shipping_country() : jigoshop_customer::get_country());
-		$state = ($this->shippable ? jigoshop_customer::get_shipping_state() : jigoshop_customer::get_state());
+		$country = jigoshop_customer::get_country();
+		$state = jigoshop_customer::get_state();
 
 		if($allowed_countries === 'specific'){
 			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
-			if(!in_array($country, $specific_countries)){
+			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
 				$country = array_shift($specific_countries);
 			}
 			if(!in_array($state, array_keys($this->rates[$country]))){
@@ -746,22 +751,23 @@ class jigoshop_tax extends Jigoshop_Base {
 		endif;
 
 		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
-		$country = ($this->shippable ? jigoshop_customer::get_shipping_country() : jigoshop_customer::get_country());
-		$state = ($this->shippable ? jigoshop_customer::get_shipping_state() : jigoshop_customer::get_state());
+		$country = jigoshop_customer::get_country();
+		$state = jigoshop_customer::get_state();
 
 		if($allowed_countries === 'specific'){
 			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
-			if(!in_array($country, $specific_countries)){
+			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
 				$country = array_shift($specific_countries);
 			}
 		}
 
-		if(!in_array($state, array_keys($this->rates[$country]))){
+		$has_states = jigoshop_countries::country_has_states($country);
+		if($has_states && isset($this->rates[$country]) && !in_array($state, array_keys($this->rates[$country]))){
 			$states = array_keys($this->rates[$country]);
 			$state = array_shift($states);
 		}
 
-		$state = (jigoshop_countries::country_has_states($country) && $state ? $state : '*');
+		$state = $has_states && $state ? $state : '*';
 		$rate = $this->find_rate($country, $state, $tax_class);
 
 		return ($rate_only ? $rate['rate'] : $rate);

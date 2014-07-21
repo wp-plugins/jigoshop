@@ -40,8 +40,8 @@ class jigoshop_customer extends Jigoshop_Singleton {
 	 * @since 1.4.4
 	 */
 	private function set_default_customer() {
-		$default = self::get_options()->get_option('jigoshop_default_country');
-		@list($country, $state) = explode(':', $default, 2);
+		$country = jigoshop_countries::get_default_customer_country();
+		$state = jigoshop_countries::get_default_customer_state();
 
 		jigoshop_session::instance()->customer = array(
 			'country'          => $country,
@@ -71,12 +71,12 @@ class jigoshop_customer extends Jigoshop_Singleton {
 	 * @since 1.4.4
 	 */
 	public function update_signed_in_customer($user_login, $user){
-		$country = get_user_meta($user->ID, 'billing-country', true);
-		$state = get_user_meta($user->ID, 'billing-state', true);
-		$postcode = get_user_meta($user->ID, 'billing-postcode', true);
-		$shipping_country = get_user_meta($user->ID, 'shipping-country', true);
-		$shipping_state = get_user_meta($user->ID, 'shipping-state', true);
-		$shipping_postcode = get_user_meta($user->ID, 'shipping-postcode', true);
+		$country = get_user_meta($user->ID, 'billing_country', true);
+		$state = get_user_meta($user->ID, 'billing_state', true);
+		$postcode = get_user_meta($user->ID, 'billing_postcode', true);
+		$shipping_country = get_user_meta($user->ID, 'shipping_country', true);
+		$shipping_state = get_user_meta($user->ID, 'shipping_state', true);
+		$shipping_postcode = get_user_meta($user->ID, 'shipping_postcode', true);
 
 		jigoshop_session::instance()->customer = array(
 			'country' => $country,
@@ -147,7 +147,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			return self::get_customer_session('country');
 		}
 
-		return Jigoshop_Base::get_options()->get_option('jigoshop_default_country');
+		return jigoshop_countries::get_default_customer_country();
 	}
 
 	/** Gets the state from the current session */
@@ -156,7 +156,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			return trim(self::get_customer_session('state'), ':');
 		}
 
-		return '';
+		return jigoshop_countries::get_default_customer_state();
 	}
 
 	/** Gets the country from the current session */
@@ -165,7 +165,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			return self::get_customer_session('shipping_country');
 		}
 
-		return Jigoshop_Base::get_options()->get_option('jigoshop_default_country');
+		return jigoshop_countries::get_default_customer_country();
 	}
 
 	/** Gets the state from the current session */
@@ -174,7 +174,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			return trim(self::get_customer_session('shipping_state'), ':');
 		}
 
-		return '';
+		return jigoshop_countries::get_default_customer_state();
 	}
 
 	/** Gets the postcode from the current session */
@@ -219,7 +219,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			}
 		}
 
-		list($country) = explode(':', Jigoshop_Base::get_options()->get_option('jigoshop_default_country'));
+		$country = jigoshop_countries::get_default_customer_country();
 		return jigoshop_countries::get_country($country);
 	}
 
@@ -343,28 +343,13 @@ class jigoshop_customer extends Jigoshop_Singleton {
 		return apply_filters('jigoshop_downloadable_products', $downloads);
 	}
 
-	public function address_form($load_address, $fields){
-		$title = '<h3>';
-		if($load_address == 'billing'){
-			$title .= __('Billing Address', 'jigoshop');
-		} else {
-			$title .= __('Shipping Address', 'jigoshop');
-		}
-		$title .= '</h3>';
-		echo $title;
-		// Billing Details
-		foreach($fields as $field){
-			self::address_form_field($field);
-		}
-	}
-
 	/**
 	 * Outputs a form field
 	 *
 	 * @param array $args contains a list of args for showing the field, merged with defaults (below)
 	 * @return string
 	 */
-	function address_form_field($args){
+	public static function address_form_field($args){
 		$defaults = array(
 			'type' => 'text',
 			'name' => '',
@@ -463,7 +448,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 					$field .= '</select>';
 				} else {
 					// Input
-					$field .= '<input type="text" class="input-text" value="'.esc_attr($current_r).'" placeholder="'.__('State/County', 'jigoshop').'" name="'.esc_attr($args['name']).'" id="'.esc_attr($args['name']).'" />';
+					$field .= '<input type="text" class="input-text" value="'.esc_attr($current_r).'" placeholder="'.__('State/Province', 'jigoshop').'" name="'.esc_attr($args['name']).'" id="'.esc_attr($args['name']).'" />';
 				}
 
 				$field .= '</p>'.$after;
@@ -524,7 +509,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 	}
 
 	/** Gets the value either from the posted data, or from the users meta data */
-	function get_value($input){
+	public static function get_value($input){
 		if(isset($_POST[$input]) && !empty($_POST[$input])){
 			return $_POST[$input];
 		} else if(is_user_logged_in()){
@@ -535,7 +520,7 @@ class jigoshop_customer extends Jigoshop_Singleton {
 			$current_user = wp_get_current_user();
 
 			switch($input){
-				case "billing-email" :
+				case "billing_email" :
 					return $current_user->user_email;
 					break;
 			}

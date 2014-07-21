@@ -37,15 +37,9 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 	 * @since 1.3
 	 */
 	public function settings_scripts(){
-		// http://jquerytools.org/documentation/rangeinput/index.html
-		wp_register_script('jquery-tools', jigoshop::assets_url().'/assets/js/jquery.tools.min.js', array('jquery'), '1.2.7');
-		wp_enqueue_script('jquery-tools');
-
-		wp_register_script('jigoshop-bootstrap-tooltip', jigoshop::assets_url().'/assets/js/bootstrap-tooltip.min.js', array('jquery'), '2.0.3');
-		wp_enqueue_script('jigoshop-bootstrap-tooltip');
-
-		wp_register_script('jigoshop-select2', jigoshop::assets_url().'/assets/js/select2.min.js', array('jquery'));
-		wp_enqueue_script('jigoshop-select2');
+		jigoshop_add_script('jquery-tools', JIGOSHOP_URL.'/assets/js/jquery.tools.min.js', array('jquery'), array('version' => '1.2.7'));
+		jigoshop_add_script('jigoshop-bootstrap-tooltip', JIGOSHOP_URL.'/assets/js/bootstrap-tooltip.min.js', array('jquery'), array('version' => '2.0.3'));
+		jigoshop_add_script('jigoshop-select2', JIGOSHOP_URL.'/assets/js/select2.min.js', array('jquery'));
 	}
 
 	/**
@@ -54,9 +48,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 	 * @since 1.3
 	 */
 	public function settings_styles(){
-		wp_register_style('jigoshop-select2', jigoshop::assets_url().'/assets/css/select2.css');
-		wp_enqueue_style('jigoshop-select2');
-
+		jigoshop_add_style('jigoshop-select2', JIGOSHOP_URL.'/assets/css/select2.css');
 		do_action('jigoshop_settings_styles'); // user defined stylesheets should be registered and queued
 	}
 
@@ -122,7 +114,8 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 			'class' => '',
 			'display' => null,
 			'update' => null,
-			'extra' => null
+			'extra' => null,
+			'options' => array(),
 		);
 
 		$option = wp_parse_args($option, $defaults);
@@ -136,7 +129,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 			'name' => $option['name'],
 			'desc' => $option['desc'],
 			'tip' => $option['tip'],
-			"std" => $option['std'],
+			'std' => $option['std'],
 			'multiple' => $option['multiple'],
 			'choices' => $option['choices'],
 			'label_for' => $id,
@@ -144,6 +137,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 			'display' => $option['display'],
 			'update' => $option['update'],
 			'extra' => $option['extra'],
+			'options' => $option['options'],
 		);
 
 		if($option['type'] != 'tab'){
@@ -367,7 +361,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							break;
 						case 'multi_select_countries' :
 							if(isset($value)){
-								$countries = jigoshop_countries::$countries;
+								$countries = jigoshop_countries::get_countries();
 								asort($countries);
 								$selected = array();
 								foreach($countries as $key => $val){
@@ -480,7 +474,9 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							}
 							break;
 					}
-					$options->set_option($setting['id'], $valid_input[$setting['id']]);
+					if(isset($valid_input[$setting['id']])){
+						$options->set_option($setting['id'], $valid_input[$setting['id']]);
+					}
 				}
 			}
 		}
@@ -515,7 +511,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 
 		$_POST['jigoshop_options_processed'] = wp_create_nonce('jigoshop_options_processed');
 
-		return $valid_input; // send it back to WordPress for saving
+		return $valid_input;
 	}
 
 	/**
@@ -807,6 +803,10 @@ class Jigoshop_Options_Parser {
 				break;
 			case 'single_select_country':
 				$country_setting = (string)$options->get_option($item['id']);
+				$add_empty = false;
+				if(isset($item['options']['add_empty']) && $item['options']['add_empty']){
+					$add_empty = true;
+				}
 
 				if(strstr($country_setting, ':')){
 					$temp = explode(':', $country_setting);
@@ -819,7 +819,7 @@ class Jigoshop_Options_Parser {
 
 				$id = $item['id'];
 				$display .= '<select id="'.$id.'" class="single_select_country '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']">';
-				$display .= jigoshop_countries::country_dropdown_options($country, $state, true, false, false);
+				$display .= jigoshop_countries::country_dropdown_options($country, $state, true, false, false, $add_empty);
 				$display .= '</select>';
 				?>
 				<script type="text/javascript">
@@ -832,8 +832,7 @@ class Jigoshop_Options_Parser {
 				<?php
 				break;
 			case 'multi_select_countries':
-				$countries = jigoshop_countries::$countries;
-				asort($countries);
+				$countries = jigoshop_countries::get_countries();
 				$selections = (array)$options->get_option($item['id']);
 
 				$display .= '<select multiple="multiple"
@@ -982,7 +981,7 @@ class Jigoshop_Options_Parser {
 				<script type="text/javascript">
 					/*<![CDATA[*/
 					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '<?= $width; ?>px' });
+						jQuery("#<?php echo $id; ?>").select2({ width: '<?php echo $width; ?>px' });
 					});
 					/*]]>*/
 				</script>

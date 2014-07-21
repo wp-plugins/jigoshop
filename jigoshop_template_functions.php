@@ -144,7 +144,7 @@ if (!function_exists('jigoshop_template_loop_add_to_cart')) {
 }
 if (!function_exists('jigoshop_template_loop_product_thumbnail')) {
 	function jigoshop_template_loop_product_thumbnail( $post, $_product ) {
-		echo jigoshop_get_product_thumbnail();
+		echo $_product->get_image('shop_small');
 	}
 }
 if (!function_exists('jigoshop_template_loop_price')) {
@@ -810,7 +810,7 @@ if (!function_exists('jigoshop_product_cat_image')) {
 if (!function_exists('jigoshop_get_image_placeholder')) {
 	function jigoshop_get_image_placeholder( $size = 'shop_small' ) {
 		$image_size = jigoshop_get_image_size( $size );
-		return '<img src="'.jigoshop::assets_url().'/assets/images/placeholder.png" alt="Placeholder" width="'.$image_size[0].'" height="'.$image_size[1].'" />';
+		return apply_filters('jigoshop_image_placeholder_html', '<img src="'.jigoshop::assets_url().'/assets/images/placeholder.png" alt="Placeholder" width="'.$image_size[0].'" height="'.$image_size[1].'" />', $image_size);
 	}
 }
 

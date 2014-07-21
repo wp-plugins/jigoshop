@@ -614,6 +614,109 @@ class jigoshop_countries extends Jigoshop_Base {
 			'WGN' => 'Wellington',
 			'WTC' => 'West Coast'
 		),
+		// Philippines: Provinces
+		'PH' => array(
+			'ABR' => 'Abra',
+			'AGN' => 'Agusan del Norte',
+			'AGS' => 'Agusan del Sur',
+			'AKL' => 'Aklan',
+			'ALB' => 'Albay',
+			'ANT' => 'Antique',
+			'APA' => 'Apayao',
+			'AUR' => 'Aurora',
+			'BAS' => 'Basilan',
+			'BAN' => 'Bataan',
+			'BTN' => 'Batanes',
+			'BTG' => 'Batangas',
+			'BEN' => 'Benguet',
+			'BIL' => 'Biliran',
+			'BOH' => 'Bohol',
+			'BUK' => 'Bukidnon',
+			'BUL' => 'Bulacan',
+			'CAG' => 'Cagayan',
+			'CAN' => 'Camarines Norte',
+			'CAS' => 'Camarines Sur',
+			'CAM' => 'Camiguin',
+			'CAP' => 'Capiz',
+			'CAT' => 'Catanduanes',
+			'CAV' => 'Cavite',
+			'CEB' => 'Cebu',
+			'COM' => 'Compostela Valley',
+			'NCO' => 'Cotabato',
+			'DAV' => 'Davao del Norte',
+			'DAS' => 'Davao del Sur',
+			'DAC' => 'Davao Occidental', // TODO: Needs to be updated when ISO code is assigned
+			'DAO' => 'Davao Oriental',
+			'DIN' => 'Dinagat Islands',
+			'EAS' => 'Eastern Samar',
+			'GUI' => 'Guimaras',
+			'IFU' => 'Ifugao',
+			'ILN' => 'Ilocos Norte',
+			'ILS' => 'Ilocos Sur',
+			'ILI' => 'Iloilo',
+			'ISA' => 'Isabela',
+			'KAL' => 'Kalinga',
+			'LUN' => 'La Union',
+			'LAG' => 'Laguna',
+			'LAN' => 'Lanao del Norte',
+			'LAS' => 'Lanao del Sur',
+			'LEY' => 'Leyte',
+			'MAG' => 'Maguindanao',
+			'MAD' => 'Marinduque',
+			'MAS' => 'Masbate',
+			'MSC' => 'Misamis Occidental',
+			'MSR' => 'Misamis Oriental',
+			'MOU' => 'Mountain Province',
+			'NEC' => 'Negros Occidental',
+			'NER' => 'Negros Oriental',
+			'NSA' => 'Northern Samar',
+			'NUE' => 'Nueva Ecija',
+			'NUV' => 'Nueva Vizcaya',
+			'MDC' => 'Occidental Mindoro',
+			'MDR' => 'Oriental Mindoro',
+			'PLW' => 'Palawan',
+			'PAM' => 'Pampanga',
+			'PAN' => 'Pangasinan',
+			'QUE' => 'Quezon',
+			'QUI' => 'Quirino',
+			'RIZ' => 'Rizal',
+			'ROM' => 'Romblon',
+			'WSA' => 'Samar',
+			'SAR' => 'Sarangani',
+			'SIQ' => 'Siquijor',
+			'SOR' => 'Sorsogon',
+			'SCO' => 'South Cotabato',
+			'SLE' => 'Southern Leyte',
+			'SUK' => 'Sultan Kudarat',
+			'SLU' => 'Sulu',
+			'SUN' => 'Surigao del Norte',
+			'SUR' => 'Surigao del Sur',
+			'TAR' => 'Tarlac',
+			'TAW' => 'Tawi-Tawi',
+			'ZMB' => 'Zambales',
+			'ZAN' => 'Zamboanga del Norte',
+			'ZAS' => 'Zamboanga del Sur',
+			'ZSI' => 'Zamboanga Sibugay',
+			'MNL' => 'Metro Manila',
+		),
+		'PL' => array(
+			'DS' => 'dolnośląskie',
+			'KP' => 'kujawsko-pomorskie',
+			'LU' => 'lubelskie',
+			'LB' => 'lubuskie',
+			'LD' => 'łódzkie',
+			'MA' => 'małopolskie',
+			'MZ' => 'mazowieckie',
+			'OP' => 'opolskie',
+			'PK' => 'podkarpackie',
+			'PD' => 'podlaskie',
+			'PM' => 'pomorskie',
+			'SL' => 'śląskie',
+			'SK' => 'świętokrzyskie',
+			'WN' => 'warmińsko-mazurskie',
+			'WP' => 'wielkopolskie',
+			'ZP' => 'zachodniopomorskie',
+		),
 		// Romania: Counties
 		'RO' => array(
 			'ALB' => 'Alba',
@@ -812,28 +915,52 @@ class jigoshop_countries extends Jigoshop_Base {
 	/** get base country */
 	public static function get_base_country(){
 		$default = self::get_options()->get_option('jigoshop_default_country');
-		list($country) = explode(':', $default);
+		$country = explode(':', $default);
 
-		return $country;
+		return $country[0];
 	}
 
 	/** get base state */
 	public static function get_base_state(){
 		$default = self::get_options()->get_option('jigoshop_default_country');
-		if(strpos($default, ':') !== false){
-			$default = explode(':', $default);
-			return $default[1];
-		}
+		$country = explode(':', $default);
 
-		return '*';
+		return count($country) == 2 ? $country[1] : '';
+	}
+
+	/** get customer default country */
+	public static function get_default_customer_country(){
+		$default = self::get_options()->get_option('jigoshop_default_country_for_customer');
+		if($default == -1){
+			return '';
+		}
+		$country = explode(':', $default);
+
+		return $country[0];
+	}
+
+	/** get customer default state */
+	public static function get_default_customer_state(){
+		$default = self::get_options()->get_option('jigoshop_default_country_for_customer');
+		if($default == -1){
+			return '';
+		}
+		$country = explode(':', $default);
+
+		return count($country) == 2 ? $country[1] : '';
+	}
+
+	public static function get_countries(){
+		$countries = array_map(function($item){ return __($item, 'jigoshop'); }, self::$countries);
+		asort($countries, SORT_LOCALE_STRING);
+		return $countries;
 	}
 
 	/** get countries we allow only */
 	public static function get_allowed_countries(){
-		$countries = self::$countries;
+		$countries = self::get_countries();
 
 		if(self::get_options()->get_option('jigoshop_allowed_countries') !== 'specific'){
-			asort($countries);
 			return $countries;
 		}
 
@@ -843,7 +970,7 @@ class jigoshop_countries extends Jigoshop_Base {
 			$allowed_countries[$country] = $countries[$country];
 		}
 
-		asort($allowed_countries);
+		asort($allowed_countries, SORT_LOCALE_STRING);
 		return $allowed_countries;
 	}
 
@@ -855,13 +982,20 @@ class jigoshop_countries extends Jigoshop_Base {
 		return array();
 	}
 
+	public static function has_country($country_code){
+		return isset(self::$countries[$country_code]);
+	}
+
 	public static function get_country($country_code){
-		return isset(self::$countries[$country_code]) ? self::$countries[$country_code] : '';
+		return self::has_country($country_code) ? __(self::$countries[$country_code], 'jigoshop') : '';
+	}
+
+	public static function has_state($country_code, $state_code){
+		return isset(self::$states[$country_code]) && isset(self::$states[$country_code][$state_code]);
 	}
 
 	public static function get_state($country_code, $state_code){
-		$states = self::get_states($country_code);
-		return isset($states[$state_code]) ? $states[$state_code] : '';
+		return self::has_state($country_code, $state_code) ? self::$states[$country_code][$state_code] : '';
 	}
 
 	public static function country_has_state($country_code, $state_code){
@@ -875,11 +1009,11 @@ class jigoshop_countries extends Jigoshop_Base {
 		$selected_state = null,
 		$escape = true,
 		$show_all = true,
-		$echo = true
+		$echo = true,
+		$add_empty = false
 	){
 		$output = '';
-		$countries = self::$countries;
-		asort($countries);
+		$countries = self::get_countries();
 
 		if($selected_state === null){
 			$selected_state = '*';
@@ -890,6 +1024,10 @@ class jigoshop_countries extends Jigoshop_Base {
 		}
 		if(is_array($selected_state)){
 			$selected_state = array_unique($selected_state);
+		}
+
+		if($add_empty){
+			$output .= '<option value="-1">'.__('None', 'jigoshop').'</option>';
 		}
 
 		if($countries){
@@ -944,6 +1082,11 @@ class jigoshop_countries extends Jigoshop_Base {
 		}
 
 		return $output;
+	}
+
+	public static function get_all_states()
+	{
+		return self::$states;
 	}
 
 	// Called when a base state is set to '*', #545

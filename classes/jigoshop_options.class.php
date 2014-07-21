@@ -164,7 +164,9 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 		$this->get_current_options();
 		if(!isset(self::$current_options[$name])){
 			self::$current_options[$name] = $value;
-			add_action('shutdown', array($this, 'update_options'));
+			if(!has_action('shutdown', array($this, 'update_options'))){
+				add_action('shutdown', array($this, 'update_options'));
+			}
 		}
 	}
 
@@ -200,7 +202,9 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 
 		if(isset($name)){
 			self::$current_options[$name] = $value;
-			add_action('shutdown', array($this, 'update_options'));
+			if(!has_action('shutdown', array($this, 'update_options'))){
+				add_action('shutdown', array($this, 'update_options'));
+			}
 		}
 	}
 
@@ -215,7 +219,9 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 		$this->get_current_options();
 		if(isset($name)){
 			unset(self::$current_options[$name]);
-			add_action('shutdown', array($this, 'update_options'));
+			if(!has_action('shutdown', array($this, 'update_options'))){
+				add_action('shutdown', array($this, 'update_options'));
+			}
 
 			return true;
 		}
@@ -404,7 +410,9 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 	 */
 	private function set_current_options($options){
 		self::$current_options = $options;
-		add_action('shutdown', array($this, 'update_options'));
+		if(!has_action('shutdown', array($this, 'update_options'))){
+			add_action('shutdown', array($this, 'update_options'));
+		}
 	}
 
 	/**
@@ -462,6 +470,17 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 				'type' => 'single_select_country',
 			),
 			array(
+				'name' => __('Default Country/Region for customer', 'jigoshop'),
+				'desc' => '',
+				'tip' => __('This is the country for your clients with new accounts.', 'jigoshop'),
+				'id' => 'jigoshop_default_country_for_customer',
+				'std' => $this->get_option('jigoshop_default_country'),
+				'type' => 'single_select_country',
+				'options' => array(
+					'add_empty' => true,
+				),
+			),
+			array(
 				'name' => __('Currency', 'jigoshop'),
 				'desc' => '',
 				'tip' => __('This controls what currency the prices are listed with in the Catalog, and which currency PayPal, and other gateways, will take payments in.', 'jigoshop'),
@@ -517,14 +536,14 @@ class Jigoshop_Options implements Jigoshop_Options_Interface {
 				'name' => __('Address Line1', 'jigoshop'),
 				'desc' => '',
 				'tip' => __('Setting your address will enable us to print it out on your invoice emails. Leave blank to disable.', 'jigoshop'),
-				'id' => 'jigoshop_address_line1',
+				'id' => 'jigoshop_address_1',
 				'type' => 'longtext',
 			),
 			array(
 				'name' => __('Address Line2', 'jigoshop'),
 				'desc' => '',
 				'tip' => __('If address line1 is not set, address line2 will not display even if you put a value in it. Setting your address will enable us to print it out on your invoice emails. Leave blank to disable.', 'jigoshop'),
-				'id' => 'jigoshop_address_line2',
+				'id' => 'jigoshop_address_2',
 				'type' => 'longtext',
 			),
 			array(

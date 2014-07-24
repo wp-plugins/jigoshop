@@ -120,6 +120,11 @@ function jigoshop_add_order_item() {
 	die();
 }
 
+/**
+ * Save address and redirect to proper page.
+ */
+add_action('init', function(){
+});
 
 /**
  * When default permalinks are enabled, redirect shop page to post type archive url
@@ -868,7 +873,7 @@ function jigoshop_product_dropdown_categories( $show_counts = true, $hierarchal 
 	$r['pad_counts'] = 1;
 	$r['hierarchal'] = $hierarchal;
 	$r['hide_empty'] = 1;
-	$r['show_count'] = 1;
+	$r['show_count'] = $show_counts;
 	$r['selected']   = isset( $wp_query->query['product_cat'] ) ? $wp_query->query['product_cat'] : '';
 
 	$terms = get_terms( 'product_cat', $r );
@@ -1034,19 +1039,24 @@ add_action( 'wp_ajax_jigoshop_json_search_products', 'jigoshop_json_search_produ
 /**
  * AJAX validate postcode
  */
-function jigoshop_validate_postcode() {
+function jigoshop_validate_postcode()
+{
+	check_ajax_referer('update-order-review', 'security');
 
-	check_ajax_referer( 'update-order-review', 'security' );
+	$postcode = (string)urldecode(stripslashes(strip_tags($_GET['postcode'])));
+	if (empty($postcode)) {
+		echo '0';
+		exit;
+	}
 
-	$postcode = (string) urldecode( stripslashes( strip_tags( $_GET['postcode'] )));
-	if ( empty( $postcode )) die();
+	$country = (string)urldecode(stripslashes(strip_tags($_GET['country'])));
+	if (empty($country)) {
+		echo '0';
+		exit;
+	}
 
-	$country = (string) urldecode( stripslashes( strip_tags( $_GET['country'] )));
-	if ( empty( $country )) die();
-
-	echo jigoshop_validation::is_postcode( $postcode, $country );
-
-	die();
+	echo jigoshop_validation::is_postcode($postcode, $country) ? '1' : '0';
+	exit;
 }
 add_action( 'wp_ajax_jigoshop_validate_postcode', 'jigoshop_validate_postcode' );
 add_action( 'wp_ajax_nopriv_jigoshop_validate_postcode', 'jigoshop_validate_postcode');

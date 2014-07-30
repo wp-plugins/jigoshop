@@ -661,6 +661,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 			if ($field['name'] == 'billing_euvatno') {
 				$vatno = isset($this->posted['billing_euvatno']) ? $this->posted['billing_euvatno'] : '';
 				$vatno = str_replace(' ', '', $vatno);
+				$country = jigoshop_customer::get_country();
 				// strip any country code from the beginning of the number
 				if (strpos($vatno, $country) === 0) {
 					$vatno = substr($vatno, strlen($country));
@@ -1075,6 +1076,8 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 					if ($result['result'] == 'success') {
 						return $result;
 					}
+					
+					return false;
 				} else {
 					// No payment was required for order
 					$order->payment_complete();

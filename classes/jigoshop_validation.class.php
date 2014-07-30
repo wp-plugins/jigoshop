@@ -262,18 +262,19 @@ class jigoshop_validation
 		$country = strtoupper(trim($country));
 		$postcode = strtoupper(trim($postcode));
 
-		if (!isset(self::$postcodes[$country])) {
+		if (!isset(self::$postcodes[$country]) && $country !== 'GB') { // Special case for GB
 			return false;
 		}
 
 		if (Jigoshop_Base::get_options()->get_option('jigoshop_enable_postcode_validating') == 'yes') {
-			$regex = '/'.self::$postcodes[$country].'/';
-			jigoshop_log("VALIDATE POSTCODE: country = ".$country." & regex = ".$regex);
 
 			switch ($country) {
 				case 'GB':
+					jigoshop_log("VALIDATE POSTCODE: country = GB");
 					return self::is_GB_postcode($postcode);
 				default:
+					$regex = '/'.self::$postcodes[$country].'/';
+					jigoshop_log("VALIDATE POSTCODE: country = ".$country." & regex = ".$regex);
 					$match = preg_match($regex, $postcode);
 					if ($match !== 1) {
 						return false;
@@ -315,31 +316,14 @@ class jigoshop_validation
 		$postcode = strtolower($toCheck);
 		$postcode = str_replace(' ', '', $postcode);
 
-		// Assume we are not going to find a valid postcode
-		$valid = false;
-
 		// Check the string against the six types of postcodes
 		foreach ($pcexp as $regexp) {
-
-			if (ereg($regexp, $postcode, $matches)) {
-
-				// Load new postcode back into the form element
-				$toCheck = strtoupper($matches[1].' '.$matches [2]);
-
-				// Take account of the special BFPO c/o format
-				$toCheck = ereg_replace('C\/O', 'c/o ', $toCheck);
-
-				// Remember that we have found that the code is valid and break from loop
-				$valid = true;
-				break;
+			if (preg_match('@'.$regexp.'@', $postcode, $matches)) {
+				return true;
 			}
 		}
 
-		if ($valid) {
-			return true;
-		} else {
-			return false;
-		};
+		return false;
 	}
 
 	/**

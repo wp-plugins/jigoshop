@@ -71,12 +71,20 @@
 		}
 
 		function validate_postcode($field){
+			if(jigoshop_params.validate_postcode == 'no'){
+				return true;
+			}
 			var country = $('#'+$field.attr('rel')).val();
 			var pattern = jigoshop_validation.postcodes[country];
 			if(pattern === undefined){
 				return true;
 			}
-			return pattern.test($field.val());
+			var value = $field.val();
+			// Special case for GB
+			if(country === 'GB'){
+				value = value.replace(' ', '').toLowerCase();
+			}
+			return pattern.test(value);
 		}
 
 		function validate_email($field){

@@ -122,6 +122,7 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 
 		// Get the attributes to be used later
 		$attributes = (array)maybe_unserialize(get_post_meta($parent_id, 'product_attributes', true));
+		$minimal_price = PHP_INT_MAX;
 
 		foreach ($_POST['variations'] as $ID => $meta) {
 			/**
@@ -210,6 +211,9 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 
 			update_post_meta($ID, 'sku', $meta['sku']);
 			update_post_meta($ID, 'regular_price', $meta['regular_price']);
+			if ($meta['regular_price'] < $minimal_price) {
+				$minimal_price = $meta['regular_price'];
+			}
 
 			$sale_price = !empty($meta['sale_price'])
 				? (!strstr($meta['sale_price'], '%') ? jigoshop_sanitize_num($meta['sale_price']) : $meta['sale_price'])
@@ -276,6 +280,7 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 		}
 
 		update_post_meta($parent_id, '_default_attributes', $default_attributes);
+		update_post_meta($parent_id, 'regular_price', $minimal_price);
 	}
 
 	public function display() {
@@ -508,18 +513,14 @@ class jigoshop_product_meta_variable extends jigoshop_product_meta
 			<div class="inside">
 				<table cellpadding="0" cellspacing="0" class="jigoshop_variable_attributes">
 					<tbody>
-
 						<?php do_action('jigoshop_variable_product_table_begin', $variation, $attributes)?>
-
 						<tr>
 							<td class="upload_image" rowspan="2">
-								<a href="#" class="upload_image_button <?php if (isset($image_id)) echo 'remove'; ?>" rel="<?php echo $variation->ID; ?>">
+								<a href="#" class="upload_image_button" rel="<?php echo $variation->ID; ?>">
 									<img src="<?php echo $image ?>" width="93px" />
-									<input type="hidden" name="<?php echo esc_attr( $this->field_name('_thumbnail_id', $variation) ); ?>" class="upload_image_id" value="<?php if ( isset($image_id)) echo esc_attr( $image_id ); ?>" />
-									<!-- TODO: APPEND THIS IN JS <span class="overlay"></span> -->
+									<input type="hidden" name="<?php echo esc_attr( $this->field_name('_thumbnail_id', $variation) ); ?>" class="upload_image_id" value="<?php isset($image_id) and print esc_attr($image_id); ?>" />
 								</a>
 							</td>
-
 							<td>
 								<?php
 									$terms = get_the_terms( $variation->ID, 'product_type' );

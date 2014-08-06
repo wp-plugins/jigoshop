@@ -1,5 +1,19 @@
 ## Changelog
 
+* 1.11 - 2014-08-06:
+    * New: Compatibility with WooThemes themes.
+    * New: Check for PHP accelerators as they might cause problems.
+    * New: Support for variable products in Price Filter widget.
+    * New: `jigoshop_report_widgets` action to add custom report boxes.
+    * New: `jQuery.payment()` function to ease payment redirection.
+    * New: Ability to always select "All of" in country dropdown.
+    * New: Replaced old ThickBox with WordPress Media Gallery.
+    * Improved: "Edit Product Category" and "Edit Product Tag" admin bar links now works properly.
+    * Improved: Better message and error disappearing times.
+    * Fix: Invalid formatting of shipping dropdown.
+    * Fix: Displaying multiple select fields.
+    * Fix: Properly calculate tax for shipping.
+    * Fix: Licence validator now checks if plugin URL is correct.
 * 1.10.6 - 2014-07-30:
     * Fix: Security issue on comments feed.
     * Fix: Add obeying validate postcode setting in JavaScript validation.
@@ -27,7 +41,7 @@
     * Improved: Memory checking error message is just a warning.
 * 1.10.2 - 2014-07-21:
     * Fix: Memory check is not a fatal error anymore - plugin will continue to work.
-    * Fix: As memory is not a fatal error - required memory is downgraded to 64 MB. 
+    * Fix: As memory is not a fatal error - required memory is downgraded to 64 MB.
 * 1.10.1 - 2014-07-21:
     * Fix: Memory checking for some users. Thanks to freyaluna for finding it.
 * 1.10 - 2014-07-21:

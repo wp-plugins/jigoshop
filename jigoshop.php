@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.10.6
+ * Version:             1.11
  * Requires at least:   3.8
  * Tested up to:        3.9.1
  * Text Domain:         jigoshop
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.10.6');
+	define('JIGOSHOP_VERSION', '1.11');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1407060);
@@ -239,18 +239,22 @@ function jigoshop_admin_bar_links($links)
 	), $links);
 }
 
+function jigoshop_admin_bar_edit($location, $term_id, $taxonomy)
+{
+	if (in_array($taxonomy, array('product_cat', 'product_tag'))) {
+		$location .= '&post_type=product';
+	}
+
+	return $location;
+}
+add_filter('get_edit_term_link', 'jigoshop_admin_bar_edit', 10, 3);
+
 /**
  * Jigoshop Init
  */
 add_action('init', 'jigoshop_init', 0);
 function jigoshop_init()
 {
-	/* ensure nothing is output to the browser prior to this (other than headers) */
-	//ob_clean();
-
-	// http://www.geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
-	// this means that all Jigoshop extensions, shipping modules and gateways must load their text domains on the 'init' action hook
-	//
 	// Override default translations with custom .mo's found in wp-content/languages/jigoshop first.
 	load_textdomain('jigoshop', WP_LANG_DIR.'/jigoshop/jigoshop-'.get_locale().'.mo');
 	load_plugin_textdomain('jigoshop', false, dirname(plugin_basename(__FILE__)).'/languages/');
@@ -630,6 +634,7 @@ function jigoshop_frontend_scripts()
 	jigoshop_add_script('jigoshop-cart', JIGOSHOP_URL.'/assets/js/cart.js', array('jquery'), array('in_footer' => true, 'page' => JIGOSHOP_CART));
 	jigoshop_add_script('jigoshop-checkout', JIGOSHOP_URL.'/assets/js/checkout.js', array('jquery'), array('in_footer' => true, 'page' => JIGOSHOP_CHECKOUT));
 	jigoshop_add_script('jigoshop-validation', JIGOSHOP_URL.'/assets/js/validation.js', array(), array('in_footer' => true, 'page' => JIGOSHOP_CHECKOUT));
+	jigoshop_add_script('jigoshop-payment', JIGOSHOP_URL.'/assets/js/pay.js', array('jquery'), array('page' => JIGOSHOP_PAY));
 	jigoshop_add_script('jigoshop-single-product', JIGOSHOP_URL.'/assets/js/single-product.js', array('jquery'), array('in_footer' => true, 'page' => JIGOSHOP_PRODUCT));
 	jigoshop_add_script('jigoshop-countries', JIGOSHOP_URL.'/assets/js/countries.js', array(), array(
 		'in_footer' => true,
@@ -721,10 +726,10 @@ function jigoshop_admin_scripts()
 		return;
 	}
 
-	wp_enqueue_script('thickbox');
-	wp_enqueue_script('jquery-ui-core');
+	wp_enqueue_media();
 	wp_enqueue_script('jquery-ui-sortable');
 	wp_enqueue_script('jquery-ui-datepicker');
+	jigoshop_add_script('jigoshop_media', JIGOSHOP_URL.'/assets/js/media.js', array('jquery', 'media-editor'));
 	jigoshop_add_script('jigoshop-select2', JIGOSHOP_URL.'/assets/js/select2.min.js', array('jquery'));
 	jigoshop_add_script('jigoshop_blockui', JIGOSHOP_URL.'/assets/js/blockui.js', array('jquery'), array('version' => '2.4.6'));
 	jigoshop_add_script('jigoshop_backend', JIGOSHOP_URL.'/assets/js/jigoshop_backend.js', array('jquery'), array('version' => '1.0'));

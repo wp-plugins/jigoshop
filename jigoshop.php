@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.11.1
+ * Version:             1.11.2
  * Requires at least:   3.8
  * Tested up to:        3.9.1
  * Text Domain:         jigoshop
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.11');
+	define('JIGOSHOP_VERSION', '1.11.2');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1407060);
@@ -187,51 +187,64 @@ if (is_admin()) {
 function jigoshop_admin_toolbar() {
 	/** @var WP_Admin_Bar $wp_admin_bar */
 	global $wp_admin_bar;
+	$manage_products = current_user_can('manage_jigoshop_products');
+	$manage_orders = current_user_can('manage_jigoshop_orders');
+	$manage_jigoshop = current_user_can('manage_jigoshop');
+	$view_reports = current_user_can('view_jigoshop_reports');
 
-	$wp_admin_bar->add_node(array(
-		'id' => 'jigoshop',
-		'title' => __('Jigoshop', 'jigoshop'),
-		'href' => admin_url('admin.php?page=jigoshop'),
-		'parent' => false,
-		'meta' => array(
-			'class' => 'jigoshop-toolbar'
-		),
-	));
+	if (!is_admin() && ($manage_jigoshop || $manage_products || $manage_orders || $view_reports)) {
+		$wp_admin_bar->add_node(array(
+			'id' => 'jigoshop',
+			'title' => __('Jigoshop', 'jigoshop'),
+			'href' => $manage_jigoshop ? admin_url('admin.php?page=jigoshop') : '',
+			'parent' => false,
+			'meta' => array(
+				'class' => 'jigoshop-toolbar'
+			),
+		));
 
-	$wp_admin_bar->add_node(array(
-		'id' => 'jigoshop_dashboard',
-		'title' => __('Dashboard', 'jigoshop'),
-		'parent' => 'jigoshop',
-		'href' => admin_url('admin.php?page=jigoshop'),
-	));
+		if ($manage_jigoshop) {
+			$wp_admin_bar->add_node(array(
+				'id' => 'jigoshop_dashboard',
+				'title' => __('Dashboard', 'jigoshop'),
+				'parent' => 'jigoshop',
+				'href' => admin_url('admin.php?page=jigoshop'),
+			));
+		}
 
-	$wp_admin_bar->add_node(array(
-		'id' => 'jigoshop_products',
-		'title' => __('Products', 'jigoshop'),
-		'parent' => 'jigoshop',
-		'href' => admin_url('edit.php?post_type=product'),
-	));
+		if ($manage_products) {
+			$wp_admin_bar->add_node(array(
+				'id' => 'jigoshop_products',
+				'title' => __('Products', 'jigoshop'),
+				'parent' => 'jigoshop',
+				'href' => admin_url('edit.php?post_type=product'),
+			));
+		}
 
-	$wp_admin_bar->add_node(array(
-		'id' => 'jigoshop_orders',
-		'title' => __('Orders', 'jigoshop'),
-		'parent' => 'jigoshop',
-		'href' => admin_url('edit.php?post_type=shop_order'),
-	));
+		if ($manage_orders) {
+			$wp_admin_bar->add_node(array(
+				'id' => 'jigoshop_orders',
+				'title' => __('Orders', 'jigoshop'),
+				'parent' => 'jigoshop',
+				'href' => admin_url('edit.php?post_type=shop_order'),
+			));
+		}
 
-	$wp_admin_bar->add_node(array(
-		'id' => 'jigoshop_settings',
-		'title' => __('Settings', 'jigoshop'),
-		'parent' => 'jigoshop',
-		'href' => admin_url('admin.php?page=jigoshop_settings'),
-	));
+		if ($manage_jigoshop) {
+			$wp_admin_bar->add_node(array(
+				'id' => 'jigoshop_settings',
+				'title' => __('Settings', 'jigoshop'),
+				'parent' => 'jigoshop',
+				'href' => admin_url('admin.php?page=jigoshop_settings'),
+			));
+		}
+	}
 }
 
 add_action('admin_bar_menu', 'jigoshop_admin_toolbar', 35);
 
 function jigoshop_admin_bar_links($links)
 {
-	unset($links[0]);
 	return array_merge(array(
 		'<a href="'.admin_url('admin.php?page=jigoshop_settings').'">'.__('Settings', 'jigoshop').'</a>',
 		'<a href="https://www.jigoshop.com/documentation/">'.__('Docs', 'jigoshop').'</a>',
@@ -241,7 +254,7 @@ function jigoshop_admin_bar_links($links)
 
 function jigoshop_admin_bar_edit($location, $term_id, $taxonomy)
 {
-	if (in_array($taxonomy, array('product_cat', 'product_tag'))) {
+	if (in_array($taxonomy, array('product_cat', 'product_tag')) && strpos($location, 'post_type=product') === false) {
 		$location .= '&post_type=product';
 	}
 
@@ -673,21 +686,6 @@ function jigoshop_frontend_scripts()
 
 	$jigoshop_params = apply_filters('jigoshop_params', $jigoshop_params);
 	jigoshop_localize_script('jigoshop_global', 'jigoshop_params', $jigoshop_params);
-}
-
-/**
- * Add a "Settings" link to the plugins.php page for Jigoshop
- */
-add_filter('plugin_action_links', 'jigoshop_add_settings_link', 10, 2);
-function jigoshop_add_settings_link($links, $file)
-{
-	$this_plugin = plugin_basename(__FILE__);
-	if ($file == $this_plugin) {
-		$settings_link = '<a href="admin.php?page=jigoshop_settings">'.__('Settings', 'jigoshop').'</a>';
-		array_unshift($links, $settings_link);
-	}
-
-	return $links;
 }
 
 /**

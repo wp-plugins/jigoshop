@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.11.4
+ * Version:             1.11.5
  * Requires at least:   3.8
  * Tested up to:        3.9.2
  * Text Domain:         jigoshop
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.11.4');
+	define('JIGOSHOP_VERSION', '1.11.5');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1408200);
@@ -181,6 +181,30 @@ if (is_admin()) {
 	include_once('admin/jigoshop-admin.php');
 	register_activation_hook(__FILE__, 'install_jigoshop');
 }
+
+
+function jigoshop_admin_footer($text) {
+	$screen = get_current_screen();
+
+	if (strpos($screen->base, 'jigoshop') === false && strpos($screen->parent_base, 'jigoshop') === false && !in_array($screen->post_type, array('product', 'shop_order'))) {
+		return $text;
+	}
+
+	return sprintf(
+		'<a target="_blank" href="https://www.jigoshop.com/support/">%s</a> | %s',
+		__('Contact support', 'jigoshop'),
+		str_replace(
+			array('[stars]','[link]','[/link]'),
+			array(
+				'<a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
+				'<a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >',
+				'</a>'
+			),
+			__('Add your [stars] on [link]wordpress.org[/link] and keep this plugin essentially free.',WYSIJA)
+		)
+	);
+}
+add_filter('admin_footer_text', 'jigoshop_admin_footer');
 
 /**
  * Adds Jigoshop items to admin bar.

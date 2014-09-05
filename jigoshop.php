@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.11.5
+ * Version:             1.11.6
  * Requires at least:   3.8
  * Tested up to:        3.9.2
  * Text Domain:         jigoshop
@@ -38,10 +38,10 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.11.5');
+	define('JIGOSHOP_VERSION', '1.11.6');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
-	define('JIGOSHOP_DB_VERSION', 1408200);
+	define('JIGOSHOP_DB_VERSION', 1409050);
 }
 if (!defined('JIGOSHOP_OPTIONS')) {
 	define('JIGOSHOP_OPTIONS', 'jigoshop_options');
@@ -589,15 +589,15 @@ function jigoshop_get_available_pages()
 {
 	return array(
 		JIGOSHOP_CART,
-		JIGOSHOP_CHECKOUT,
 		JIGOSHOP_PAY,
+		JIGOSHOP_CHECKOUT,
 		JIGOSHOP_THANK_YOU,
-		JIGOSHOP_MY_ACCOUNT,
 		JIGOSHOP_EDIT_ADDRESS,
+		JIGOSHOP_MY_ACCOUNT,
 		JIGOSHOP_PRODUCT,
 		JIGOSHOP_PRODUCT_CATEGORY,
-		JIGOSHOP_PRODUCT_LIST,
 		JIGOSHOP_PRODUCT_TAG,
+		JIGOSHOP_PRODUCT_LIST,
 		JIGOSHOP_ALL,
 	);
 }
@@ -1317,6 +1317,7 @@ function jigoshop_get_formatted_variation(jigoshop_product $product, $variation_
 		}
 
 		$variation_list = array();
+		$added = array();
 
 		foreach ($variation_data as $name => $value) {
 			if (empty($value)) {
@@ -1324,6 +1325,12 @@ function jigoshop_get_formatted_variation(jigoshop_product $product, $variation_
 			}
 
 			$name = str_replace('tax_', '', $name);
+
+			if (in_array($name, $added)) {
+				continue;
+			}
+
+			$added[] = $name;
 
 			if (taxonomy_exists('pa_'.$name)) {
 				$terms = get_terms('pa_'.$name, array('orderby' => 'slug', 'hide_empty' => '0'));

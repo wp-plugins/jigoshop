@@ -37,9 +37,10 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 	 * @since 1.3
 	 */
 	public function settings_scripts(){
-		jigoshop_add_script('jquery-tools', JIGOSHOP_URL.'/assets/js/jquery.tools.min.js', array('jquery'), array('version' => '1.2.7'));
+//		jigoshop_add_script('jquery-tools', JIGOSHOP_URL.'/assets/js/jquery.tools.min.js', array('jquery'), array('version' => '1.2.7'));
 		jigoshop_add_script('jigoshop-bootstrap-tooltip', JIGOSHOP_URL.'/assets/js/bootstrap-tooltip.min.js', array('jquery'), array('version' => '2.0.3'));
 		jigoshop_add_script('jigoshop-select2', JIGOSHOP_URL.'/assets/js/select2.min.js', array('jquery'));
+		jigoshop_add_script('jigoshop-settings', JIGOSHOP_URL.'/assets/js/settings.js', array('jquery', 'jquery-tools'));
 	}
 
 	/**
@@ -92,6 +93,9 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 				}
 			}
 		}
+
+		add_action('admin_enqueue_styles', array($this, 'settings_styles'));
+		add_action('admin_enqueue_scripts', array($this, 'settings_scripts'));
 	}
 
 	/**
@@ -206,30 +210,6 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 				</div>
 			</form>
 		</div>
-		<script type="text/javascript">
-		/*<![CDATA[*/
-			jQuery(function(){
-				// Fade out the status message
-				jQuery('.updated').delay(2500).fadeOut(1500);
-
-				// jQuery Tools range tool
-				jQuery(":range").rangeinput();
-
-				// Countries
-				jQuery('select#jigoshop_allowed_countries').change(function(){
-					// hide-show multi_select_countries
-					if (jQuery(this).val()=="specific") {
-						jQuery(this).parent().parent().next('tr').show();
-					} else {
-						jQuery(this).parent().parent().next('tr').hide();
-					}
-				}).change();
-
-				// permalink double save hack (do we need this anymore -JAP-)
-				jQuery.get('<?php echo admin_url('options-permalink.php') ?>');
-			});
-		/*]]>*/
-		</script>
 		<?php do_action( 'jigoshop_settings_scripts' );
 	}
 
@@ -344,14 +324,14 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 						}
 					}
 
-					$value = isset($input[$setting['id']]) ? $input[$setting['id']] : null;
+					$value = isset($input[$setting['id']]) ? $input[$setting['id']] : false;
 
 					// we have a $setting
 					// $value has the WordPress user submitted value for this $setting
 					// $option has this $setting parameters
 					// validate for $option 'type' checking for a submitted $value
 					switch($option['type']){
-						case 'user_defined' :
+						case 'user_defined':
 							if(isset($option['update'])){
 								if(is_callable($option['update'], true)){
 									$result = call_user_func($option['update']);
@@ -359,24 +339,22 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 								}
 							}
 							break;
-						case 'multi_select_countries' :
-							if(isset($value)){
-								$countries = jigoshop_countries::get_countries();
-								asort($countries);
-								$selected = array();
-								foreach($countries as $key => $val){
-									if(in_array($key, (array)$value)){
-										$selected[] = $key;
-									}
+						case 'multi_select_countries':
+							$countries = jigoshop_countries::get_countries();
+							asort($countries);
+							$selected = array();
+							foreach($countries as $key => $val){
+								if(in_array($key, (array)$value)){
+									$selected[] = $key;
 								}
-								$valid_input[$setting['id']] = $selected;
 							}
+							$valid_input[$setting['id']] = $selected;
 							break;
-						case 'checkbox' :
+						case 'checkbox':
 							// there will be no $value for a false checkbox, set it now
 							$valid_input[$setting['id']] = $value !== null ? 'yes' : 'no';
 							break;
-						case 'multicheck' :
+						case 'multicheck':
 							$selected = array();
 							foreach($option['choices'] as $key => $val){
 								if(isset($value[$key])){
@@ -387,12 +365,12 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							}
 							$valid_input[$setting['id']] = $selected;
 							break;
-						case 'text' :
-						case 'longtext' :
-						case 'textarea' :
+						case 'text':
+						case 'longtext':
+						case 'textarea':
 							$valid_input[$setting['id']] = esc_attr(jigowatt_clean($value));
 							break;
-						case 'codeblock' :
+						case 'codeblock':
 							$allowedtags = array(
 								'a' => array('href' => true, 'title' => true),
 								'img' => array('src' => true, 'title' => true, 'alt' => true),
@@ -412,7 +390,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							);
 							$valid_input[$setting['id']] = wp_kses($value, $allowedtags);
 							break;
-						case 'email' :
+						case 'email':
 							$email = sanitize_email($value);
 							if($email <> $value){
 								add_settings_error(
@@ -426,7 +404,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 								$valid_input[$setting['id']] = esc_attr(jigowatt_clean($email));
 							}
 							break;
-						case 'decimal' :
+						case 'decimal':
 							$cleaned = jigowatt_clean($value);
 							if(!jigoshop_validation::is_decimal($cleaned) && $cleaned <> ''){
 								add_settings_error(
@@ -440,7 +418,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 								$valid_input[$setting['id']] = $cleaned;
 							}
 							break;
-						case 'integer' :
+						case 'integer':
 							$cleaned = jigowatt_clean($value);
 							if(!jigoshop_validation::is_integer($cleaned) && $cleaned <> ''){
 								add_settings_error(
@@ -454,7 +432,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 								$valid_input[$setting['id']] = $cleaned;
 							}
 							break;
-						case 'natural' :
+						case 'natural':
 							$cleaned = jigowatt_clean($value);
 							if(!jigoshop_validation::is_natural($cleaned) && $cleaned <> ''){
 								add_settings_error(
@@ -468,7 +446,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 								$valid_input[$setting['id']] = $cleaned;
 							}
 							break;
-						default :
+						default:
 							if(isset($value)){
 								$valid_input[$setting['id']] = $value;
 							}

@@ -88,8 +88,6 @@ function jigoshop_after_admin_menu()
 {
 	$admin_page = add_submenu_page('jigoshop', __('Settings'), __('Settings'), 'manage_jigoshop', 'jigoshop_settings', array(Jigoshop_Admin_Settings::instance(), 'output_markup'));
 
-	add_action('admin_print_styles-'.$admin_page, array(Jigoshop_Admin_Settings::instance(), 'settings_styles'));
-	add_action('jigoshop_admin_enqueue_scripts', array(Jigoshop_Admin_Settings::instance(), 'settings_scripts'));
 	add_action('admin_print_scripts-'.$admin_page, function (){
 		do_action('jigoshop_admin_enqueue_scripts');
 	});
@@ -174,6 +172,7 @@ function jigoshop_system_info() {
 	PHP Post Max Size:        <?php if(function_exists('phpversion')) echo (jigoshop_let_to_num(ini_get('post_max_size'))/(1024*1024))."MB"; ?><?php echo "\n"; ?>
 	PHP Upload Max File Size: <?php if(function_exists('phpversion')) echo (jigoshop_let_to_num(ini_get('upload_max_filesize'))/(1024*1024))."MB"; ?><?php echo "\n"; ?>
 	Short Open Tag:           <?php echo (ini_get('short_open_tag') ? 'Enabled' : 'Disabled'); ?><?php echo "\n"; ?>
+	Allow URL fopen:          <?php echo (ini_get('allow_url_fopen') ? 'Enabled' : 'Disabled'); ?><?php echo "\n"; ?>
 
 	WP_DEBUG:                 <?php echo defined('WP_DEBUG') ? WP_DEBUG ? 'Enabled' . "\n" : 'Disabled' . "\n" : 'Not set' . "\n" ?>
 
@@ -293,13 +292,13 @@ function jigoshop_get_current_post_type() {
 /**
  * Load needed scripts to order categories
  */
-function jigoshop_categories_scripts() {
+function jigoshop_categories_scripts()
+{
+	if (!isset($_GET['taxonomy']) || $_GET['taxonomy'] !== 'product_cat') {
+		return;
+	}
 
-	if( !isset($_GET['taxonomy']) || $_GET['taxonomy'] !== 'product_cat') return;
-
-	wp_register_script('jigoshop-categories-ordering', jigoshop::assets_url() . '/assets/js/categories-ordering.js', array('jquery-ui-sortable'));
-	wp_print_scripts('jigoshop-categories-ordering');
-
+	jigoshop_add_script('jigoshop-categories-ordering', JIGOSHOP_URL.'/assets/js/categories-ordering.js', array('jquery-ui-sortable'));
 }
 add_action('admin_footer-edit-tags.php', 'jigoshop_categories_scripts');
 

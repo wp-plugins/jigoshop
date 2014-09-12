@@ -37,10 +37,9 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 	 * @since 1.3
 	 */
 	public function settings_scripts(){
-//		jigoshop_add_script('jquery-tools', JIGOSHOP_URL.'/assets/js/jquery.tools.min.js', array('jquery'), array('version' => '1.2.7'));
 		jigoshop_add_script('jigoshop-bootstrap-tooltip', JIGOSHOP_URL.'/assets/js/bootstrap-tooltip.min.js', array('jquery'), array('version' => '2.0.3'));
 		jigoshop_add_script('jigoshop-select2', JIGOSHOP_URL.'/assets/js/select2.min.js', array('jquery'));
-		jigoshop_add_script('jigoshop-settings', JIGOSHOP_URL.'/assets/js/settings.js', array('jquery', 'jquery-tools'));
+		jigoshop_add_script('jigoshop-settings', JIGOSHOP_URL.'/assets/js/settings.js', array('jquery'));
 	}
 
 	/**
@@ -352,7 +351,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							break;
 						case 'checkbox':
 							// there will be no $value for a false checkbox, set it now
-							$valid_input[$setting['id']] = $value !== null ? 'yes' : 'no';
+							$valid_input[$setting['id']] = $value !== false ? 'yes' : 'no';
 							break;
 						case 'multicheck':
 							$selected = array();
@@ -929,6 +928,19 @@ class Jigoshop_Options_Parser {
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-range '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
 					type="range" min="'.$item['extra']['min'].'" max="'.$item['extra']['max'].'" step="'.$item['extra']['step'].'"
 					value="'.$options->get_option($item['id']).'" />';
+				break;
+			case 'number':
+				$display .= '<input id="'.$item['id'].'" class="jigoshop-input '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" type="number" value="'.$options->get_option($item['id']).'"';
+				if(isset($item['extra']['min'])){
+					$display .= ' min="'.$item['extra']['min'].'"';
+				}
+				if(isset($item['extra']['max'])){
+					$display .= ' max="'.$item['extra']['max'].'"';
+				}
+				if(isset($item['extra']['step'])){
+					$display .= ' step="'.$item['extra']['step'].'"';
+				}
+				$display .= ' />';
 				break;
 			case 'select':
 				$multiple = (!empty($item['multiple']) && $item['multiple'] == true)

@@ -1,5 +1,13 @@
 ## Changelog
 
+* 1.11.8 - 2014-09-12:
+    * Fix: Paying for pending orders.
+    * Fix: Proper checkbox saving in admin panel.
+    * Fix: Adding variations JavaScripts.
+    * Fix: Notice when related products are enabled.
+    * Improved: `get_sku()` method on product variation object will now return variation SKU (if not available - product SKU).
+    * Improved: Added `number` option type.
+    * Improved: Replaced `range` items with `number` ones - better to use (visible values).
 * 1.11.7 - 2014-09-09:
     * Fix: Select2 errors on product, order and coupon pages.
     * Fix: Notice about `WYSIJA` constant.

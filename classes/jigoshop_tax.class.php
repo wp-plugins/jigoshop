@@ -195,7 +195,7 @@ class jigoshop_tax extends Jigoshop_Base {
 		$total_tax = $this->get_compound_tax_amount(false) + $this->get_non_compounded_tax_amount(false);
 		if($total_item_price > 0){
 			$tot_tax_rate = (self::get_options()
-				->get_option('jigoshop_prices_include_tax') == 'yes' ? round($total_tax / ($total_item_price - $total_tax) * 100, 2) : round($total_tax / $total_item_price * 100, 2));
+				->get('jigoshop_prices_include_tax') == 'yes' ? round($total_tax / ($total_item_price - $total_tax) * 100, 2) : round($total_tax / $total_item_price * 100, 2));
 		}
 
 		return $tot_tax_rate;
@@ -207,7 +207,7 @@ class jigoshop_tax extends Jigoshop_Base {
 	 * @return  array
 	 */
 	function get_tax_classes(){
-		$classes = self::get_options()->get_option('jigoshop_tax_classes');
+		$classes = self::get_options()->get('jigoshop_tax_classes');
 		$classes = explode("\n", $classes);
 		$classes_array = array();
 
@@ -230,7 +230,7 @@ class jigoshop_tax extends Jigoshop_Base {
 	 * @return  array
 	 */
 	function get_tax_rates(){
-		$tax_rates = self::get_options()->get_option('jigoshop_tax_rates');
+		$tax_rates = self::get_options()->get('jigoshop_tax_rates');
 		$tax_rates_array = array();
 		if(is_array($tax_rates)){
 			foreach($tax_rates as $rate){
@@ -293,7 +293,7 @@ class jigoshop_tax extends Jigoshop_Base {
 	 */
 	public static function get_customer_country()
 	{
-		if (Jigoshop_Base::get_options()->get_option('jigoshop_country_base_tax') == 'shipping_country') {
+		if (Jigoshop_Base::get_options()->get('jigoshop_country_base_tax') == 'shipping_country') {
 			return jigoshop_customer::get_shipping_country();
 		}
 
@@ -305,7 +305,7 @@ class jigoshop_tax extends Jigoshop_Base {
 	 */
 	public static function get_customer_state()
 	{
-		if (Jigoshop_Base::get_options()->get_option('jigoshop_country_base_tax') == 'shipping_country') {
+		if (Jigoshop_Base::get_options()->get('jigoshop_country_base_tax') == 'shipping_country') {
 			return jigoshop_customer::get_shipping_state();
 		}
 
@@ -324,12 +324,12 @@ class jigoshop_tax extends Jigoshop_Base {
 			return $this->get_tax_classes_for_base();
 		}
 
-		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+		$allowed_countries = Jigoshop_Base::get_options()->get('jigoshop_allowed_countries');
 		$country = self::get_customer_country();
 		$state = self::get_customer_state();
 
 		if($allowed_countries === 'specific'){
-			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+			$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 			$base_cc = jigoshop_countries::get_base_country();
 			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
 				if(in_array($base_cc, $specific_countries)){
@@ -388,12 +388,12 @@ class jigoshop_tax extends Jigoshop_Base {
 			return $this->get_online_label_for_base($class);
 		}
 
-		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+		$allowed_countries = Jigoshop_Base::get_options()->get('jigoshop_allowed_countries');
 		$country = self::get_customer_country();
 		$state = self::get_customer_state();
 
 		if($allowed_countries === 'specific'){
-			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+			$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
 				$country = array_shift($specific_countries);
 			}
@@ -541,7 +541,6 @@ class jigoshop_tax extends Jigoshop_Base {
 					}
 
 					$non_compound_tax_amount += $tax;
-					$total_tax += $tax;
 				} else {
 					$tax = $this->calc_tax($total_item_price + $non_compound_tax_amount, $tax_rate, $prices_include_tax);
 
@@ -557,8 +556,9 @@ class jigoshop_tax extends Jigoshop_Base {
 					}
 
 					$compounded_tax_amount += $tax;
-					$total_tax += $tax;
 				}
+
+				$total_tax += $tax;
 			}
 		} else {
 			$tax_classes = $this->get_tax_classes_for_base();
@@ -598,7 +598,7 @@ class jigoshop_tax extends Jigoshop_Base {
 	public static function calculate_total_tax_rate($product_rates_array){
 
 		$tax_rate = null;
-		if($product_rates_array && is_array($product_rates_array) && self::get_options()->get_option('jigoshop_calc_taxes') == 'yes' && !empty($product_rates_array)){
+		if($product_rates_array && is_array($product_rates_array) && self::get_options()->get('jigoshop_calc_taxes') == 'yes' && !empty($product_rates_array)){
 			$tax_rate = 0;
 
 			foreach($product_rates_array as $tax_class => $value){
@@ -686,7 +686,7 @@ class jigoshop_tax extends Jigoshop_Base {
 
 			if($recalculate_tax){
 				$rate = $this->get_rate($tax_class);
-				$tax = $this->calc_tax($amount, $rate, ($this->is_compound_tax() ? false : self::get_options()->get_option('jigoshop_prices_include_tax') == 'yes'));
+				$tax = $this->calc_tax($amount, $rate, ($this->is_compound_tax() ? false : self::get_options()->get('jigoshop_prices_include_tax') == 'yes'));
 				$this->tax_amounts[$tax_class]['amount'] = $tax;
 			} else if($overwrite){
 				$this->tax_amounts[$tax_class]['amount'] = $amount;
@@ -775,12 +775,12 @@ class jigoshop_tax extends Jigoshop_Base {
 			return $this->get_shop_base_rate($tax_class, $rate_only);
 		}
 
-		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+		$allowed_countries = Jigoshop_Base::get_options()->get('jigoshop_allowed_countries');
 		$country = self::get_customer_country();
 		$state = self::get_customer_state();
 
 		if($allowed_countries === 'specific'){
-			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+			$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 			if(is_array($specific_countries) && !in_array($country, $specific_countries)){
 				$country = array_shift($specific_countries);
 			}
@@ -966,6 +966,9 @@ class jigoshop_tax extends Jigoshop_Base {
 
 		if(!empty($rates)){
 			foreach($rates as $tax_class => $rate){
+				if (isset($this->tax_amounts[$tax_class]) && isset($this->tax_amounts[$tax_class][$shipping_method_id.$selected_rate_id])) {
+					continue;
+				}
 
 				// no tax on products, but shipping tax should be applied
 				if(!isset($this->tax_amounts[$tax_class])){
@@ -977,7 +980,7 @@ class jigoshop_tax extends Jigoshop_Base {
 				}
 
 				// initialize shipping if not already initialized
-				if(!isset($this->tax_amounts[$tax_class][$shipping_method_id])){
+				if(!isset($this->tax_amounts[$tax_class][$shipping_method_id.$selected_rate_id])){
 					$this->tax_amounts[$tax_class][$shipping_method_id.$selected_rate_id] = 0;
 				}
 
@@ -988,7 +991,11 @@ class jigoshop_tax extends Jigoshop_Base {
 				} else {
 					// calculate regular taxes. Increment value because of per-item shipping
 					$non_compound_amount += ($price * ($tax_rate / 100)); // don't use divisor here, as it will be used with compound tax above
-					$this->tax_amounts[$tax_class][$shipping_method_id.$selected_rate_id] += ($this->tax_divisor > 0 ? ($price * ($tax_rate / 100)) * $this->tax_divisor : $price * ($tax_rate / 100));
+					$tax = $price * $tax_rate / 100;
+					if ($this->tax_divisor > 0) {
+						$tax *= $this->tax_divisor;
+					}
+					$this->tax_amounts[$tax_class][$shipping_method_id.$selected_rate_id] += $tax;
 				}
 			}
 		} else {
@@ -1005,5 +1012,18 @@ class jigoshop_tax extends Jigoshop_Base {
 		}
 
 		$this->imploded_tax_amounts = self::array_implode($this->tax_amounts);
+	}
+
+	/**
+	 * @param $tax_class string Tax class to get tax for.
+	 * @return float Tax value for current shipping and selected tax class.
+	 */
+	public function get_shipping_tax($tax_class)
+	{
+		if (isset($this->tax_amounts[$tax_class]) && isset($this->tax_amounts[$tax_class][jigoshop_session::instance()->chosen_shipping_method_id.jigoshop_session::instance()->selected_rate_id])) {
+			return $this->tax_amounts[$tax_class][jigoshop_session::instance()->chosen_shipping_method_id.jigoshop_session::instance()->selected_rate_id]/100;
+		}
+
+		return 0.0;
 	}
 }

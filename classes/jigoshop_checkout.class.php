@@ -30,10 +30,10 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 	protected function __construct () {
 
 		$this->must_register =
-			( self::get_options()->get_option('jigoshop_enable_guest_checkout') != 'yes'
+			( self::get_options()->get('jigoshop_enable_guest_checkout') != 'yes'
 			&& ! is_user_logged_in() );
 		$this->show_signup =
-			( self::get_options()->get_option('jigoshop_enable_signup_form') == 'yes'
+			( self::get_options()->get('jigoshop_enable_signup_form') == 'yes'
 			&& ! is_user_logged_in() );
 
 		add_action( 'jigoshop_checkout_billing', array( $this, 'checkout_form_billing' ));
@@ -242,7 +242,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		if ( $this->show_signup ) {
 			echo '<div class="checkout-signup" style="margin-top:20px;">';
 
-			$guests_allowed = self::get_options()->get_option('jigoshop_enable_guest_checkout') == 'yes';
+			$guests_allowed = self::get_options()->get('jigoshop_enable_guest_checkout') == 'yes';
 			$account_label = $guests_allowed
 				? __('Would you like to create an account?', 'jigoshop')
 				: __('You must check this to agree to creating an account', 'jigoshop'
@@ -290,9 +290,9 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 	 */
 	function checkout_form_shipping() {
 		// Shipping Details
-		if ( ! jigoshop_cart::ship_to_billing_address_only() && self::get_options()->get_option( 'jigoshop_calc_shipping') == 'yes' ) :
+		if ( ! jigoshop_cart::ship_to_billing_address_only() && self::get_options()->get( 'jigoshop_calc_shipping') == 'yes' ) :
 			$shiptobilling = ! $_POST ? apply_filters('shiptobilling_default', 1) : $this->get_value('shiptobilling');
-			$shiptodisplay = self::get_options()->get_option('jigoshop_show_checkout_shipping_fields') == 'no' ? 'checked="checked"' : '';
+			$shiptodisplay = self::get_options()->get('jigoshop_show_checkout_shipping_fields') == 'no' ? 'checked="checked"' : '';
 			?>
 			<p class="form-row" id="shiptobilling">
 				<input class="input-checkbox" type="checkbox" name="shiptobilling" id="shiptobilling-checkbox" <?php if ($shiptobilling) : echo $shiptodisplay; endif; ?> />
@@ -375,7 +375,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 					<select name="'.esc_attr($args['name']).'" id="'.esc_attr($args['name']).'" class="country_to_state'.esc_attr($input_required).'" rel="'.esc_attr($args['rel']).'">';
 
 				$countries = jigoshop_countries::get_allowed_countries();
-				if (Jigoshop_Base::get_options()->get_option('jigoshop_default_country_for_customer') == -1) {
+				if (Jigoshop_Base::get_options()->get('jigoshop_default_country_for_customer') == -1) {
 					$countries = array_merge(array(-1 => __('Select your country', 'jigoshop')), $countries);
 				}
 
@@ -395,7 +395,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				$field = '<p class="form-row '.implode(' ', $args['class']).'">
 					<label for="'.esc_attr($args['name']).'" class="'.implode(' ', $args['label_class']).'">'.$args['label'].$required.'</label>';
 
-				$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+				$allowed_countries = Jigoshop_Base::get_options()->get('jigoshop_allowed_countries');
 				$current_cc = $this->get_value($args['rel']);
 
 				if (!$current_cc) {
@@ -403,7 +403,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				}
 
 				if ($allowed_countries === 'specific') {
-					$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+					$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 					$base_cc = jigoshop_countries::get_base_country();
 					if (!in_array($current_cc, $specific_countries)) {
 						if (in_array($base_cc, $specific_countries)) {
@@ -583,10 +583,10 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 
 		$country = isset($_POST['billing_country']) ? jigowatt_clean($_POST['billing_country']) : '';
 		$state = isset($_POST['billing_state']) ? jigowatt_clean($_POST['billing_state']) : '';
-		$allowed_countries = Jigoshop_Base::get_options()->get_option('jigoshop_allowed_countries');
+		$allowed_countries = Jigoshop_Base::get_options()->get('jigoshop_allowed_countries');
 
 		if ($allowed_countries === 'specific') {
-			$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+			$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 			if (!in_array($country, $specific_countries)) {
 				jigoshop::add_error(__('Invalid billing country.', 'jigoshop'));
 
@@ -604,9 +604,9 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		}
 
 		$postcode = isset($_POST['billing_postcode']) ? jigowatt_clean($_POST['billing_postcode']) : '';
-		$ship_to_billing = Jigoshop_Base::get_options()->get_option('jigoshop_ship_to_billing_address_only') == 'yes';
+		$ship_to_billing = Jigoshop_Base::get_options()->get('jigoshop_ship_to_billing_address_only') == 'yes';
 		jigoshop_customer::set_location($country, $state, $postcode);
-		if (Jigoshop_Base::get_options()->get_option('jigoshop_calc_shipping') == 'yes') {
+		if (Jigoshop_Base::get_options()->get('jigoshop_calc_shipping') == 'yes') {
 			if ($ship_to_billing || !empty($_POST['shiptobilling'])) {
 				jigoshop_customer::set_shipping_location($country, $state, $postcode);
 			} else {
@@ -615,7 +615,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				$postcode = isset($_POST['shipping_postcode']) ? jigowatt_clean($_POST['shipping_postcode']) : '';
 
 				if ($allowed_countries === 'specific') {
-					$specific_countries = Jigoshop_Base::get_options()->get_option('jigoshop_specific_allowed_countries');
+					$specific_countries = Jigoshop_Base::get_options()->get('jigoshop_specific_allowed_countries');
 					if (!in_array($country, $specific_countries)) {
 						jigoshop::add_error(__('Invalid shipping country.', 'jigoshop'));
 
@@ -924,11 +924,11 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				$data['order_subtotal'] = jigoshop_cart::get_subtotal();
 				$data['order_discount_subtotal'] = jigoshop_cart::get_discount_subtotal();
 				$data['order_shipping'] = jigoshop_cart::get_shipping_total();
-				$data['order_discount'] = jigoshop_cart::$discount_total;
+				$data['order_discount'] = jigoshop_cart::get_total_discount(false);
 				$data['order_tax'] = jigoshop_cart::get_taxes_as_string();
 				$data['order_tax_no_shipping_tax'] = jigoshop_cart::get_total_cart_tax_without_shipping_tax();
 				$data['order_tax_divisor'] = jigoshop_cart::get_tax_divisor();
-				$data['order_shipping_tax'] = jigoshop_cart::$shipping_tax_total;
+				$data['order_shipping_tax'] = jigoshop_cart::get_shipping_tax();
 				$data['order_total'] = jigoshop_cart::get_total(false);
 				$data['order_total_prices_per_tax_class_ex_tax'] = jigoshop_cart::get_price_per_tax_class_ex_tax();
 
@@ -941,21 +941,21 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 
 				// Cart items
 				$order_items = array();
-				foreach (jigoshop_cart::$cart_contents as $values) {
-					/** @var jigoshop_product $_product */
-					$_product = $values['data'];
+				foreach (jigoshop_cart::get_cart() as $values) {
+					/** @var jigoshop_product $product */
+					$product = $values['data'];
 
 					// Check stock levels
-					if (!$_product->has_enough_stock($values['quantity'])) {
-						jigoshop::add_error(sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologize for any inconvenience caused.', 'jigoshop'), $_product->get_title()));
-						if(self::get_options()->get_option('jigoshop_show_stock') == 'yes'){
-							jigoshop::add_error(sprintf(__('We have only %d available at this time.', 'jigoshop'), $_product->get_stock()));
+					if (!$product->has_enough_stock($values['quantity'])) {
+						jigoshop::add_error(sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologize for any inconvenience caused.', 'jigoshop'), $product->get_title()));
+						if(self::get_options()->get('jigoshop_show_stock') == 'yes'){
+							jigoshop::add_error(sprintf(__('We have only %d available at this time.', 'jigoshop'), $product->get_stock()));
 						}
 						break;
 					}
 
 					// Calc item tax to store
-					$rates = $_product->get_tax_destination_rate();
+					$rates = $product->get_tax_destination_rate();
 					$rates = current($rates);
 
 					if (isset($rates['rate'])) {
@@ -968,7 +968,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 						$rate = 0.00;
 					}
 
-					$price_inc_tax = $_product->get_price_with_tax();
+					$price_inc_tax = $product->get_price_with_tax();
 
 					if (!empty($values['variation_id'])) {
 						$product_id = $values['variation_id'];
@@ -988,9 +988,9 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 						'variation_id' => $values['variation_id'],
 						'variation' => $values['variation'],
 						'customization' => $custom,
-						'name' => $_product->get_title(),
+						'name' => $product->get_title(),
 						'qty' => (int)$values['quantity'],
-						'cost' => $_product->get_price_excluding_tax(),
+						'cost' => $product->get_price_excluding_tax(),
 						'cost_inc_tax' => $price_inc_tax,
 						'taxrate' => $rate
 					), $values);
@@ -1138,7 +1138,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		}
 
 		$shipping_total = jigoshop_cart::$shipping_total;
-		if(self::get_options()->get_option('jigoshop_prices_include_tax') == 'yes'){
+		if(self::get_options()->get('jigoshop_prices_include_tax') == 'yes'){
 			$shipping_total += jigoshop_cart::$shipping_tax_total;
 		}
 
@@ -1161,7 +1161,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		if (!$user_id) {
 			jigoshop::add_error(sprintf(
 				__('<strong>ERROR</strong>: Couldn&#8217;t register you... please contact the <a href="mailto:%s">webmaster</a> !', 'jigoshop'),
-				self::get_options()->get_option('jigoshop_email')
+				self::get_options()->get('jigoshop_email')
 			));
 			return 0;
 		}

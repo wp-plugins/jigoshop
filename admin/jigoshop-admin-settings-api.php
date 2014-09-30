@@ -178,6 +178,10 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 				}
 			}
 		}
+
+		add_action('admin_enqueue_scripts', function(){
+			do_action('jigoshop_enqueue_settings_scripts');
+		});
 	}
 
 	/**
@@ -310,7 +314,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 					// special case tax classes should be updated, they will do nothing if this is not the right TAB
 					if($setting['id'] == 'jigoshop_tax_rates'){
 						$valid_input['jigoshop_tax_rates'] = $this->get_updated_tax_classes();
-						$options->set_option('jigoshop_tax_rates', $valid_input['jigoshop_tax_rates']);
+						$options->set('jigoshop_tax_rates', $valid_input['jigoshop_tax_rates']);
 						continue;
 					}
 
@@ -452,7 +456,7 @@ class Jigoshop_Admin_Settings extends Jigoshop_Singleton {
 							break;
 					}
 					if(isset($valid_input[$setting['id']])){
-						$options->set_option($setting['id'], $valid_input[$setting['id']]);
+						$options->set($setting['id'], $valid_input[$setting['id']]);
 					}
 				}
 			}
@@ -705,6 +709,15 @@ class Jigoshop_Options_Parser {
 			$display .= '<a href="#" tip="'.esc_attr($item['tip']).'" class="tips" tabindex="99"></a>';
 		}
 		$display .= '</td><td class="forminp">';
+		$disabled = '';
+		$disabledItems = array();
+		if (isset($item['extra']) && isset($item['extra']['disabled'])) {
+			if ($item['extra']['disabled'] === true) {
+				$disabled = ' disabled';
+			} else if (is_array($item['extra']['disabled'])) {
+				$disabledItems = $item['extra']['disabled'];
+			}
+		}
 
 		/*
 		 *  work off the option type and format output for display for each type
@@ -718,20 +731,20 @@ class Jigoshop_Options_Parser {
 				}
 				break;
 			case 'default_gateway':
-				$display .= '<select id="'.$item['id'].'" class="jigoshop-input jigoshop-select '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" >';
+				$id = $item['id'];
+				$display .= '<select id="'.$id.'" class="jigoshop-input jigoshop-select '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$id.']"'.$disabled.' >';
 
 				$gateways = jigoshop_payment_gateways::get_available_payment_gateways();
 				foreach($gateways as $slug => $gateway){
-					$display .= '<option value="'.esc_attr($slug).'" '.selected($options->get_option($item['id']), $slug, false).' />'.$gateway->title.'</option>';
+					$display .= '<option value="'.esc_attr($slug).'" '.selected($options->get($id), $slug, false).disabled(in_array($id, $disabledItems, false)).' />'.$gateway->title.'</option>';
 				}
 
 				$display .= '</select>';
-				$id = $item['id'];
 				?>
 				<script type="text/javascript">
 					/*<![CDATA[*/
-					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '250px' });
+					jQuery(function($){
+						$("#<?php echo $id; ?>").select2({ width: '250px' });
 					});
 					/*]]>*/
 				</script>
@@ -751,7 +764,7 @@ class Jigoshop_Options_Parser {
 				$display .= $this->format_tax_rates_for_display($item);
 				break;
 			case 'single_select_page':
-				$page_setting = (int)$options->get_option($item['id']);
+				$page_setting = (int)$options->get($item['id']);
 				$args = array(
 					'name' => JIGOSHOP_OPTIONS.'['.$item['id'].']',
 					'id' => $item['id'],
@@ -771,15 +784,15 @@ class Jigoshop_Options_Parser {
 				?>
 				<script type="text/javascript">
 					/*<![CDATA[*/
-					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '250px' });
+					jQuery(function($){
+						$("#<?php echo $id; ?>").select2({ width: '250px' });
 					});
 					/*]]>*/
 				</script>
 				<?php
 				break;
 			case 'single_select_country':
-				$country_setting = (string)$options->get_option($item['id']);
+				$country_setting = (string)$options->get($item['id']);
 				$add_empty = false;
 				if(isset($item['options']['add_empty']) && $item['options']['add_empty']){
 					$add_empty = true;
@@ -795,14 +808,14 @@ class Jigoshop_Options_Parser {
 				}
 
 				$id = $item['id'];
-				$display .= '<select id="'.$id.'" class="single_select_country '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']">';
+				$display .= '<select id="'.$id.'" class="single_select_country '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"'.$disabled.'>';
 				$display .= jigoshop_countries::country_dropdown_options($country, $state, true, false, false, $add_empty);
 				$display .= '</select>';
 				?>
 				<script type="text/javascript">
 					/*<![CDATA[*/
-					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '500px' });
+					jQuery(function($){
+						$("#<?php echo $id; ?>").select2({ width: '500px' });
 					});
 					/*]]>*/
 				</script>
@@ -810,15 +823,12 @@ class Jigoshop_Options_Parser {
 				break;
 			case 'multi_select_countries':
 				$countries = jigoshop_countries::get_countries();
-				$selections = (array)$options->get_option($item['id']);
+				$selections = (array)$options->get($item['id']);
 
-				$display .= '<select multiple="multiple"
-				id="'.$item['id'].'"
-				class="jigoshop-input jigoshop-select '.$class.'"
-				name="'.JIGOSHOP_OPTIONS.'['.$item['id'].'][]" >';
+				$display .= '<select multiple="multiple" id="'.$item['id'].'" class="jigoshop-input jigoshop-select '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].'][]"'.$disabled.'>';
 
 				foreach($countries as $key => $val){
-					$display .= '<option value="'.esc_attr($key).'" '.(in_array($key, $selections) ? 'selected="selected"' : '').' />'.$val.'</option>';
+					$display .= '<option value="'.esc_attr($key).'" '.selected(in_array($key, $selections), true, false).disabled(in_array($key, $disabledItems, false)).' />'.$val.'</option>';
 				}
 
 				$display .= '</select>';
@@ -826,8 +836,8 @@ class Jigoshop_Options_Parser {
 				?>
 				<script type="text/javascript">
 					/*<![CDATA[*/
-					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '500px' });
+					jQuery(function($){
+						$("#<?php echo $id; ?>").select2({ width: '500px' });
 					});
 					/*]]>*/
 				</script>
@@ -841,28 +851,28 @@ class Jigoshop_Options_Parser {
 				break;
 			case 'decimal': // decimal numbers are positive or negative 0-9 inclusive, may include decimal
 				$display .= '<input	id="'.$item['id'].'" class="jigoshop-input jigoshop-text '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="number" step="any" size="20" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="number" step="any" size="20" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'integer': // integer numbers are positive or negative 0-9 inclusive
 			case 'natural': // natural numbers are positive 0-9 inclusive
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-text '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="number" size="20" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="number" size="20" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'text': // any character sequence
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-text '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="text" size="20" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="text" size="20" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'midtext':
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-text '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="text" size="40" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="text" size="40" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'longtext':
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-text '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="text" size="80" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="text" size="80" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'email':
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-text jigoshop-email '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					type="text" size="40" value="'.esc_attr($options->get_option($item['id'])).'" />';
+					type="text" size="40" value="'.esc_attr($options->get($item['id'])).'"'.$disabled.' />';
 				break;
 			case 'codeblock':
 			case 'textarea':
@@ -875,9 +885,10 @@ class Jigoshop_Options_Parser {
 					}
 				}
 
-				$ta_value = stripslashes($options->get_option($item['id']));
-				$display .= '<textarea id="'.$item['id'].'" class="jigoshop-input jigoshop-textarea '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-					cols="'.$cols.'" rows="4">'.esc_textarea($ta_value).'</textarea>';
+				$ta_value = stripslashes($options->get($item['id']));
+				$display .= '<textarea id="'.$item['id'].'" class="jigoshop-input jigoshop-textarea '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" cols="'.$cols.'" rows="4"'.$disabled.'>'.
+					esc_textarea($ta_value).
+				'</textarea>';
 				break;
 			case "radio":
 				// default to horizontal display of choices ( 'horizontal' may or may not be defined )
@@ -885,7 +896,7 @@ class Jigoshop_Options_Parser {
 					$display .= '<div class="jigoshop-radio-horz">';
 					foreach($item['choices'] as $option => $name){
 						$display .= '<input class="jigoshop-input jigoshop-radio '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-							id="'.$item['id'].'['.$option.']" type="radio" value="'.$option.'" '.checked($options->get_option($item['id']), $option, false).'
+							id="'.$item['id'].'['.$option.']" type="radio" value="'.$option.'" '.checked($options->get($item['id']), $option, false).disabled(in_array($option, $disabledItems), true, false).'
 							/><label for="'.$item['id'].'['.$option.']">'.$name.'</label>';
 					}
 					$display .= '</div>';
@@ -893,7 +904,7 @@ class Jigoshop_Options_Parser {
 					$display .= '<ul class="jigoshop-radio-vert">';
 					foreach($item['choices'] as $option => $name){
 						$display .= '<li><input class="jigoshop-input jigoshop-radio '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
-							id="'.$item['id'].'['.$option.']" type="radio" value="'.$option.'" '.checked($options->get_option($item['id']), $option, false).'
+							id="'.$item['id'].'['.$option.']" type="radio" value="'.$option.'" '.checked($options->get($item['id']), $option, false).disabled(in_array($option, $disabledItems), true, false).'
 							/><label for="'.$item['id'].'['.$option.']">'.$name.'</label></li>';
 					}
 					$display .= '</ul>';
@@ -901,25 +912,25 @@ class Jigoshop_Options_Parser {
 				break;
 			case 'checkbox':
 				$display .= '<span class="jigoshop-container"><input id="'.$item['id'].'" type="checkbox" class="jigoshop-input jigoshop-checkbox '.$class.'"
-					name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" '.checked($options->get_option($item['id']), 'yes', false).'
+					name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" '.checked($options->get($item['id']), 'yes', false).$disabled.'
 					/><label for="'.$item['id'].'">'.$item['name'].'</label></span>';
 				break;
 			case 'multicheck':
-				$multi_stored = $options->get_option($item['id']);
+				$multi_stored = $options->get($item['id']);
 
 				// default to horizontal display of choices ( 'horizontal' may or may not be defined )
 				if(!isset($item['extra']) || !in_array('vertical', $item['extra'])){
 					$display .= '<div class="jigoshop-multi-checkbox-horz '.$class.'">';
 					foreach($item['choices'] as $key => $option){
 						$display .= '<input id="'.$item['id'].'_'.$key.'" class="jigoshop-input" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']['.$key.']"
-							type="checkbox" '.checked($multi_stored[$key], true, false).' /> <label for="'.$item['id'].'_'.$key.'">'.$option.'</label>';
+							type="checkbox" '.checked($multi_stored[$key], true, false).disabled(in_array($key, $disabledItems, false)).' /> <label for="'.$item['id'].'_'.$key.'">'.$option.'</label>';
 					}
 					$display .= '</div>';
 				} else if(isset($item['extra']) && in_array('vertical', $item['extra'])){
 					$display .= '<ul class="jigoshop-multi-checkbox-vert '.$class.'">';
 					foreach($item['choices'] as $key => $option){
 						$display .= '<li><input id="'.$item['id'].'_'.$key.'" class="jigoshop-input" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']['.$key.']"
-							type="checkbox" '.checked($multi_stored[$key], true, false).' /> <label for="'.$item['id'].'_'.$key.'">'.$option.'</label></li>';
+							type="checkbox" '.checked($multi_stored[$key], true, false).disabled(in_array($key, $disabledItems, false)).' /> <label for="'.$item['id'].'_'.$key.'">'.$option.'</label></li>';
 					}
 					$display .= '</ul>';
 				}
@@ -927,10 +938,10 @@ class Jigoshop_Options_Parser {
 			case 'range':
 				$display .= '<input id="'.$item['id'].'" class="jigoshop-input jigoshop-range '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']"
 					type="range" min="'.$item['extra']['min'].'" max="'.$item['extra']['max'].'" step="'.$item['extra']['step'].'"
-					value="'.$options->get_option($item['id']).'" />';
+					value="'.$options->get($item['id']).'"'.$disabled.' />';
 				break;
 			case 'number':
-				$display .= '<input id="'.$item['id'].'" class="jigoshop-input '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" type="number" value="'.$options->get_option($item['id']).'"';
+				$display .= '<input id="'.$item['id'].'" class="jigoshop-input '.$class.'" name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']" type="number" value="'.$options->get($item['id']).'"';
 				if(isset($item['extra']['min'])){
 					$display .= ' min="'.$item['extra']['min'].'"';
 				}
@@ -940,7 +951,7 @@ class Jigoshop_Options_Parser {
 				if(isset($item['extra']['step'])){
 					$display .= ' step="'.$item['extra']['step'].'"';
 				}
-				$display .= ' />';
+				$display .= $disabled.' />';
 				break;
 			case 'select':
 				$multiple = (!empty($item['multiple']) && $item['multiple'] == true)
@@ -948,22 +959,22 @@ class Jigoshop_Options_Parser {
 					: "";
 				$brckt = "";
 				$width = 250;
-				$selections = (array)$options->get_option($item['id']);
+				$selections = (array)$options->get($item['id']);
 				if($item['multiple']){
 					$brckt = "[]";
 					$width = 500;
 				}
 				$display .= '<select id="'.$item['id'].'" class="jigoshop-input jigoshop-select '.$class.'"
-					name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']'.$brckt.'"'.$multiple.' >';
+					name="'.JIGOSHOP_OPTIONS.'['.$item['id'].']'.$brckt.'"'.$multiple.$disabled.' >';
 				foreach($item['choices'] as $value => $label){
 					if(is_array($label)){
 						$display .= '<optgroup label="'.$value.'">';
 						foreach($label as $subValue => $subLabel){
-							$display .= '<option value="'.esc_attr($subValue).'" '.(in_array(esc_attr($subValue), $selections) ? 'selected="selected"' : '').' />'.$subLabel.'</option>';
+							$display .= '<option value="'.esc_attr($subValue).'" '.selected(in_array(esc_attr($subValue), $selections), true, false).disabled(in_array($subValue, $disabledItems), true, false).' />'.$subLabel.'</option>';
 						}
 						$display .= '</optgroup>';
 					} else {
-						$display .= '<option value="'.esc_attr($value).'" '.(in_array(esc_attr($value), $selections) ? 'selected="selected"' : '').' />'.$label.'</option>';
+						$display .= '<option value="'.esc_attr($value).'" '.selected(in_array(esc_attr($value), $selections), true, false).disabled(in_array($value, $disabledItems), true, false).' />'.$label.'</option>';
 					}
 				}
 				$display .= '</select>';
@@ -971,8 +982,8 @@ class Jigoshop_Options_Parser {
 				?>
 				<script type="text/javascript">
 					/*<![CDATA[*/
-					jQuery(function(){
-						jQuery("#<?php echo $id; ?>").select2({ width: '<?php echo $width; ?>px' });
+					jQuery(function($){
+						$("#<?php echo $id; ?>").select2({ width: '<?php echo $width; ?>px' });
 					});
 					/*]]>*/
 				</script>
@@ -1031,7 +1042,7 @@ class Jigoshop_Options_Parser {
 
 		$_tax = new jigoshop_tax();
 		$tax_classes = $_tax->get_tax_classes();
-		$tax_rates = Jigoshop_Base::get_options()->get_option('jigoshop_tax_rates');
+		$tax_rates = Jigoshop_Base::get_options()->get('jigoshop_tax_rates');
 		if(empty($tax_rates)){
 			$tax_rates = array();
 		}

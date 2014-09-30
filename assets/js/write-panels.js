@@ -43,12 +43,6 @@ jQuery(function($) {
 		}).change();
 	}
 
-	function jigoshop_default_product_taxclass() {
-		var $taxclasses = $('.tax_classes_field input');
-		// the first tax class will always be 'standard', turn it on if no tax class selected
-		if (! $taxclasses.is(':checked')) $taxclasses.eq(0).attr('checked', true);
-	}
-
 	function jigoshop_sale_picker() {
 		// Sale price schedule
 		var sale_schedule_set = false;
@@ -78,11 +72,11 @@ jQuery(function($) {
 			$('.sale_schedule').show();
 			$('.sale_price_dates_fields').slideUp(100, function() {
 				var option = this.id == "sale_price_dates_from" ? "minDate" : "maxDate";
-				$(this).closest('p').find('input').datepicker( "option", option, null ).val(null);
+				$(this).closest('p').find('input').datetimepicker( "option", option, null ).val(null);
 			});
 		});
 
-		var dates = $( "#sale_price_dates_from, #sale_price_dates_to" ).datepicker({
+		var dates = $( "#sale_price_dates_from, #sale_price_dates_to" ).datetimepicker({
 			dateFormat: 'yy-mm-dd',
 			gotoCurrent: true,
 			hideIfNoPrevNext: true,
@@ -95,7 +89,7 @@ jQuery(function($) {
 						instance.settings.dateFormat ||
 						$.datepicker._defaults.dateFormat,
 						selectedDate, instance.settings );
-				dates.not( this ).datepicker( "option", option, date );
+				dates.not( this ).datetimepicker( "option", option, date );
 			}
 		});
 	}
@@ -153,7 +147,7 @@ jQuery(function($) {
 					return Math._round( number * coefficient ) / coefficient;
 				}
 
-				var taxBeforeDiscount = "<?php Jigoshop_Base::get_options()->get_option('jigoshop_tax_after_coupon'); ?>";
+				var taxBeforeDiscount = "<?php Jigoshop_Base::get_options()->get('jigoshop_tax_after_coupon'); ?>";
 				var itemTotal = 0;
 				var subtotal = 0;
 				var totalTax = 0;
@@ -455,7 +449,6 @@ jQuery(function($) {
 		jigoshop_sale_picker();
 		jigoshop_stock_options();
 		jigoshop_sortables();
-		jigoshop_default_product_taxclass();
 	}
 
 	jigoshop_start_tabs();

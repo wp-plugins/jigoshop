@@ -60,7 +60,7 @@ class jigoshop_catalog_query extends Jigoshop_Singleton {
 	 *
 	 * @since 1.0
 	 */
-	public static function is_search() {
+	 public static function is_search() {
 
 		if ( self::$original_query ) return self::$original_query->is_search;
 		return false;
@@ -116,7 +116,7 @@ class jigoshop_catalog_query extends Jigoshop_Singleton {
 		if ( ! self::is_product_list() ) return $request;
 
 		$request['post_status'] = 'publish';
-		$request['posts_per_page'] = apply_filters( 'loop_shop_per_page', Jigoshop_Base::get_options()->get_option( 'jigoshop_catalog_per_page' ));
+		$request['posts_per_page'] = apply_filters( 'loop_shop_per_page', Jigoshop_Base::get_options()->get( 'jigoshop_catalog_per_page' ));
 
 		// establish any filters for orderby, order and anything else added to the filter
 		$filters = array();

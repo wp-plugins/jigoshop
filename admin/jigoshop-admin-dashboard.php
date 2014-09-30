@@ -229,13 +229,13 @@ class jigoshop_dashboard {
 	 * Stock Reports
 	 */
 	function jigoshop_dash_stock_report(){
-		if(Jigoshop_Base::get_options()->get_option('jigoshop_manage_stock') == 'yes'){
-			$lowstockamount = Jigoshop_Base::get_options()->get_option('jigoshop_notify_low_stock_amount');
+		if(Jigoshop_Base::get_options()->get('jigoshop_manage_stock') == 'yes'){
+			$lowstockamount = Jigoshop_Base::get_options()->get('jigoshop_notify_low_stock_amount');
 			if(!is_numeric($lowstockamount)){
 				$lowstockamount = 1;
 			}
 
-			$nostockamount = Jigoshop_Base::get_options()->get_option('jigoshop_notify_no_stock_amount');
+			$nostockamount = Jigoshop_Base::get_options()->get('jigoshop_notify_no_stock_amount');
 			if(!is_numeric($nostockamount)){
 				$nostockamount = 0;
 			}
@@ -405,11 +405,9 @@ class jigoshop_dashboard {
 		<div class="jigoshop-links-widget">
 			<div class="links">
 				<ul>
-					<li><a href="http://www.jigoshop.com/tour/"><?php _e('Tour', 'jigoshop'); ?></a> &ndash; <?php _e('Take a tour of the plugin', 'jigoshop'); ?></li>
-					<li><a
-							href="http://www.jigoshop.com/extend/extensions/"><?php _e('Extensions', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with extra plugins and modules.', 'jigoshop'); ?>
-					</li>
-					<li><a href="http://www.jigoshop.com/extend/themes/"><?php _e('Themes', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with themes.', 'jigoshop'); ?></li>
+					<li><a href="https://www.jigoshop.com/tour/"><?php _e('Tour', 'jigoshop'); ?></a> &ndash; <?php _e('Take a tour of the plugin', 'jigoshop'); ?></li>
+					<li><a href="https://www.jigoshop.com/product-category/extensions/"><?php _e('Extensions', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with extra plugins and modules.', 'jigoshop'); ?></li>
+					<li><a href="https://www.jigoshop.com/product-category/themes/"><?php _e('Themes', 'jigoshop'); ?></a> &ndash; <?php _e('Extend Jigoshop with themes.', 'jigoshop'); ?></li>
 					<li><a href="http://twitter.com/#!/jigoshop"><?php _e('@Jigoshop', 'jigoshop'); ?></a> &ndash; <?php _e('Follow us on Twitter.', 'jigoshop'); ?></li>
 					<li><a href="https://github.com/jigoshop/jigoshop"><?php _e('Jigoshop on Github', 'jigoshop'); ?></a> &ndash; <?php _e('Help extend Jigoshop.', 'jigoshop'); ?></li>
 					<li><a href="http://wordpress.org/plugins/jigoshop/"><?php _e('Jigoshop on WordPress.org', 'jigoshop'); ?></a> &ndash; <?php _e('Leave us a rating!', 'jigoshop'); ?></li>
@@ -504,12 +502,12 @@ class jigoshop_dashboard {
 							add_filter( 'posts_where', 'orders_this_month' );
 
 							$args = array(
-								'numberposts'     => -1,
-								'orderby'         => 'post_date',
-								'order'           => 'DESC',
-								'post_type'       => 'shop_order',
-								'post_status'     => 'publish' ,
-								'suppress_filters'=> false
+								'numberposts' => -1,
+								'orderby' => 'post_date',
+								'order' => 'DESC',
+								'post_type' => 'shop_order',
+								'post_status' => 'publish',
+								'suppress_filters'=> false,
 							);
 							$orders = get_posts( $args );
 

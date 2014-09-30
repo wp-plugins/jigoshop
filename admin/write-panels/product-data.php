@@ -85,7 +85,7 @@ function jigoshop_product_data_box() {
 				<a href="#tax"><?php _e('Advanced', 'jigoshop') ?></a>
 			</li>
 
-			<?php if (Jigoshop_Base::get_options()->get_option('jigoshop_manage_stock') == 'yes') : ?>
+			<?php if (Jigoshop_Base::get_options()->get('jigoshop_manage_stock') == 'yes') : ?>
 			<li class="inventory_tab">
 				<a href="#inventory"><?php _e('Inventory', 'jigoshop'); ?></a>
 			</li>
@@ -137,7 +137,7 @@ function jigoshop_product_data_box() {
 			<fieldset>
 			<?php
 				// SKU
-				if ( Jigoshop_Base::get_options()->get_option('jigoshop_enable_sku') !== 'no' ) {
+				if ( Jigoshop_Base::get_options()->get('jigoshop_enable_sku') !== 'no' ) {
 					$args = array(
 						'id'            => 'sku',
 						'label'         => __('SKU','jigoshop'),
@@ -178,14 +178,15 @@ function jigoshop_product_data_box() {
 				$sale_price_dates_from = get_post_meta($thepostid, 'sale_price_dates_from', true);
 				$sale_price_dates_to = get_post_meta($thepostid, 'sale_price_dates_to', true);
 
+				echo '<p class="form-field sale_price_dates_fields">'.__('Current time:', 'jigoshop').' '.current_time('Y-m-d H:i').'</p>';
 				echo '	<p class="form-field sale_price_dates_fields">
 							<label for="' . esc_attr( $field['id'] ) . '_from">'.$field['label'].'</label>
 							<input type="text" class="short date-pick" name="' . esc_attr( $field['id'] ) . '_from" id="' . esc_attr( $field['id'] ) . '_from" value="';
-				if ($sale_price_dates_from) echo date('Y-m-d', $sale_price_dates_from);
-				echo '" placeholder="' . __('From', 'jigoshop') . ' (' . date('Y-m-d'). ')" maxlength="10" />
+				if ($sale_price_dates_from) echo date('Y-m-d H:i', $sale_price_dates_from);
+				echo '" placeholder="' . __('From', 'jigoshop') . ' (' . date('Y-m-d H:i'). ')" maxlength="16" />
 							<input type="text" class="short date-pick" name="' . esc_attr( $field['id'] ) . '_to" id="' . esc_attr( $field['id'] ) . '_to" value="';
-				if ($sale_price_dates_to) echo date('Y-m-d', $sale_price_dates_to);
-				echo '" placeholder="' . __('To', 'jigoshop') . ' (' . date('Y-m-d'). ')" maxlength="10" />
+				if ($sale_price_dates_to) echo date('Y-m-d H:i', $sale_price_dates_to);
+				echo '" placeholder="' . __('To', 'jigoshop') . ' (' . date('Y-m-d H:i'). ')" maxlength="16" />
 							<a href="#" class="cancel_sale_schedule">'.__('Cancel', 'jigoshop').'</a>
 						</p>';
 			?>
@@ -204,6 +205,7 @@ function jigoshop_product_data_box() {
 				echo Jigoshop_Forms::input( $args );
 			?>
 			</fieldset>
+			<?php do_action('jigoshop_product_general_panel'); ?>
 		</div>
 		<div id="tax" class="panel jigoshop_options_panel">
 			<fieldset id="tax_fieldset">
@@ -234,7 +236,7 @@ function jigoshop_product_data_box() {
 	            	$checked = checked(in_array('*', $selections), true, false);
 
 	            	printf('<label %s><input type="checkbox" name="tax_classes[]" value="%s" %s/> %s</label>'
-								, !empty($checked) || $selections[0] == '' ? 'class="selected"' : ''
+								, !empty($checked) ? 'class="selected"' : ''
 								, '*'
 								, $checked
 								, __('Standard', 'jigoshop'));
@@ -259,15 +261,15 @@ function jigoshop_product_data_box() {
 				</p>
 			</fieldset>
 
-			<?php if( Jigoshop_Base::get_options()->get_option('jigoshop_enable_weight') !== 'no' || Jigoshop_Base::get_options()->get_option('jigoshop_enable_dimensions', true) !== 'no' ): ?>
+			<?php if( Jigoshop_Base::get_options()->get('jigoshop_enable_weight') !== 'no' || Jigoshop_Base::get_options()->get('jigoshop_enable_dimensions', true) !== 'no' ): ?>
 			<fieldset id="form_fieldset">
 			<?php
 				// Weight
-				if( Jigoshop_Base::get_options()->get_option('jigoshop_enable_weight') !== 'no' ) {
+				if( Jigoshop_Base::get_options()->get('jigoshop_enable_weight') !== 'no' ) {
 					$args = array(
 						'id'            => 'weight',
 						'label'         => __( 'Weight', 'jigoshop' ),
-						'after_label'   => ' ('.Jigoshop_Base::get_options()->get_option('jigoshop_weight_unit').')',
+						'after_label'   => ' ('.Jigoshop_Base::get_options()->get('jigoshop_weight_unit').')',
 						'type'          => 'number',
 						'step'          => 'any',
 						'placeholder'   => '0.00',
@@ -276,10 +278,10 @@ function jigoshop_product_data_box() {
 				}
 
 				// Dimensions
-				if( Jigoshop_Base::get_options()->get_option('jigoshop_enable_dimensions', true) !== 'no' ) {
+				if( Jigoshop_Base::get_options()->get('jigoshop_enable_dimensions', true) !== 'no' ) {
 					echo '
 					<p class="form-field dimensions_field">
-						<label for"product_length">'. __('Dimensions', 'jigoshop') . ' ('.Jigoshop_Base::get_options()->get_option('jigoshop_dimension_unit').')' . '</label>
+						<label for"product_length">'. __('Dimensions', 'jigoshop') . ' ('.Jigoshop_Base::get_options()->get('jigoshop_dimension_unit').')' . '</label>
 						<input type="number" step="any" name="length" class="short" value="' . get_post_meta( $thepostid, 'length', true ) . '" placeholder="'. __('Length', 'jigoshop') . '" />
 						<input type="number" step="any" name="width" class="short" value="' . get_post_meta( $thepostid, 'width', true ) . '" placeholder="'. __('Width', 'jigoshop') . '" />
 						<input type="number" step="any" name="height" class="short" value="' . get_post_meta( $thepostid, 'height', true ) . '" placeholder="'. __('Height', 'jigoshop') . '" />
@@ -315,10 +317,11 @@ function jigoshop_product_data_box() {
 				echo Jigoshop_Forms::input( $args );
 			?>
 			</fieldset>
+			<?php do_action('jigoshop_product_tax_panel'); ?>
 
 		</div>
 
-		<?php if (Jigoshop_Base::get_options()->get_option('jigoshop_manage_stock')=='yes') : ?>
+		<?php if (Jigoshop_Base::get_options()->get('jigoshop_manage_stock')=='yes') : ?>
 		<div id="inventory" class="panel jigoshop_options_panel">
 			<fieldset>
 			<?php
@@ -373,6 +376,7 @@ function jigoshop_product_data_box() {
 			echo '</div>';
 			?>
 			</fieldset>
+			<?php do_action('jigoshop_product_inventory_panel'); ?>
 		</div>
 		<?php endif; ?>
 
@@ -427,6 +431,7 @@ function jigoshop_product_data_box() {
 			);
 			echo Jigoshop_Forms::input( $args );
 			?>
+			<?php do_action('jigoshop_product_grouped_panel'); ?>
 		</div>
 
 		<div id="files" class="panel jigoshop_options_panel">
@@ -455,6 +460,7 @@ function jigoshop_product_data_box() {
 			do_action( 'additional_downloadable_product_type_options' );
 			?>
 			</fieldset>
+			<?php do_action('jigoshop_product_files_panel'); ?>
 		</div>
 
 		<?php do_action('jigoshop_product_write_panels'); ?>

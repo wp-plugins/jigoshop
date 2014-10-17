@@ -1,5 +1,17 @@
 ## Changelog
 
+* 1.12.2 - 2014-10-17:
+    * Improved: Show plugin updates even when licence is not activated.
+    * Improved: Checking for updates is now 5 times faster.
+    * Fix: Changing state or country in checkout will properly trigger recalculation of cart taxes.
+    * Fix: Countries with not defined states, will properly shown as selected.
+    * Fix: Email notifications about product stock status can be properly disabled.
+    * Fix: JS problems on admin user profile page.
+    * Fix: Date on Reports Page can be properly picked.
+    * Fix: Redirecting from my account pages will no longer generate errors.
+    * Fix: Worldpay payment page now will be correctly loaded.
+    * Fix: Coupon warnings about division by 0.
+    * Fix: Adding new tax will show properly buttons which are assigned to country/state select.
 * 1.12.1 - 2014-10-07:
     * Fix: Phone number in order email.
     * Fix: Updated polish translation.

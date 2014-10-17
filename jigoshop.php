@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.12.1
+ * Version:             1.12.2
  * Requires at least:   3.8
  * Tested up to:        4.0
  * Text Domain:         jigoshop
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.12.1');
+	define('JIGOSHOP_VERSION', '1.12.2');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1409050);
@@ -601,6 +601,8 @@ define('JIGOSHOP_PAY', 'pay');
 define('JIGOSHOP_THANK_YOU', 'thanks');
 define('JIGOSHOP_MY_ACCOUNT', 'myaccount');
 define('JIGOSHOP_EDIT_ADDRESS', 'edit_address');
+define('JIGOSHOP_VIEW_ORDER', 'view_order');
+define('JIGOSHOP_CHANGE_PASSWORD', 'change_password');
 define('JIGOSHOP_PRODUCT', 'product');
 define('JIGOSHOP_PRODUCT_CATEGORY', 'product_category');
 define('JIGOSHOP_PRODUCT_LIST', 'product_list');
@@ -621,6 +623,8 @@ function jigoshop_get_available_pages()
 		JIGOSHOP_THANK_YOU,
 		JIGOSHOP_EDIT_ADDRESS,
 		JIGOSHOP_MY_ACCOUNT,
+		JIGOSHOP_VIEW_ORDER,
+		JIGOSHOP_CHANGE_PASSWORD,
 		JIGOSHOP_PRODUCT,
 		JIGOSHOP_PRODUCT_CATEGORY,
 		JIGOSHOP_PRODUCT_TAG,
@@ -650,6 +654,10 @@ function is_jigoshop_single_page($page)
 			return is_page(jigoshop_get_page_id(JIGOSHOP_MY_ACCOUNT));
 		case JIGOSHOP_EDIT_ADDRESS:
 			return is_page(jigoshop_get_page_id(JIGOSHOP_EDIT_ADDRESS));
+		case JIGOSHOP_VIEW_ORDER:
+			return is_page(jigoshop_get_page_id(JIGOSHOP_VIEW_ORDER));
+		case JIGOSHOP_CHANGE_PASSWORD:
+			return is_page(jigoshop_get_page_id(JIGOSHOP_CHANGE_PASSWORD));
 		case JIGOSHOP_PRODUCT:
 			return is_product();
 		case JIGOSHOP_PRODUCT_CATEGORY:

@@ -20,9 +20,9 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.14
+ * Version:             1.15
  * Requires at least:   3.8
- * Tested up to:        4.0.1
+ * Tested up to:        4.1
  * Text Domain:         jigoshop
  * Domain Path:         /languages/
  * DISCLAIMER
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.14');
+	define('JIGOSHOP_VERSION', '1.15');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1411270);
@@ -353,6 +353,9 @@ function jigoshop_init()
 	jigoshop_shipping::instance(); // Shipping class. loads shipping methods
 	jigoshop_payment_gateways::instance(); // Payment gateways class. loads payment methods
 	jigoshop_cart::instance(); // Cart class, uses sessions
+
+	add_filter( 'mce_external_plugins', 'jigoshop_register_shortcode_editor' );
+	add_filter( 'mce_buttons', 'jigoshop_register_shortcode_buttons' );
 
 	if (!is_admin()) {
 		/* Catalog Filters */
@@ -732,6 +735,7 @@ function jigoshop_frontend_scripts()
 	}
 
 	wp_enqueue_script('jquery');
+	jigoshop_add_script('jigoshop_favicon', JIGOSHOP_URL.'/assets/js/favico.js', array('jquery'));
 	jigoshop_add_script('jigoshop_global', JIGOSHOP_URL.'/assets/js/global.js', array('jquery'), array('in_footer' => true));
 
 	if ($options->get('jigoshop_disable_fancybox') == 'no') {
@@ -749,6 +753,7 @@ function jigoshop_frontend_scripts()
 		'in_footer' => true,
 		'page' => array(JIGOSHOP_CHECKOUT, JIGOSHOP_CART, JIGOSHOP_EDIT_ADDRESS)
 	));
+
 
 	/* Script.js variables */
 	// TODO: clean this up, a lot aren't even used anymore, do away with it
@@ -770,6 +775,7 @@ function jigoshop_frontend_scripts()
 		'is_checkout' => (is_page(jigoshop_get_page_id('checkout')) || is_page(jigoshop_get_page_id('pay'))),
 		'error_hide_time' => Jigoshop_Base::get_options()->get('jigoshop_error_disappear_time', 8000),
 		'message_hide_time' => Jigoshop_Base::get_options()->get('jigoshop_message_disappear_time', 4000),
+		'favicon_count'	=> jigoshop_cart::$cart_contents_count
 	);
 
 	if (isset(jigoshop_session::instance()->min_price)) {
@@ -829,8 +835,11 @@ function jigoshop_admin_scripts()
 	}
 
 	jigoshop_add_script('jigoshop-select2', JIGOSHOP_URL.'/assets/js/select2.min.js', array('jquery'));
+	jigoshop_add_script('jigoshop-editor-shortcodes', JIGOSHOP_URL.'/assets/js/editor-shortcodes.js', array('jquery'));
+
 
 	if (jigoshop_is_admin_page()) {
+
 		wp_enqueue_media();
 		wp_enqueue_script('jquery-ui-sortable');
 		wp_enqueue_script('jquery-ui-datepicker');
@@ -852,6 +861,8 @@ function jigoshop_admin_scripts()
 			)
 		);
 
+
+
 		/**
 		 * Disable autosaves on the order and coupon pages. Prevents the javascript alert when modifying.
 		 * `wp_deregister_script( 'autosave' )` would produce errors, so we use a filter instead.
@@ -861,6 +872,25 @@ function jigoshop_admin_scripts()
 			add_filter('script_loader_src', 'jigoshop_disable_autosave', 10, 2);
 		}
 	}
+}
+
+function jigoshop_register_shortcode_editor( $plugin_array ) {
+	$plugin_array['jigoshopShortcodes'] = JIGOSHOP_URL.'/assets/js/editor-shortcodes.js';
+	return $plugin_array;
+}
+
+function jigoshop_register_shortcode_buttons( $buttons ) {
+
+	array_push( $buttons, "jigoshop_add_cart" );
+	array_push( $buttons, "jigoshop_show_product" );
+	array_push( $buttons, "jigoshop_show_category" );
+	array_push( $buttons, "jigoshop_show_featured_products" );
+	array_push( $buttons, "jigoshop_show_selected_products" );
+	array_push( $buttons, "jigoshop_product_search" );
+	array_push( $buttons, "jigoshop_recent_products" );
+	array_push( $buttons, "jigoshop_sale_products" );
+
+	return $buttons;
 }
 
 /**

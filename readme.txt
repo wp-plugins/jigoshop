@@ -5,7 +5,7 @@ Tags: 2checkout, 2co, affiliate, authorize, cart, checkout, commerce, coupons, e
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=sales%40jigoshop%2ecom&lc=US&item_name=Jigoshop%20%2d%20Wordpress%2eorg%20donation%20link&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest
 Requires at least: 3.8
 Tested up to: 4.1
-Stable tag: 1.15
+Stable tag: 1.15.1
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -123,6 +123,10 @@ However, if you want priority, dedicated support from Jigoshop staff, we dp offe
 4. Standard customer checkout screen
 
 == Changelog ==
+
+= 1.15.1 - 2014-12-19 =
+* Fix: Fatal error on cart page.
+* Fix: JS error in favicon cart notification.
 
 = 1.15 - 2014-12-18 =
 * New: Favicon cart count notification
@@ -793,14 +797,3 @@ However, if you want priority, dedicated support from Jigoshop staff, we dp offe
 * <a href="https://www.jigoshop.com/product/swipe-hq-payment-gateway/">Swipe HQ Payment Gateway</a>
 * <a href="https://www.jigoshop.com/product/usa-epay-gateway/">USA ePay gateway</a>
 * <a href="https://www.jigoshop.com/product/virtual-merchant-gateway/">Virtual Merchant Gateway</a>
-
-= Official Themes =
-
-* <a href="https://www.jigoshop.com/product/corellian/">Corellian</a>
-* <a href="https://www.jigoshop.com/product/jigoshop-reddish/">Jigoshop Reddish</a>
-* <a href="https://www.jigoshop.com/product/jigotheme/">Jigotheme</a>
-* <a href="https://www.jigoshop.com/product/origin/">Origin</a>
-* <a href="https://www.jigoshop.com/product/overload/">Overload</a>
-* <a href="https://www.jigoshop.com/product/serenum/">Serenum</a>
-* <a href="https://www.jigoshop.com/product/stitched/">Stitched</a>
-* <a href="https://www.jigoshop.com/product/trend-shop/">Trend Shop</a>

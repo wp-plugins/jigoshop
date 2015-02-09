@@ -1,5 +1,10 @@
 ## Changelog
 
+* 1.15.5 - 2015-02-09:
+    * Improved: JavaScript action is triggered after variation is shown: `jigoshop.variation.show` on `div.single_variation`.
+    * Improved: Better loading of checkout JavaScript files.
+    * Improved: cURL checking in System Info page.
+    * Fixed: Users can now properly select default tax classes and default taxing status for new products.
 * 1.15.4 - 2015-01-12:
     * Improved: [is_bank_transfer], [bank_info], [billing_euvatno] and [all_tax_classes] variables in order emails. Thanks to newash!
     * Improved: Email shortcode parser to work with new variable.

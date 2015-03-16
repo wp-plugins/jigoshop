@@ -221,6 +221,25 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 		return $shipping_fields;
 	}
 
+	/** @deprecated Use jigoshop_checkout::render_shipping_dropdown() instead */
+	public static function get_shipping_dropdown()
+	{
+		self::render_shipping_dropdown();
+	}
+
+	/**
+	 * Renders table row with shipping dropdown.
+	 *
+	 * Used in checkout.
+	 */
+	public static function render_shipping_dropdown()
+	{
+		if (jigoshop_cart::needs_shipping()){
+			/** @noinspection PhpUnusedLocalVariableInspection */
+			jigoshop_get_template('checkout/shipping_dropdown.php');
+		}
+	}
+
 	/**
 	 *  Output the billing information block
 	 */
@@ -286,42 +305,6 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 	}
 
 	/**
-	 *  Output the shipping information block
-	 */
-	function checkout_form_shipping() {
-		// Shipping Details
-		if ( ! jigoshop_cart::ship_to_billing_address_only() && self::get_options()->get( 'jigoshop_calc_shipping') == 'yes' ) :
-			$shiptobilling = ! $_POST ? apply_filters('shiptobilling_default', 1) : $this->get_value('shiptobilling');
-			$shiptodisplay = self::get_options()->get('jigoshop_show_checkout_shipping_fields') == 'no' ? 'checked="checked"' : '';
-			?>
-			<p class="form-row" id="shiptobilling">
-				<input class="input-checkbox" type="checkbox" name="shiptobilling" id="shiptobilling-checkbox" <?php if ($shiptobilling) : echo $shiptodisplay; endif; ?> />
-				<label for="shiptobilling-checkbox" class="checkbox"><?php _e('Ship to billing address?', 'jigoshop'); ?></label>
-			</p>
-			<h3><?php _e('Shipping Address', 'jigoshop'); ?></h3>
-			<div class="shipping-address">
-				<?php do_action( 'jigoshop_before_shipping_fields' ); ?>
-				<?php
-					foreach ( $this->shipping_fields as $field ) :
-						$field = apply_filters( 'jigoshop_shipping_field', $field );
-						$this->field( $field );
-					endforeach;
-				?>
-			</div>
-		<?php elseif ( jigoshop_cart::ship_to_billing_address_only() ) : ?>
-			<h3><?php _e('Notes/Comments', 'jigoshop'); ?></h3>
-		<?php endif;
-
-		$this->field(array(
-			'type' => 'textarea',
-			'class' => array('notes'),
-			'name' => 'order_comments',
-			'label' => __('Order Notes', 'jigoshop'),
-			'placeholder' => __('Notes about your order.', 'jigoshop')
-		));
-	}
-
-	/**
 	 * Outputs a form field
 	 *
 	 * @param array $args contains a list of args for showing the field, merged with defaults (below)
@@ -382,9 +365,9 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				foreach ($countries as $key => $value) {
 					$field .= '<option value="'.esc_attr($key).'"';
 					if ($this->get_value($args['name']) == $key) {
-						$field .= 'selected="selected"';
+						$field .= ' selected="selected"';
 					} elseif (!$this->get_value($args['name']) && jigoshop_customer::get_country() == $key) {
-						$field .= 'selected="selected"';
+						$field .= ' selected="selected"';
 					}
 					$field .= '>'.__($value, 'jigoshop').'</option>';
 				}
@@ -473,7 +456,7 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 				foreach ($args['options'] as $key => $value) {
 					$field .= '<option value="'.esc_attr($key).'"';
 					if (esc_attr($args['selected']) == $key) {
-						$field .= 'selected="selected"';
+						$field .= ' selected="selected"';
 					}
 					$field .= '>'.__($value, 'jigoshop').'</option>';
 				}
@@ -527,11 +510,354 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 	}
 
 	/**
+	 *  Output the shipping information block
+	 */
+	function checkout_form_shipping() {
+		// Shipping Details
+		if ( ! jigoshop_cart::ship_to_billing_address_only() && self::get_options()->get( 'jigoshop_calc_shipping') == 'yes' ) :
+			$shiptobilling = ! $_POST ? apply_filters('shiptobilling_default', 1) : $this->get_value('shiptobilling');
+			$shiptodisplay = self::get_options()->get('jigoshop_show_checkout_shipping_fields') == 'no' ? 'checked="checked"' : '';
+			?>
+			<p class="form-row" id="shiptobilling">
+				<input class="input-checkbox" type="checkbox" name="shiptobilling" id="shiptobilling-checkbox" <?php if ($shiptobilling) : echo $shiptodisplay; endif; ?> />
+				<label for="shiptobilling-checkbox" class="checkbox"><?php _e('Ship to billing address?', 'jigoshop'); ?></label>
+			</p>
+			<h3><?php _e('Shipping Address', 'jigoshop'); ?></h3>
+			<div class="shipping-address">
+				<?php do_action( 'jigoshop_before_shipping_fields' ); ?>
+				<?php
+					foreach ( $this->shipping_fields as $field ) :
+						$field = apply_filters( 'jigoshop_shipping_field', $field );
+						$this->field( $field );
+					endforeach;
+				?>
+			</div>
+		<?php elseif ( jigoshop_cart::ship_to_billing_address_only() ) : ?>
+			<h3><?php _e('Notes/Comments', 'jigoshop'); ?></h3>
+		<?php endif;
+
+		$this->field(array(
+			'type' => 'textarea',
+			'class' => array('notes'),
+			'name' => 'order_comments',
+			'label' => __('Order Notes', 'jigoshop'),
+			'placeholder' => __('Notes about your order.', 'jigoshop')
+		));
+	}
+
+	/**
 	 * Output the payment methods block
 	 */
 	public function checkout_form_payment_methods()
 	{
 		jigoshop_get_template('checkout/payment_methods.php');
+	}
+
+	/**
+	 * Process the checkout after the confirm order button is pressed
+	 */
+	public function process_checkout()
+	{
+		if (!defined('JIGOSHOP_CHECKOUT')) {
+			define('JIGOSHOP_CHECKOUT', true);
+		}
+
+		// Initialize cart
+		jigoshop_cart::get_cart();
+		jigoshop_cart::calculate_totals();
+
+		if (isset($_POST) && $_POST && !isset($_POST['login'])) {
+			jigoshop::verify_nonce('process_checkout');
+			// this will fill in our $posted array with validated data
+			self::validate_checkout();
+
+			$gateway = jigoshop_payment_gateways::get_gateway($this->posted['payment_method']);
+			if (self::process_gateway($gateway)) {
+				$gateway->validate_fields();
+			}
+
+			do_action('jigoshop_after_checkout_validation', $this->posted, $_POST, sizeof(jigoshop::$errors));
+
+			if(jigoshop::has_errors()){
+				return false;
+			}
+
+			if (!isset($_POST['update_totals'])) {
+				$user_id = get_current_user_id();
+
+				// Create customer account and log them in
+				if ($this->show_signup && !$user_id && $this->posted['create_account']) {
+					$user_id = $this->create_user_account();
+
+					if($user_id === 0){
+						return false;
+					}
+				}
+
+				$billing = array(
+					'first_name' => $this->posted['billing_first_name'],
+					'last_name' => $this->posted['billing_last_name'],
+					'company' => $this->posted['billing_company'],
+					'address_1' => $this->posted['billing_address_1'],
+					'address_2' => $this->posted['billing_address_2'],
+					'city' => $this->posted['billing_city'],
+					'state' => $this->posted['billing_state'],
+					'postcode' => $this->posted['billing_postcode'],
+					'country' => $this->posted['billing_country'],
+					'phone' => $this->posted['billing_phone'],
+					'email' => $this->posted['billing_email'],
+				);
+
+				jigoshop_customer::set_country($billing['country']);
+				jigoshop_customer::set_state($billing['state']);
+				jigoshop_customer::set_postcode($billing['postcode']);
+
+				if(isset($this->posted['billing_euvatno']) && $this->valid_euvatno){
+					$billing['euvatno'] = $this->posted['billing_euvatno'];
+					$billing['euvatno'] = str_replace(' ', '', $billing['euvatno']);
+
+					// If country code is not provided - add one.
+					if(strpos($billing['euvatno'], $billing['country']) === false){
+						$billing['euvatno'] = $billing['country'].$billing['euvatno'];
+					}
+				}
+
+				// Get shipping/billing
+				if (!empty($this->posted['shiptobilling'])) {
+					$shipping = $billing;
+					unset($shipping['phone'], $shipping['email']);
+				} elseif (jigoshop_shipping::is_enabled()) {
+					$shipping = array(
+						'first_name' => $this->posted['shipping_first_name'],
+						'last_name' => $this->posted['shipping_last_name'],
+						'company' => $this->posted['shipping_company'],
+						'address_1' => $this->posted['shipping_address_1'],
+						'address_2' => $this->posted['shipping_address_2'],
+						'city' => $this->posted['shipping_city'],
+						'state' => $this->posted['shipping_state'],
+						'postcode' => $this->posted['shipping_postcode'],
+						'country' => $this->posted['shipping_country'],
+					);
+				}
+
+				jigoshop_customer::set_shipping_country($shipping['country']);
+				jigoshop_customer::set_shipping_state($shipping['state']);
+				jigoshop_customer::set_shipping_postcode($shipping['postcode']);
+
+				// Update totals based on processed customer address
+				jigoshop_cart::calculate_totals();
+
+				// Save billing/shipping to user meta fields
+				if ($user_id > 0) {
+					foreach($billing as $field => $value)
+					{
+						update_user_meta($user_id, 'billing_'.$field, $value);
+					}
+					if(isset($shipping))
+					{
+						foreach($shipping as $field => $value)
+						{
+							update_user_meta($user_id, 'shipping_'.$field, $value);
+						}
+					}
+				}
+
+				// Order meta data
+				$data = array();
+				$applied_coupons = array_map(function($coupon){
+					return JS_Coupons::get_coupon($coupon);
+				}, jigoshop_cart::get_coupons());
+
+				do_action('jigoshop_checkout_update_order_total', $this->posted);
+
+				foreach($billing as $field => $value){
+					$data['billing_'.$field] = $value;
+				}
+
+				if(isset($shipping)){
+					foreach($shipping as $field => $value){
+						$data['shipping_'.$field] = $value;
+					}
+				}
+
+				$data['order_discount_coupons'] = $applied_coupons;
+				$data['shipping_method'] = $this->posted['shipping_method'];
+				$data['shipping_service'] = $this->posted['shipping_service'];
+				$data['payment_method'] = $this->posted['payment_method'];
+				$data['payment_method_title'] = $gateway->title;
+
+				$data['order_subtotal'] = jigoshop_cart::get_subtotal();
+				$data['order_discount_subtotal'] = jigoshop_cart::get_discount_subtotal();
+				$data['order_shipping'] = jigoshop_cart::get_shipping_total();
+				$data['order_discount'] = jigoshop_cart::get_total_discount(false);
+				$data['order_tax'] = jigoshop_cart::get_taxes_as_string();
+				$data['order_tax_no_shipping_tax'] = jigoshop_cart::get_total_cart_tax_without_shipping_tax();
+				$data['order_tax_divisor'] = jigoshop_cart::get_tax_divisor();
+				$data['order_shipping_tax'] = jigoshop_cart::get_shipping_tax();
+				$data['order_total'] = jigoshop_cart::get_total(false);
+				$data['order_total_prices_per_tax_class_ex_tax'] = jigoshop_cart::get_price_per_tax_class_ex_tax();
+
+				if ($this->valid_euvatno) {
+					$data['order_tax'] = '';
+					$temp = jigoshop_cart::get_total_cart_tax_without_shipping_tax();
+					$data['order_total'] -= $data['order_shipping_tax'] + $temp;
+					$data['order_shipping_tax'] = 0;
+				}
+
+				// Cart items
+				$order_items = array();
+				foreach (jigoshop_cart::get_cart() as $values) {
+					/** @var jigoshop_product $product */
+					$product = $values['data'];
+
+					// Check stock levels
+					if (!$product->has_enough_stock($values['quantity'])) {
+						jigoshop::add_error(sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologize for any inconvenience caused.', 'jigoshop'), $product->get_title()));
+						if(self::get_options()->get('jigoshop_show_stock') == 'yes'){
+							jigoshop::add_error(sprintf(__('We have only %d available at this time.', 'jigoshop'), $product->get_stock()));
+						}
+						break;
+					}
+
+					// Calc item tax to store
+					$rates = $product->get_tax_destination_rate();
+					$rates = current($rates);
+
+					if (isset($rates['rate'])) {
+						$rate = $rates['rate'];
+					} else {
+						$rate = 0.00;
+					}
+
+					if ($this->valid_euvatno) {
+						$rate = 0.00;
+					}
+
+					$price_inc_tax = $product->get_price_with_tax();
+
+					if (!empty($values['variation_id'])) {
+						$product_id = $values['variation_id'];
+					} else {
+						$product_id = $values['product_id'];
+					}
+
+					$custom_products = (array)jigoshop_session::instance()->customized_products;
+					$custom = isset($custom_products[$product_id]) ? $custom_products[$product_id] : '';
+					if (!empty($custom)) {
+						unset($custom_products[$product_id]);
+						jigoshop_session::instance()->customized_products = $custom_products;
+					}
+
+					$order_items[] = apply_filters('new_order_item', array(
+						'id' => $values['product_id'],
+						'variation_id' => $values['variation_id'],
+						'variation' => $values['variation'],
+						'customization' => $custom,
+						'name' => $product->get_title(),
+						'qty' => (int)$values['quantity'],
+						'cost' => $product->get_price_excluding_tax(),
+						'cost_inc_tax' => $price_inc_tax,
+						'taxrate' => $rate
+					), $values);
+				}
+
+				if (jigoshop::has_errors()) {
+					return false;
+				}
+
+				// Insert or update the post data
+				$create_new_order = true;
+				$order_data = array(
+					'post_type' => 'shop_order',
+					'post_title' => 'Order &ndash; '.date('F j, Y @ h:i A'),
+					'post_status' => 'publish',
+					'post_excerpt' => $this->posted['order_comments'],
+					'post_author' => 1
+				);
+				$order_id = 0;
+
+				if (isset(jigoshop_session::instance()->order_awaiting_payment) && jigoshop_session::instance()->order_awaiting_payment > 0) {
+					$order_id = absint(jigoshop_session::instance()->order_awaiting_payment);
+					$terms = wp_get_object_terms($order_id, 'shop_order_status', array('fields' => 'slugs'));
+					$order_status = isset($terms[0]) ? $terms[0] : 'pending';
+
+					// Resume the unpaid order if its pending
+					if ($order_status == 'pending' || $order_status == 'failed') {
+						$create_new_order = false;
+						$order_data['ID'] = $order_id;
+						wp_update_post($order_data);
+					}
+				}
+
+				if ($create_new_order) {
+					$order_id = wp_insert_post($order_data);
+				}
+
+				if (is_wp_error($order_id) || $order_id === 0) {
+					jigoshop::add_error(__('Error: Unable to create order. Please try again.', 'jigoshop'));
+
+					return false;
+				}
+
+				// Update post meta
+				update_post_meta($order_id, 'order_data', $data);
+				update_post_meta($order_id, 'order_key', uniqid('order_'));
+				update_post_meta($order_id, 'customer_user', (int)$user_id);
+				update_post_meta($order_id, 'order_items', $order_items);
+				wp_set_object_terms($order_id, 'pending', 'shop_order_status');
+
+				$order = new jigoshop_order($order_id);
+
+				/* Coupon usage limit */
+				foreach ($data['order_discount_coupons'] as $coupon) {
+					$coupon_id = JS_Coupons::get_coupon_post_id($coupon['code']);
+					if ($coupon_id !== false) {
+						$usage_count = get_post_meta($coupon_id, 'usage', true);
+						$usage_count = empty($usage_count) ? 1 : $usage_count + 1;
+						update_post_meta($coupon_id, 'usage', $usage_count);
+					}
+				}
+
+				if ($create_new_order) {
+					do_action('jigoshop_new_order', $order_id);
+				} else {
+					do_action('jigoshop_resume_order', $order_id);
+				}
+
+				do_action('jigoshop_checkout_update_order_meta', $order_id, $this->posted);
+
+				// can't just simply check needs_payment() here, as paypal may have force payment set to true
+				if (self::process_gateway($gateway)) {
+					// Store Order ID in session so it can be re-used after payment failure
+					jigoshop_session::instance()->order_awaiting_payment = $order_id;
+
+					// Process Payment
+					$result = $gateway->process_payment($order_id);
+
+					// Redirect to success/confirmation/payment page
+					if ($result['result'] == 'success') {
+						return $result;
+					}
+
+					return false;
+				} else {
+					// No payment was required for order
+					$order->payment_complete();
+
+					// Empty the Cart
+					jigoshop_cart::empty_cart();
+
+					// Redirect to success/confirmation/payment page
+					$checkout_redirect = apply_filters('jigoshop_get_checkout_redirect_page_id', jigoshop_get_page_id('thanks'));
+					return array(
+						'result' => 'redirect',
+						'redirect' => $checkout_redirect,
+					);
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -796,336 +1122,6 @@ class jigoshop_checkout extends Jigoshop_Singleton {
 			if (!isset($available_methods[$this->posted['shipping_method']])) {
 				jigoshop::add_error(__('Invalid shipping method.', 'jigoshop'));
 			}
-		}
-	}
-
-	/**
-	 * Process the checkout after the confirm order button is pressed
-	 */
-	public function process_checkout()
-	{
-		if (!defined('JIGOSHOP_CHECKOUT')) {
-			define('JIGOSHOP_CHECKOUT', true);
-		}
-
-		// Initialize cart
-		jigoshop_cart::get_cart();
-		jigoshop_cart::calculate_totals();
-
-		if (isset($_POST) && $_POST && !isset($_POST['login'])) {
-			jigoshop::verify_nonce('process_checkout');
-			// this will fill in our $posted array with validated data
-			self::validate_checkout();
-
-			$gateway = jigoshop_payment_gateways::get_gateway($this->posted['payment_method']);
-			if (self::process_gateway($gateway)) {
-				$gateway->validate_fields();
-			}
-
-			do_action('jigoshop_after_checkout_validation', $this->posted, $_POST, sizeof(jigoshop::$errors));
-
-			if(jigoshop::has_errors()){
-				return false;
-			}
-
-			if (!isset($_POST['update_totals'])) {
-				$user_id = get_current_user_id();
-
-				// Create customer account and log them in
-				if ($this->show_signup && !$user_id && $this->posted['create_account']) {
-					$user_id = $this->create_user_account();
-
-					if($user_id === 0){
-						return false;
-					}
-				}
-
-				$billing = array(
-					'first_name' => $this->posted['billing_first_name'],
-					'last_name' => $this->posted['billing_last_name'],
-					'company' => $this->posted['billing_company'],
-					'address_1' => $this->posted['billing_address_1'],
-					'address_2' => $this->posted['billing_address_2'],
-					'city' => $this->posted['billing_city'],
-					'state' => $this->posted['billing_state'],
-					'postcode' => $this->posted['billing_postcode'],
-					'country' => $this->posted['billing_country'],
-					'phone' => $this->posted['billing_phone'],
-					'email' => $this->posted['billing_email'],
-				);
-
-				jigoshop_customer::set_country($billing['country']);
-				jigoshop_customer::set_state($billing['state']);
-				jigoshop_customer::set_postcode($billing['postcode']);
-
-				if(isset($this->posted['billing_euvatno']) && $this->valid_euvatno){
-					$billing['euvatno'] = $this->posted['billing_euvatno'];
-					$billing['euvatno'] = str_replace(' ', '', $billing['euvatno']);
-
-					// If country code is not provided - add one.
-					if(strpos($billing['euvatno'], $billing['country']) === false){
-						$billing['euvatno'] = $billing['country'].$billing['euvatno'];
-					}
-				}
-
-				// Get shipping/billing
-				if (!empty($this->posted['shiptobilling'])) {
-					$shipping = $billing;
-					unset($shipping['phone'], $shipping['email']);
-				} elseif (jigoshop_shipping::is_enabled()) {
-					$shipping = array(
-						'first_name' => $this->posted['shipping_first_name'],
-						'last_name' => $this->posted['shipping_last_name'],
-						'company' => $this->posted['shipping_company'],
-						'address_1' => $this->posted['shipping_address_1'],
-						'address_2' => $this->posted['shipping_address_2'],
-						'city' => $this->posted['shipping_city'],
-						'state' => $this->posted['shipping_state'],
-						'postcode' => $this->posted['shipping_postcode'],
-						'country' => $this->posted['shipping_country'],
-					);
-				}
-
-				jigoshop_customer::set_shipping_country($shipping['country']);
-				jigoshop_customer::set_shipping_state($shipping['state']);
-				jigoshop_customer::set_shipping_postcode($shipping['postcode']);
-
-				// Update totals based on processed customer address
-				jigoshop_cart::calculate_totals();
-
-				// Save billing/shipping to user meta fields
-				if ($user_id > 0) {
-					foreach($billing as $field => $value)
-					{
-						update_user_meta($user_id, 'billing_'.$field, $value);
-					}
-					if(isset($shipping))
-					{
-						foreach($shipping as $field => $value)
-						{
-							update_user_meta($user_id, 'shipping_'.$field, $value);
-						}
-					}
-				}
-
-				// Order meta data
-				$data = array();
-				$applied_coupons = array_map(function($coupon){
-					return JS_Coupons::get_coupon($coupon);
-				}, jigoshop_cart::get_coupons());
-
-				do_action('jigoshop_checkout_update_order_total', $this->posted);
-
-				foreach($billing as $field => $value){
-					$data['billing_'.$field] = $value;
-				}
-
-				if(isset($shipping)){
-					foreach($shipping as $field => $value){
-						$data['shipping_'.$field] = $value;
-					}
-				}
-
-				$data['order_discount_coupons'] = $applied_coupons;
-				$data['shipping_method'] = $this->posted['shipping_method'];
-				$data['shipping_service'] = $this->posted['shipping_service'];
-				$data['payment_method'] = $this->posted['payment_method'];
-				$data['payment_method_title'] = $gateway->title;
-
-				$data['order_subtotal'] = jigoshop_cart::get_subtotal();
-				$data['order_discount_subtotal'] = jigoshop_cart::get_discount_subtotal();
-				$data['order_shipping'] = jigoshop_cart::get_shipping_total();
-				$data['order_discount'] = jigoshop_cart::get_total_discount(false);
-				$data['order_tax'] = jigoshop_cart::get_taxes_as_string();
-				$data['order_tax_no_shipping_tax'] = jigoshop_cart::get_total_cart_tax_without_shipping_tax();
-				$data['order_tax_divisor'] = jigoshop_cart::get_tax_divisor();
-				$data['order_shipping_tax'] = jigoshop_cart::get_shipping_tax();
-				$data['order_total'] = jigoshop_cart::get_total(false);
-				$data['order_total_prices_per_tax_class_ex_tax'] = jigoshop_cart::get_price_per_tax_class_ex_tax();
-
-				if ($this->valid_euvatno) {
-					$data['order_tax'] = '';
-					$temp = jigoshop_cart::get_total_cart_tax_without_shipping_tax();
-					$data['order_total'] -= $data['order_shipping_tax'] + $temp;
-					$data['order_shipping_tax'] = 0;
-				}
-
-				// Cart items
-				$order_items = array();
-				foreach (jigoshop_cart::get_cart() as $values) {
-					/** @var jigoshop_product $product */
-					$product = $values['data'];
-
-					// Check stock levels
-					if (!$product->has_enough_stock($values['quantity'])) {
-						jigoshop::add_error(sprintf(__('Sorry, we do not have enough "%s" in stock to fulfill your order. Please edit your cart and try again. We apologize for any inconvenience caused.', 'jigoshop'), $product->get_title()));
-						if(self::get_options()->get('jigoshop_show_stock') == 'yes'){
-							jigoshop::add_error(sprintf(__('We have only %d available at this time.', 'jigoshop'), $product->get_stock()));
-						}
-						break;
-					}
-
-					// Calc item tax to store
-					$rates = $product->get_tax_destination_rate();
-					$rates = current($rates);
-
-					if (isset($rates['rate'])) {
-						$rate = $rates['rate'];
-					} else {
-						$rate = 0.00;
-					}
-
-					if ($this->valid_euvatno) {
-						$rate = 0.00;
-					}
-
-					$price_inc_tax = $product->get_price_with_tax();
-
-					if (!empty($values['variation_id'])) {
-						$product_id = $values['variation_id'];
-					} else {
-						$product_id = $values['product_id'];
-					}
-
-					$custom_products = (array)jigoshop_session::instance()->customized_products;
-					$custom = isset($custom_products[$product_id]) ? $custom_products[$product_id] : '';
-					if (!empty($custom)) {
-						unset($custom_products[$product_id]);
-						jigoshop_session::instance()->customized_products = $custom_products;
-					}
-
-					$order_items[] = apply_filters('new_order_item', array(
-						'id' => $values['product_id'],
-						'variation_id' => $values['variation_id'],
-						'variation' => $values['variation'],
-						'customization' => $custom,
-						'name' => $product->get_title(),
-						'qty' => (int)$values['quantity'],
-						'cost' => $product->get_price_excluding_tax(),
-						'cost_inc_tax' => $price_inc_tax,
-						'taxrate' => $rate
-					), $values);
-				}
-
-				if (jigoshop::has_errors()) {
-					return false;
-				}
-
-				// Insert or update the post data
-				$create_new_order = true;
-				$order_data = array(
-					'post_type' => 'shop_order',
-					'post_title' => 'Order &ndash; '.date('F j, Y @ h:i A'),
-					'post_status' => 'publish',
-					'post_excerpt' => $this->posted['order_comments'],
-					'post_author' => 1
-				);
-				$order_id = 0;
-
-				if (isset(jigoshop_session::instance()->order_awaiting_payment) && jigoshop_session::instance()->order_awaiting_payment > 0) {
-					$order_id = absint(jigoshop_session::instance()->order_awaiting_payment);
-					$terms = wp_get_object_terms($order_id, 'shop_order_status', array('fields' => 'slugs'));
-					$order_status = isset($terms[0]) ? $terms[0] : 'pending';
-
-					// Resume the unpaid order if its pending
-					if ($order_status == 'pending' || $order_status == 'failed') {
-						$create_new_order = false;
-						$order_data['ID'] = $order_id;
-						wp_update_post($order_data);
-					}
-				}
-
-				if ($create_new_order) {
-					$order_id = wp_insert_post($order_data);
-					if (is_wp_error($order_id)) {
-						jigoshop::add_error('Error: Unable to create order. Please try again.');
-						return false;
-					}
-				}
-
-				if ($order_id === 0) {
-					jigoshop::add_error(__('Error: Unable to create order. Please try again.', 'jigoshop'));
-
-					return false;
-				}
-
-				// Update post meta
-				update_post_meta($order_id, 'order_data', $data);
-				update_post_meta($order_id, 'order_key', uniqid('order_'));
-				update_post_meta($order_id, 'customer_user', (int)$user_id);
-				update_post_meta($order_id, 'order_items', $order_items);
-				wp_set_object_terms($order_id, 'pending', 'shop_order_status');
-
-				$order = new jigoshop_order($order_id);
-
-				/* Coupon usage limit */
-				foreach ($data['order_discount_coupons'] as $coupon) {
-					$coupon_id = JS_Coupons::get_coupon_post_id($coupon['code']);
-					if ($coupon_id !== false) {
-						$usage_count = get_post_meta($coupon_id, 'usage', true);
-						$usage_count = empty($usage_count) ? 1 : $usage_count + 1;
-						update_post_meta($coupon_id, 'usage', $usage_count);
-					}
-				}
-
-				if ($create_new_order) {
-					do_action('jigoshop_new_order', $order_id);
-				} else {
-					do_action('jigoshop_resume_order', $order_id);
-				}
-
-				do_action('jigoshop_checkout_update_order_meta', $order_id, $this->posted);
-
-				// can't just simply check needs_payment() here, as paypal may have force payment set to true
-				if (self::process_gateway($gateway)) {
-					// Store Order ID in session so it can be re-used after payment failure
-					jigoshop_session::instance()->order_awaiting_payment = $order_id;
-
-					// Process Payment
-					$result = $gateway->process_payment($order_id);
-
-					// Redirect to success/confirmation/payment page
-					if ($result['result'] == 'success') {
-						return $result;
-					}
-
-					return false;
-				} else {
-					// No payment was required for order
-					$order->payment_complete();
-
-					// Empty the Cart
-					jigoshop_cart::empty_cart();
-
-					// Redirect to success/confirmation/payment page
-					$checkout_redirect = apply_filters('jigoshop_get_checkout_redirect_page_id', jigoshop_get_page_id('thanks'));
-					return array(
-						'result' => 'redirect',
-						'redirect' => $checkout_redirect,
-					);
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/** @deprecated Use jigoshop_checkout::render_shipping_dropdown() instead */
-	public static function get_shipping_dropdown()
-	{
-		self::render_shipping_dropdown();
-	}
-
-	/**
-	 * Renders table row with shipping dropdown.
-	 *
-	 * Used in checkout.
-	 */
-	public static function render_shipping_dropdown()
-	{
-		if (jigoshop_cart::needs_shipping()){
-			/** @noinspection PhpUnusedLocalVariableInspection */
-			jigoshop_get_template('checkout/shipping_dropdown.php');
 		}
 	}
 

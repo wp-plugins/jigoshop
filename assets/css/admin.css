@@ -426,6 +426,10 @@ ul.totals li.right input {
 	background: red
 }
 
+.widefat .column-order_status mark.waitingforpayment {
+	background: #00d3e6
+}
+
 .widefat .column-order_status mark.cancelled {
 	background: #dfdfdf
 }
@@ -436,6 +440,10 @@ ul.totals li.right input {
 
 .widefat .column-order_status mark.on-hold {
 	background: red
+}
+
+.widefat .column-order_status mark.waiting-for-payment {
+	background: #00d3e6
 }
 
 .widefat .column-order_status mark.refunded {
@@ -458,6 +466,10 @@ ul.subsubsub li.completed a {
 
 ul.subsubsub li.onhold a {
 	color: red
+}
+
+ul.subsubsub li.waitingforpayment a {
+	color: #00d3e6
 }
 
 ul.subsubsub li.cancelled a {
@@ -592,6 +604,10 @@ ul.recent-orders li .on-hold {
 	color: red
 }
 
+ul.recent-orders li .waiting-for-payment {
+	color: #00d3e6
+}
+
 ul.recent-orders li .processing {
 	color: #21759b
 }
@@ -645,6 +661,10 @@ ul.recent-orders li .refunded, ul.recent-orders li .cancelled {
 
 .jigoshop_right_now .onhold {
 	color: red
+}
+
+.jigoshop_right_now .waitingforpayment {
+	color: #00d3e6
 }
 
 .jigoshop_right_now .pending {
@@ -795,7 +815,7 @@ ul.recent-orders li .refunded, ul.recent-orders li .cancelled {
 }
 
 .jigoshop #tabs-wrap table {
-	margin: 0 0 5px
+	margin: 0 0 5px 20px
 }
 
 .jigoshop #tabs-wrap table select {
@@ -1784,9 +1804,8 @@ div.multi_select_countries.shipping_services {
 }
 
 .jigoshop-settings #tabs-wrap h3 {
-	font-size: 13px;
-	padding: 1.5em 10px 3px 10px;
-	margin: 1em 0
+	padding: 1.5em 0 3px;
+	margin: 0 0 1em
 }
 
 .jigoshop-settings #tabs-wrap p {
@@ -2054,6 +2073,10 @@ body, html {
 
 #jigoshop_dash_recent_orders .order-status.on-hold {
 	background: #e21b23 /* #2f79d5 */;
+}
+
+#jigoshop_dash_recent_orders .order-status.waiting-for-payment {
+	background: #00d3e6;
 }
 
 #jigoshop_dash_recent_orders .order-status.pending {
@@ -2413,4 +2436,11 @@ div.pages ul.pages li a:hover {
 
 canvas.overlay {
 	z-index: 1;
+}
+
+#report-widgets span.help {
+	font-size: 85%;
+	font-style: italic;
+	text-align: center;
+	display: block;
 }

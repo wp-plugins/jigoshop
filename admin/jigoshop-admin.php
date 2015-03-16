@@ -45,7 +45,7 @@ function jigoshop_update() {
 	if ( is_admin() && get_site_option('jigoshop_db_version') < JIGOSHOP_DB_VERSION ) {
 
 		if ( isset($_GET['jigoshop_update_db']) && (bool) $_GET['jigoshop_update_db'] ) {
-			require_once( jigoshop::plugin_path().'/jigoshop_upgrade.php' );
+			require_once( JIGOSHOP_DIR.'/jigoshop_upgrade.php' );
 			jigoshop_upgrade();
 
 		} else {
@@ -145,7 +145,7 @@ function jigoshop_system_info() {
 <div class="wrap jigoshop">
 	<div class="icon32 icon32-jigoshop-debug" id="icon-jigoshop"><br/></div>
 	<h2><?php _e('System Information','jigoshop') ?></h2>
-	<p>Use the information below when submitting technical support requests via <a href="http://wordpress.org/support/plugin/jigoshop" title="Jigoshop Support" target="_blank">Jigoshop Support</a>.</p>
+	<p>Use the information below when submitting technical support requests via <a href="https://wordpress.org/support/plugin/jigoshop" title="Jigoshop Support" target="_blank">Jigoshop Support</a>.</p>
 
 <textarea readonly="readonly" id="system-info-textarea" title="To copy the system info, click below then press Ctrl + C (PC) or Cmd + C (Mac).">
 
@@ -230,7 +230,7 @@ echo $theme_data->Name . ': ' . $theme_data->Version;
 }
 
 function jigoshop_get_plugin_data( $key = 'Version' ) {
-	$data = get_plugin_data( jigoshop::plugin_path().'/jigoshop.php' );
+	$data = get_plugin_data( JIGOSHOP_DIR.'/jigoshop.php' );
 
 	return $data[$key];
 }

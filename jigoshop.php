@@ -20,9 +20,9 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop
  * Author URI:          http://www.jigoshop.com
- * Version:             1.15.5
+ * Version:             1.16
  * Requires at least:   3.8
- * Tested up to:        4.1
+ * Tested up to:        4.1.1
  * Text Domain:         jigoshop
  * Domain Path:         /languages/
  * DISCLAIMER
@@ -38,10 +38,10 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.15.5');
+	define('JIGOSHOP_VERSION', '1.16');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
-	define('JIGOSHOP_DB_VERSION', 1411270);
+	define('JIGOSHOP_DB_VERSION', 1503040);
 }
 if (!defined('JIGOSHOP_OPTIONS')) {
 	define('JIGOSHOP_OPTIONS', 'jigoshop_options');
@@ -85,7 +85,7 @@ if(!version_compare($wp_version, JIGOSHOP_WORDPRESS_VERSION, '>=')){
 	return;
 }
 
-$ini_memory_limit = ini_get('memory_limit');
+$ini_memory_limit = trim(ini_get('memory_limit'));
 preg_match('/^(\d+)(\w*)?$/', $ini_memory_limit, $memory);
 $memory_limit = $memory[1];
 if (isset($memory[2])) {
@@ -109,7 +109,7 @@ if($memory_limit < JIGOSHOP_REQUIRED_MEMORY*1024*1024){
 	add_action('admin_notices', 'jigoshop_required_memory_warning');
 }
 
-preg_match('/^(\d+)(\w*)?$/', WP_MEMORY_LIMIT, $memory);
+preg_match('/^(\d+)(\w*)?$/', trim(WP_MEMORY_LIMIT), $memory);
 $memory_limit = $memory[1];
 if (isset($memory[2])) {
 	switch ($memory[2]) {
@@ -225,8 +225,8 @@ function jigoshop_admin_footer($text) {
 		str_replace(
 			array('[stars]','[link]','[/link]'),
 			array(
-				'<a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
-				'<a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >',
+				'<a target="_blank" href="https://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
+				'<a target="_blank" href="https://wordpress.org/support/view/plugin-reviews/jigoshop#postform" >',
 				'</a>'
 			),
 			__('Add your [stars] on [link]wordpress.org[/link] and keep this plugin essentially free.', 'jigoshop')
@@ -726,10 +726,10 @@ function jigoshop_frontend_scripts()
 	$frontend_css = JIGOSHOP_URL.'/assets/css/frontend.css';
 	$theme_css = file_exists(get_stylesheet_directory().'/jigoshop/style.css')
 		? get_stylesheet_directory_uri().'/jigoshop/style.css'
-		: JIGOSHOP_URL.'/assets/css/frontend.css';
+		: $frontend_css;
 
 	if ($options->get('jigoshop_disable_css') == 'no') {
-		if ($options->get('jigoshop_frontend_with_theme_css') == 'yes') {
+		if ($options->get('jigoshop_frontend_with_theme_css') == 'yes' && $frontend_css != $theme_css) {
 			jigoshop_add_style('jigoshop_theme_styles', $frontend_css);
 		}
 		jigoshop_add_style('jigoshop_styles', $theme_css);
@@ -1034,7 +1034,7 @@ add_action('wp_footer', 'jigoshop_sharethis');
  * Jigoshop Mail 'from' name on emails
  * We will add a filter to WordPress to get this as the site name when emails are sent
  */
-function jigoshop_mail_from_name($name)
+function jigoshop_mail_from_name()
 {
 	return esc_attr(get_bloginfo('name'));
 }
@@ -1043,12 +1043,10 @@ function jigoshop_mail_from_name($name)
  * Allow product_cat in the permalinks for products.
  *
  * @param string $permalink The existing permalink URL.
- * @param $post
- * @param $leavename
- * @param $sample
+ * @param WP_Post $post
  * @return string
  */
-function jigoshop_product_cat_filter_post_link($permalink, $post, $leavename, $sample)
+function jigoshop_product_cat_filter_post_link($permalink, $post)
 {
 	if ($post->post_type !== 'product') {
 		return $permalink;
@@ -1073,7 +1071,7 @@ function jigoshop_product_cat_filter_post_link($permalink, $post, $leavename, $s
 
 	return $permalink;
 }
-add_filter('post_type_link', 'jigoshop_product_cat_filter_post_link', 10, 4);
+add_filter('post_type_link', 'jigoshop_product_cat_filter_post_link', 10, 2);
 
 /**
  * Helper function to locate proper template and set up environment based on passed array.
@@ -1413,7 +1411,13 @@ function jigoshop_price($price, $args = array())
 	return apply_filters('jigoshop_price_display_filter', $return);
 }
 
-/** Show variation info if set */
+/** Show variation info if set
+ *
+ * @param jigoshop_product $product
+ * @param array $variation_data
+ * @param bool $flat
+ * @return string
+ */
 function jigoshop_get_formatted_variation(jigoshop_product $product, $variation_data = array(), $flat = false)
 {
 	$return = '';
@@ -1634,7 +1638,7 @@ add_filter('preprocess_comment', 'jigoshop_check_comment_rating', 0);
 
 //### Comments #########################################################
 
-function jigoshop_comments($comment, $args, $depth)
+function jigoshop_comments($comment)
 {
 	$GLOBALS['comment'] = $comment; ?>
 <li <?php comment_class(); ?> id="li-comment-<?php comment_ID() ?>">

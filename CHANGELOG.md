@@ -1,5 +1,9 @@
 ## Changelog
 
+* 1.16.1 - 2015-03-18:
+    * Improved: Ability to enable/disable HTML emails.
+    * Improved: `[order_items_table]` code for HTML order items table. Used by default now.
+    * Fixed: Improper items formatting in new HTML emails.
 * 1.16 - 2015-03-16:
     * New: Completely new default HTML emails.
     * New: "Waiting for payment" transaction status for Cash on Delivery, Bank Transfer and Cheque payments.

@@ -1,5 +1,19 @@
 ## Changelog
 
+* 1.17 - 2015-04-16:
+    * New: Improved Reports page.
+    * New: Improved System Info page.
+    * New: Jigoshop Extensions page.
+    * New: Remove Jigoshop Web Optimization System in favor of new Jigoshop Round Trip Optimizer extension.
+    * Improved: Ability to set handling fee for Local Pickup.
+    * Improved: Reformatted and checked Free Shipping and Local Pickup shipping methods.
+    * Improved: Display "Out of stock" for variable products without any available variation.
+    * Improved: PHP Execution Time in System Info page.
+    * Improved: Cart items check before displaying.
+    * Improved: All out of stock products, can be properly removed from shop page. 
+    * Improved: Invalid license key can be properly deactivated.
+    * Improved: Updated www.jigoshop.com links.
+    * Fixed: "Apply coupon" button in checkout no longer places the order.
 * 1.16.1 - 2015-03-18:
     * Improved: Ability to enable/disable HTML emails.
     * Improved: `[order_items_table]` code for HTML order items table. Used by default now.

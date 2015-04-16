@@ -5,7 +5,7 @@ Tags: 2checkout, 2co, affiliate, authorize, cart, checkout, commerce, coupons, e
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=finance%40jigoshop%2ecom&lc=US&item_name=Jigoshop%20%2d%20Wordpress%2eorg%20donation%20link&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest
 Requires at least: 3.8
 Tested up to: 4.1.1
-Stable tag: 1.16.1
+Stable tag: 1.17
 
 A feature-packed eCommerce plugin built upon WordPress core functionality ensuring excellent performance and customizability.
 
@@ -53,9 +53,9 @@ plugin ever! They include more Payment Gateways, more Shipping methods and much 
 Jigoshop eCommerce strives to maintain its status as the best WordPress eCommerce plugin ever. We hope you’ll
 choose the best to power your eCommerce shop and help us prove to you that we really are the best!
 
-You can take a look at our official extensions here: http://www.jigoshop.com/product-category/extensions/
+You can take a look at our official extensions here: https://www.jigoshop.com/product-category/extensions/
 
-And our Jigoshop-optimized themes here: http://www.jigoshop.com/product-category/themes/
+And our Jigoshop-optimized themes here: https://www.jigoshop.com/product-category/themes/
 
 == Upgrade Notice ==
 
@@ -67,7 +67,7 @@ And our Jigoshop-optimized themes here: http://www.jigoshop.com/product-category
 
 * WordPress 3.8 or greater
 * PHP version 5.3 or greater
-* MySQL version 5.0 or greater
+* MySQL version 5.1 or greater
 * The mod_rewrite Apache module (for permalinks)
 * Some payment gateways require fsockopen support (for IPN access)
 * Some extensions require allow_url_fopen enabled (for remote files fetching)
@@ -89,7 +89,7 @@ Take a look through our <a href="https://www.jigoshop.com/documentation" title="
 
 = Will Jigoshop work with X theme? =
 
-Jigoshop will in theory work with any theme, but of course, certain parts may need to be styled using CSS to make them match up. We've added default styling for Twenty Ten (the WordPress default theme) and we also offer <a href="http://www.jigoshop.com/product-category/themes/">premium themes optimised for Jigoshop</a>.
+Jigoshop will in theory work with any theme, but of course, certain parts may need to be styled using CSS to make them match up. We've added default styling for Twenty Ten (the WordPress default theme) and we also offer <a href="https://www.jigoshop.com/product-category/themes/">premium themes optimised for Jigoshop</a>.
 
 If you need a theme built, or have a theme that needs styling, <a href="https://www.jigoshop.com/contact/">give us a shout</a> and we may be able to assist.
 
@@ -100,7 +100,7 @@ You can also <a href="https://www.jigoshop.com/documentation/localization-tutori
 
 = Which payment gateways do you have? =
 
-Take a look through <a href="https://www.jigoshop.com/documentation/payment-gateways/">our list of payment gateways</a>. There are some free ones that are included with Jigoshop, and even more are available <a href="http://www.jigoshop.com/product-category/payment-gateways/">on jigoshop.com</a>.
+Take a look through <a href="https://www.jigoshop.com/documentation/payment-gateways/">our list of payment gateways</a>. There are some free ones that are included with Jigoshop, and even more are available <a href="https://www.jigoshop.com/product-category/payment-gateways/">on jigoshop.com</a>.
 
 = Will tax settings work in my country? =
 
@@ -108,12 +108,12 @@ Jigoshop has a flexible tax rule system which allows you to define tax rates per
 
 = I need hosting! =
 
-You're in luck! We offer <a href="http://www.jigoshop.com/">optimised hosting packages</a> starting from 10 GBP per month.
+You're in luck! We offer <a href="https://www.jigoshop.com/">optimised hosting packages</a> starting from 10 GBP per month.
 
 = I need help! =
 
 We have <a href="https://www.jigoshop.com/documentation/" title="Jigoshop Documentation">documentation</a> for seeking information.
-However, if you want priority, dedicated support from Jigoshop staff, we dp offer <a href="http://www.jigoshop.com/support/" title="Jigoshop Premium Support">premium support packages</a>.
+However, if you want priority, dedicated support from Jigoshop staff, we dp offer <a href="https://www.jigoshop.com/support/" title="Jigoshop Premium Support">premium support packages</a>.
 
 == Screenshots ==
 
@@ -124,6 +124,21 @@ However, if you want priority, dedicated support from Jigoshop staff, we dp offe
 
 == Changelog ==
 
+= 1.17 - 2015-04-16 =
+* New: Improved Reports page.
+* New: Improved System Info page.
+* New: Jigoshop Extensions page.
+* New: Remove Jigoshop Web Optimization System in favor of new Jigoshop Round Trip Optimizer extension.
+* Improved: Ability to set handling fee for Local Pickup.
+* Improved: Reformatted and checked Free Shipping and Local Pickup shipping methods.
+* Improved: Display "Out of stock" for variable products without any available variation.
+* Improved: PHP Execution Time in System Info page.
+* Improved: Cart items check before displaying.
+* Improved: All out of stock products, can be properly removed from shop page. 
+* Improved: Invalid license key can be properly deactivated.
+* Improved: Updated www.jigoshop.com links.
+* Fixed: "Apply coupon" button in checkout no longer places the order.
+	
 = 1.16.1 - 2015-03-18 =
 * Improved: Ability to enable/disable HTML emails.
 * Improved: `[order_items_table]` code for HTML order items table. Used by default now.

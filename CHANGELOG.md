@@ -1,5 +1,9 @@
 ## Changelog
 
+* 1.17.1 - 2015-04-17:
+    * Improved: COD gateway allows to select status which should be set to order. 
+    * Fix: Scripts and compatibility with JRTO.
+    * Fix: Notices, warnings and error on reports page.
 * 1.17 - 2015-04-16:
     * New: Improved Reports page.
     * New: Improved System Info page.

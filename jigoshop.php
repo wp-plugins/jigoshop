@@ -20,7 +20,7 @@
  * Description:         Jigoshop, a WordPress eCommerce plugin that works.
  * Author:              Jigoshop Limited
  * Author URI:          https://www.jigoshop.com
- * Version:             1.17
+ * Version:             1.17.1
  * Requires at least:   3.8
  * Tested up to:        4.1.1
  * Text Domain:         jigoshop
@@ -38,7 +38,7 @@
  */
 
 if (!defined('JIGOSHOP_VERSION')) {
-	define('JIGOSHOP_VERSION', '1.17');
+	define('JIGOSHOP_VERSION', '1.17.1');
 }
 if (!defined('JIGOSHOP_DB_VERSION')) {
 	define('JIGOSHOP_DB_VERSION', 1503180);
@@ -870,16 +870,18 @@ function jigoshop_admin_scripts()
 			)
 		);
 
-		jrto_localize_script('jigoshop_backend', 'jigoshop_params', array(
-			'ajax_url' => admin_url('admin-ajax.php', 'jigoshop'),
-			'search_products_nonce' => wp_create_nonce("search-products"),
-		));
+		$pagenow = jigoshop_is_admin_page();
+		if($pagenow != 'shop_order' && $pagenow != 'product' && $pagenow != 'product') {
+			jrto_localize_script('jigoshop_backend', 'jigoshop_params', array(
+				'ajax_url' => admin_url('admin-ajax.php', 'jigoshop'),
+				'search_products_nonce' => wp_create_nonce("search-products"),
+			));
+		}
 
 		/**
 		 * Disable autosaves on the order and coupon pages. Prevents the javascript alert when modifying.
 		 * `wp_deregister_script( 'autosave' )` would produce errors, so we use a filter instead.
 		 */
-		$pagenow = jigoshop_is_admin_page();
 		if ($pagenow == 'shop_order' || $pagenow == 'shop_coupon') {
 			add_filter('script_loader_src', 'jigoshop_disable_autosave', 10, 2);
 		}

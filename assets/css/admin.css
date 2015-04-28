@@ -1547,6 +1547,10 @@ div.multi_select_countries.shipping_services {
 	display: none
 }
 
+.variation_order_field {
+	display:none;
+}
+
 .file_tab, .variable_tab {
 	display: none
 }
@@ -1577,6 +1581,10 @@ div.multi_select_countries.shipping_services {
 
 .variable_product .sale_price_dates_fields {
 	display: block !important
+}
+
+.variable_product .variation_order_field {
+	display: block;
 }
 
 .external_product .inventory_tab, .external_product .grouped_tab, .external_product #tax_fieldset {
@@ -2653,6 +2661,12 @@ canvas.overlay {
 .jigoshop-reports-wide .widefat td, .jigoshop-reports-wrap .widefat td {
 	padding: 7px;
 	vertical-align: top;
+}
+.jigoshop-reports-wide .full-width {
+	width: 100%;
+}
+.jigoshop-reports-wide .full-width .select2-search-choice {
+	width: 80%;
 }
 
 /** System Info page */

@@ -1,5 +1,16 @@
 ## Changelog
 
+* 1.17.4 - 2015.04.28:
+    * Improved: Possibility to show reports for last 30 days and for all orders.
+    * Improved: Possibility to show reports for specified order statuses.
+    * Improved: Possibility to sort available variations on products page.
+    * Improved: Product reports show sold quantity.
+    * Improved: Category reports show horizontal lines.
+    * Improved: Reports page displays properly values.
+    * Improved: Custom themes compatibility.
+    * Fix: JS error in Checkout page.
+    * Fix: Hidden login box in my account page.
+    * Fix: `[order_items_table]` shortcode.
 * 1.17.3 - 2015-04-20:
     * Improved: Reports page.
     * Fix: Scripts and compatibility with JRTO.

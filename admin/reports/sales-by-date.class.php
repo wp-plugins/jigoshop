@@ -16,6 +16,10 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 		$data = $this->get_report_data();
 
 		switch ($this->chart_groupby) {
+			case 'hour' :
+				/** @noinspection PhpUndefinedFieldInspection */
+				$average_sales_title = sprintf(__('%s average sales per hour', 'jigoshop'), '<strong>'.jigoshop_price($data->average_sales).'</strong>');
+				break;
 			case 'day' :
 				/** @noinspection PhpUndefinedFieldInspection */
 				$average_sales_title = sprintf(__('%s average daily sales', 'jigoshop'), '<strong>'.jigoshop_price($data->average_sales).'</strong>');
@@ -110,12 +114,11 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 					'name' => 'post_date'
 				),
 			),
-			'group_by' => $this->group_by_query,
 			'order_by' => 'post_date ASC',
 			'query_type' => 'get_results',
 			'filter_range' => true,
 			'order_types' => array('shop_order'),
-			'order_status' => array('completed', 'processing'),
+			'order_status' => $this->order_status,
 		));
 
 		$this->report_data->order_counts = (array)$this->get_order_report_data(array(
@@ -137,7 +140,7 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 			'query_type' => 'get_results',
 			'filter_range' => true,
 			'order_types' => array('shop_order'),
-			'order_status' => array('completed', 'processing', 'on-hold')
+			'order_status' => $this->order_status
 		));
 
 		$this->report_data->coupons = (array)$this->get_order_report_data(array(
@@ -153,12 +156,11 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 					'name' => 'post_date'
 				),
 			),
-			'group_by' => $this->group_by_query,
 			'order_by' => 'post_date ASC',
 			'query_type' => 'get_results',
 			'filter_range' => true,
 			'order_types' => array('shop_order'),
-			'order_status' => array('completed', 'processing', 'on-hold'),
+			'order_status' => $this->order_status,
 		));
 
 		$this->report_data->order_items = (array)$this->get_order_report_data(array(
@@ -174,19 +176,18 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 					'name' => 'post_date'
 				),
 			),
-			'group_by' => $this->group_by_query,
 			'order_by' => 'post_date ASC',
 			'query_type' => 'get_results',
 			'filter_range' => true,
 			'order_types' => array('shop_order'),
-			'order_status' => array('completed', 'processing', 'on-hold'),
+			'order_status' => $this->order_status,
 		));
 
 		$this->report_data->total_sales = jigoshop_format_decimal(array_sum(wp_list_pluck($this->report_data->orders, 'total_sales')), 2);
 		$this->report_data->total_tax = jigoshop_format_decimal(array_sum(wp_list_pluck($this->report_data->orders, 'total_tax')), 2);
 		$this->report_data->total_shipping = jigoshop_format_decimal(array_sum(wp_list_pluck($this->report_data->orders, 'total_shipping')), 2);
 		$this->report_data->total_shipping_tax = jigoshop_format_decimal(array_sum(wp_list_pluck($this->report_data->orders, 'total_shipping_tax')), 2);
-		$this->report_data->total_coupons = number_format(array_sum(wp_list_pluck($this->report_data->coupons, 'discount_amount')), 2);
+		$this->report_data->total_coupons = array_sum(wp_list_pluck($this->report_data->coupons, 'discount_amount'));
 		$this->report_data->total_orders = absint(array_sum(wp_list_pluck($this->report_data->order_counts, 'count')));
 		$this->report_data->total_items = absint(array_sum(wp_list_pluck($this->report_data->order_items, 'order_item_count')) * -1);
 		$this->report_data->average_sales = jigoshop_format_decimal($this->report_data->total_sales / ($this->chart_interval + 1), 2);
@@ -200,9 +201,11 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 	{
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		$ranges = array(
+			'all' => __('All Time', 'jigoshop'),
 			'year' => __('Year', 'jigoshop'),
 			'last_month' => __('Last Month', 'jigoshop'),
 			'month' => __('This Month', 'jigoshop'),
+			'30day' => __('Last 30 Days', 'jigoshop'),
 			'7day' => __('Last 7 Days', 'jigoshop'),
 			'today' => __('Today', 'jigoshop'),
 		);
@@ -217,10 +220,10 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 			'coupon_amount' => '#f1c40f',
 		);
 
-		$current_range = !empty($_GET['range']) ? sanitize_text_field($_GET['range']) : '7day';
+		$current_range = !empty($_GET['range']) ? sanitize_text_field($_GET['range']) : '30day';
 
-		if (!in_array($current_range, array('custom', 'year', 'last_month', 'month', '7day', 'today'))) {
-			$current_range = '7day';
+		if (!in_array($current_range, array('custom','all', 'year', 'last_month', 'month', '30day', '7day', 'today'))) {
+			$current_range = '30day';
 		}
 
 		$this->calculate_current_range($current_range);
@@ -228,6 +231,63 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 		$template = jigoshop_locate_template('admin/reports/by-date');
 		/** @noinspection PhpIncludeInspection */
 		include($template);
+	}
+
+	/**
+	 * [get_chart_widgets description]
+	 *
+	 * @return array
+	 */
+	public function get_chart_widgets()
+	{
+		$widgets = array();
+
+		$widgets[] = array(
+			'title' => __('Order status filter', 'jigoshop'),
+			'callback' => array($this, 'order_status_widget')
+		);
+
+		return $widgets;
+	}
+
+	public function order_status_widget()
+	{
+		?>
+		<form method="GET">
+			<?php
+			$args = array(
+				'id' => 'order_status',
+				'name' => 'order_status',
+				'label' => null,
+				'after_label' => null,
+				'class' => 'full-width',
+				'desc' => false,
+				'tip' => false,
+				'multiple' => true,
+				'placeholder' => '',
+				'options' => array(
+					'pending' => __('Pending', 'jigoshop'),
+					'on-hold' => __('On-Hold', 'jigoshop'),
+					'waiting-for-payment' => __('Waiting for payment', 'jigoshop'),
+					'processing' => __('Processing', 'jigoshop'),
+					'completed' => __('Completed', 'jigoshop'),
+					'cancelled' => __('Cancelled', 'jigoshop'),
+					'refunded' => __('Refunded', 'jigoshop')
+				),
+				'selected' => $this->order_status,
+			);
+			echo Jigoshop_Forms::select($args);
+			?>
+			<input type="submit" class="submit button" value="<?php _e('Show', 'jigoshop'); ?>" />
+			<input type="hidden" name="range" value="<?php if (!empty($_GET['range'])) echo esc_attr($_GET['range']) ?>" />
+			<input type="hidden" name="start_date" value="<?php if (!empty($_GET['start_date'])) echo esc_attr($_GET['start_date']) ?>" />
+			<input type="hidden" name="end_date" value="<?php if (!empty($_GET['end_date'])) echo esc_attr($_GET['end_date']) ?>" />
+			<input type="hidden" name="page" value="<?php if (!empty($_GET['page'])) echo esc_attr($_GET['page']) ?>" />
+			<input type="hidden" name="tab" value="<?php if (!empty($_GET['tab'])) echo esc_attr($_GET['tab']) ?>" />
+			<input type="hidden" name="report" value="sales_by_date" />
+		</form>
+		<?php
+
 	}
 
 	/**
@@ -324,7 +384,7 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 								show: true,
 								lineWidth: 0,
 								align: 'right',
-								barWidth: 0<?php echo $this->barwidth; ?> *	0.25
+								barWidth: 0<?php echo $this->barwidth; ?> * 0.25
 							},
 							shadowSize: 0,
 							hoverable: false
@@ -432,6 +492,7 @@ class Jigoshop_Report_Sales_By_Date extends Jigoshop_Admin_Report
 									min: 0,
 									tickDecimals: 2,
 									alignTicksWithAxis: 1,
+									autoscaleMargin: 0,
 									color: 'transparent',
 									font: {color: "#aaa"}
 								}

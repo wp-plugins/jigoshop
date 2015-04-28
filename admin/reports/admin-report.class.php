@@ -12,6 +12,7 @@ abstract class Jigoshop_Admin_Report
 	public $chart_groupby;
 	public $start_date;
 	public $end_date;
+	public $order_status;
 
 	/**
 	 * Prepares a sparkline to show sales in the last X days
@@ -132,7 +133,7 @@ abstract class Jigoshop_Admin_Report
 			'nocache' => false,
 			'debug' => false,
 			'order_types' => array('shop_order'),
-			'order_status' => array('completed', 'processing', 'on-hold'),
+			'order_status' => $this->order_status,
 			'parent_order_status' => false,
 		);
 		$args = apply_filters('jigoshop_reports_get_order_report_data_args', $args);
@@ -363,6 +364,25 @@ abstract class Jigoshop_Admin_Report
 
 						$cached_results[$query_hash] = $results;
 						break;
+					case 'order_item_quantity':
+						$results = array();
+						foreach ($cached_results[$query_hash] as $item) {
+							if (!isset($results[$item->post_date])) {
+								$result = new stdClass;
+								$result->post_date = $item->post_date;
+								$result->order_item_quantity = 0;
+								$results[$item->post_date] = $result;
+							}
+
+							$data = maybe_unserialize($item->order_item_quantity);
+							$data = $this->filterItem($data, $value);
+							$results[$item->post_date]->order_item_quantity += array_sum(array_map(function($item){
+								return isset($item['qty']) ? $item['qty'] : 0;
+							}, $data));
+						}
+
+						$cached_results[$query_hash] = $results;
+						break;
 					case 'discount_amount':
 						$results = array();
 						foreach ($cached_results[$query_hash] as $item) {
@@ -376,12 +396,22 @@ abstract class Jigoshop_Admin_Report
 
 							$data = maybe_unserialize($item->discount_amount);
 							$data = $this->filterItem($data, $value);
-
 							if (!empty($data)) {
-								$results[$item->post_date]->coupons_used += count($data['order_discount_coupons']);
+								if(!empty($this->coupon_codes[0])){
+									$coupon_code = $this->coupon_codes[0];
+									$results[$item->post_date]->coupons_used += array_sum(array_map(function($coupon) use ($coupon_code){
+										return $coupon['code'] == $coupon_code ? 1 : 0;
+									}, $data['order_discount_coupons']));
+									$results[$item->post_date]->discount_amount += array_sum(array_map(function($coupon) use ($coupon_code){
+										return $coupon['code'] == $coupon_code ? $coupon['amount'] : 0;
+									}, $data['order_discount_coupons']));
 
-								foreach ($data['order_discount_coupons'] as $coupon) {
-									$results[$item->post_date]->discount_amount += $coupon['amount'];
+								} else {
+									$results[$item->post_date]->coupons_used += count($data['order_discount_coupons']);
+
+									foreach ($data['order_discount_coupons'] as $coupon) {
+										$results[$item->post_date]->discount_amount += $coupon['amount'];
+									}
 								}
 							}
 						}
@@ -403,7 +433,7 @@ abstract class Jigoshop_Admin_Report
 							$data = maybe_unserialize($item->order_coupons);
 							foreach ($data['order_discount_coupons'] as $coupon) {
 								if (!in_array($coupon['code'], $coupons[$item->post_date])) {
-									$results[$item->post_date]->coupons[] = JS_Coupons::get_coupon($coupon['code']);
+									$results[$item->post_date]->coupons[] = $coupon;
 									$results[$item->post_date]->usage[$coupon['code']] = 1;
 									$coupons[$item->post_date][] = $coupon['code'];
 								} else {
@@ -429,6 +459,30 @@ abstract class Jigoshop_Admin_Report
 							$results[$item->post_date]->order_item_amount += array_sum(array_map(function($product){
 								return $product['qty'] * $product['cost'];
 							}, $data));
+						}
+
+						$cached_results[$query_hash] = $results;
+						break;
+					case 'category_data':
+						$results = array();
+						foreach ($cached_results[$query_hash] as $item) {
+							$data = maybe_unserialize($item->category_data);
+							$data = $this->filterItem($data, $value);
+							foreach ($data as $product) {
+								if (!isset($results[$item->post_date][$product['id']])) {
+									$result = new stdClass;
+									$result->product_id = $product['id'];
+									$result->order_item_qty = 0;
+									$result->order_item_total = 0;
+
+									$result->post_date = $item->post_date;
+
+									$results[$item->post_date][$product['id']] = $result;
+								}
+
+								$results[$item->post_date][$product['id']]->order_item_qty += $product['qty'];
+								$results[$item->post_date][$product['id']]->order_item_total += $product['qty'] * $product['cost'];
+							}
 						}
 
 						$cached_results[$query_hash] = $results;
@@ -667,8 +721,22 @@ abstract class Jigoshop_Admin_Report
 				if ($interval > 3) {
 					$this->chart_groupby = 'month';
 				} else {
-					$this->chart_groupby = 'day';
+					$interval = 0;
+					$min_date = $this->start_date;
+					while (($min_date = strtotime("+1 day", $min_date)) <= $this->end_date) {
+						$interval++;
+					}
+					if($interval > 0){
+						$this->chart_groupby = 'day';
+					} else {
+						$this->chart_groupby = 'hour';
+					}
 				}
+				break;
+			case 'all' :
+				$this->start_date = strtotime(date('Y-m-d', strtotime($this->get_first_order_date())));
+				$this->end_date = strtotime('midnight', current_time('timestamp'));;
+				$this->chart_groupby = 'month';
 				break;
 			case 'year' :
 				$this->start_date = strtotime(date('Y-01-01', current_time('timestamp')));
@@ -683,6 +751,11 @@ abstract class Jigoshop_Admin_Report
 				break;
 			case 'month' :
 				$this->start_date = strtotime(date('Y-m-01', current_time('timestamp')));
+				$this->end_date = strtotime('midnight', current_time('timestamp'));
+				$this->chart_groupby = 'day';
+				break;
+			case '30day' :
+				$this->start_date = strtotime('-29 days', current_time('timestamp'));
 				$this->end_date = strtotime('midnight', current_time('timestamp'));
 				$this->chart_groupby = 'day';
 				break;
@@ -722,6 +795,9 @@ abstract class Jigoshop_Admin_Report
 				$this->barwidth = 60 * 60 * 24 * 7 * 4 * 1000;
 				break;
 		}
+
+		// Order Status
+		$this->order_status = isset($_GET['order_status']) && !empty($_GET['order_status']) ? $_GET['order_status'] : array('completed', 'processing');
 	}
 
 	/**
@@ -749,6 +825,20 @@ abstract class Jigoshop_Admin_Report
 		}
 
 		return $currency_tooltip;
+	}
+
+	public function get_first_order_date()
+	{
+		$args = array(
+			'posts_per_page'   => 1,
+			'offset'           => 0,
+			'orderby'          => 'post_date',
+			'order'            => 'ASC',
+			'post_type'        => 'shop_order',
+		);
+		$posts_array = get_posts( $args );
+
+		return $posts_array[0]->post_date;
 	}
 
 	/**

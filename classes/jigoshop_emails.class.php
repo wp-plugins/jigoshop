@@ -64,6 +64,7 @@ class jigoshop_emails extends Jigoshop_Base
 				$title = get_post_meta($post_id, 'jigoshop_email_subject', true);
 				$post->post_title = empty($title) ? $post->post_title : $title;
 				$post = self::filter_post($post, $args);
+				$post = self::add_styles($post);
 				$content = $post->post_content;
 				$footer = $options->get('jigoshop_email_footer');
 
@@ -88,7 +89,8 @@ class jigoshop_emails extends Jigoshop_Base
 					$title = str_replace('['.get_bloginfo('name').'] ', '', $post->post_title);
 
 					$template = file_get_contents($path);
-					$template = str_replace('{heading}', $title, $template);
+					$template = str_replace('{title}', $title, $template);
+					$template = str_replace('{heading}', apply_filters('jigoshop_email_heading', $title), $template);
 					$template = str_replace('{content}', $content, $template);
 					$template = str_replace('{footer}', apply_filters('jigoshop_email_footer', $footer), $template);
 				}
@@ -128,6 +130,16 @@ class jigoshop_emails extends Jigoshop_Base
 				$post->post_content = str_replace('['.$key.']', $value, $post->post_content);
 			}
 		}
+		return $post;
+	}
+
+	private static function add_styles(wp_post $post)
+	{
+		$post->post_content = str_replace('<h1>', '<h1 style="color: #202020;display: block;font-family: Arial;font-size: 34px;font-weight: bold;line-height: 150%;margin: 0 0 10px;text-align: left;">', $post->post_content);
+		$post->post_content = str_replace('<h2>', '<h2 style="color: #202020;display: block;font-family: Arial;font-size: 30px;font-weight: bold;line-height: 100%;margin: 0 0 10px;text-align: left;">', $post->post_content);
+		$post->post_content = str_replace('<h3>', '<h3 style="color: #202020;display: block;font-family: Arial;font-size: 26px;font-weight: bold;line-height: 100%;margin: 0 0 10px;text-align: left;">', $post->post_content);
+		$post->post_content = str_replace('<h4>', '<h4 style="color: #202020;display: block;font-family: Arial;font-size: 22px;font-weight: bold;line-height: 100%;margin: 10px 0;text-align: left;">', $post->post_content);
+
 		return $post;
 	}
 }

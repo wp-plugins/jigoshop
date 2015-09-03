@@ -1,5 +1,13 @@
 ## Changelog
 
+* 1.17.8 - 2015.09.03:
+    * Improved: Shipping country now doesn't change on prage reload.
+    * Improved: EU Vat is now avaliable to edit.
+    * Improved: Allow to select free shipping method automatically after successful coupon validation.
+    * Improved: Added State/Province select for United Kingdom. 
+    * Fix: Variations select.
+    * Fix: Subtotal update in cart.
+    * Fix: `[sale_products]` shortcode
 * 1.17.7 - 2015.06.16:
     * Improved: Default email template for change order status from waiting for payment to processing.
     * Improved: Email templating. Thanks to newash!
